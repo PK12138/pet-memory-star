@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>邮件服务配置 - 宠忆星·云纪念馆</title>
+    <style>
+        body {
+            font-family: 'Microsoft YaHei', sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            min-height: 100vh;
+        }
+        .container {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 30px;
+            border-radius: 15px;
+            backdrop-filter: blur(10px);
+        }
+        h1 {
+            text-align: center;
+            margin-bottom: 30px;
+            font-size: 2.5em;
+        }
+        .form-group {
+            margin-bottom: 20px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        input, select {
+            width: 100%;
+            padding: 10px;
+            border: none;
+            border-radius: 5px;
+            font-size: 16px;
+        }
+        .config-section {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 10px;
+            border: 2px solid rgba(255, 255, 255, 0.2);
+        }
+        .config-section h3 {
+            margin-top: 0;
+            color: #fff;
+        }
+        .preset-buttons {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 10px;
+            margin: 15px 0;
+        }
+        .preset-btn {
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            padding: 10px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        .preset-btn:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+        .preset-btn.active {
+            background: #4CAF50;
+        }
+        button {
+            background: #4CAF50;
+            color: white;
+            padding: 15px 30px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 18px;
+            transition: background 0.3s ease;
+            margin: 10px 5px;
+        }
+        button:hover {
+            background: #45a049;
+        }
+        .test-section {
+            background: rgba(76, 175, 80, 0.2);
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 10px;
+            border: 2px solid rgba(76, 175, 80, 0.3);
+        }
+        .status {
+            padding: 10px;
+            border-radius: 5px;
+            margin: 10px 0;
+        }
+        .status.success {
+            background: rgba(76, 175, 80, 0.3);
+            border: 1px solid #4CAF50;
+        }
+        .status.error {
+            background: rgba(244, 67, 54, 0.3);
+            border: 1px solid #f44336;
+        }
+        .status.info {
+            background: rgba(33, 150, 243, 0.3);
+            border: 1px solid #2196F3;
+        }
+        .back-link {
+            text-align: center;
+            margin-top: 30px;
+        }
+        .back-link a {
+            color: white;
+            text-decoration: none;
+            padding: 10px 20px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 5px;
+            transition: background 0.3s ease;
+        }
+        .back-link a:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>📧 邮件服务配置</h1>
+        
+        <div class="config-section">
+            <h3>邮箱服务商选择</h3>
+            <div class="preset-buttons">
+                <button class="preset-btn active" onclick="selectPreset('163')">163邮箱</button>
+                <button class="preset-btn" onclick="selectPreset('qq')">QQ邮箱</button>
+                <button class="preset-btn" onclick="selectPreset('gmail')">Gmail</button>
+                <button class="preset-btn" onclick="selectPreset('custom')">自定义</button>
+            </div>
+        </div>
+        
+        <form id="emailConfigForm">
+            <div class="config-section">
+                <h3>SMTP服务器配置</h3>
+                <div class="form-group">
+                    <label for="smtp_server">SMTP服务器</label>
+                    <input type="text" id="smtp_server" name="smtp_server" value="smtp.163.com" required>
+                </div>
+                <div class="form-group">
+                    <label for="smtp_port">SMTP端口</label>
+                    <input type="number" id="smtp_port" name="smtp_port" value="587" required>
+                </div>
+            </div>
+            
+            <div class="config-section">
+                <h3>发件人邮箱配置</h3>
+                <div class="form-group">
+                    <label for="sender_email">发件人邮箱</label>
+                    <input type="email" id="sender_email" name="sender_email" placeholder="your_email@163.com" required>
+                </div>
+                <div class="form-group">
+                    <label for="sender_password">授权码/密码</label>
+                    <input type="password" id="sender_password" name="sender_password" placeholder="请输入邮箱授权码" required>
+                    <small style="opacity: 0.8;">注意：不是登录密码，而是邮箱的授权码</small>
+                </div>
+            </div>
+            
+            <div style="text-align: center;">
+                <button type="button" onclick="saveConfig()">💾 保存配置</button>
+                <button type="button" onclick="loadConfig()">📂 加载配置</button>
+            </div>
+        </form>
+        
+        <div class="test-section">
+            <h3>🧪 邮件发送测试</h3>
+            <p>配置完成后，可以发送测试邮件验证配置是否正确</p>
+            <div class="form-group">
+                <label for="test_email">测试邮箱地址</label>
+                <input type="email" id="test_email" placeholder="请输入要测试的邮箱地址">
+            </div>
+            <button onclick="testEmail()">📤 发送测试邮件</button>
+            <div id="testResult"></div>
+        </div>
+        
+        <div class="config-section">
+            <h3>📖 配置说明</h3>
+            <p><strong>163邮箱：</strong>需要在邮箱设置中开启SMTP服务，获取授权码</p>
+            <p><strong>QQ邮箱：</strong>需要在邮箱设置中开启POP3/SMTP服务，获取授权码</p>
+            <p><strong>Gmail：</strong>需要开启两步验证，生成应用专用密码</p>
+            <p><strong>重要提醒：</strong>授权码不是登录密码，请勿混淆</p>
+        </div>
+        
+        <div class="back-link">
+            <a href="/">🏠 返回首页</a>
+            <a href="/personality-test">🧠 创建纪念馆</a>
+        </div>
+    </div>
+
+    <script>
+        const presets = {
+            '163': {
+                server: 'smtp.163.com',
+                port: 587
+            },
+            'qq': {
+                server: 'smtp.qq.com',
+                port: 587
+            },
+            'gmail': {
+                server: 'smtp.gmail.com',
+                port: 587
+            },
+            'custom': {
+                server: '',
+                port: 587
+            }
+        };
+        
+        let currentPreset = '163';
+        
+        function selectPreset(preset) {
+            currentPreset = preset;
+            
+            // 更新按钮状态
+            document.querySelectorAll('.preset-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            event.target.classList.add('active');
+            
+            // 更新表单值
+            if (preset !== 'custom') {
+                document.getElementById('smtp_server').value = presets[preset].server;
+                document.getElementById('smtp_port').value = presets[preset].port;
+            }
+        }
+        
+        function saveConfig() {
+            const config = {
+                smtp_server: document.getElementById('smtp_server').value,
+                smtp_port: document.getElementById('smtp_port').value,
+                sender_email: document.getElementById('sender_email').value,
+                sender_password: document.getElementById('sender_password').value
+            };
+            
+            // 保存到localStorage（仅用于演示，实际应该保存到服务器）
+            localStorage.setItem('emailConfig', JSON.stringify(config));
+            
+            showStatus('配置已保存到本地存储', 'success');
+        }
+        
+        function loadConfig() {
+            const saved = localStorage.getItem('emailConfig');
+            if (saved) {
+                const config = JSON.parse(saved);
+                document.getElementById('smtp_server').value = config.smtp_server;
+                document.getElementById('smtp_port').value = config.smtp_port;
+                document.getElementById('sender_email').value = config.sender_email;
+                document.getElementById('sender_password').value = config.sender_password;
+                showStatus('配置已从本地存储加载', 'success');
+            } else {
+                showStatus('没有找到保存的配置', 'info');
+            }
+        }
+        
+        async function testEmail() {
+            const testEmail = document.getElementById('test_email').value;
+            if (!testEmail) {
+                showStatus('请输入测试邮箱地址', 'error');
+                return;
+            }
+            
+            try {
+                const response = await fetch(`/api/test-email?email=${encodeURIComponent(testEmail)}`);
+                const data = await response.json();
+                
+                if (data.success) {
+                    showStatus(data.message, 'success');
+                } else {
+                    showStatus(data.message, 'error');
+                }
+            } catch (error) {
+                showStatus('测试失败：' + error.message, 'error');
+            }
+        }
+        
+        function showStatus(message, type) {
+            const resultDiv = document.getElementById('testResult');
+            resultDiv.innerHTML = `<div class="status ${type}">${message}</div>`;
+        }
+        
+        // 页面加载时检查当前配置
+        window.addEventListener('load', async function() {
+            try {
+                const response = await fetch('/api/email-config');
+                const config = await response.json();
+                
+                if (config.has_password) {
+                    showStatus('✅ 邮件服务已配置，可以正常使用', 'success');
+                } else {
+                    showStatus('⚠️ 邮件服务未配置，请先配置邮件服务', 'info');
+                }
+            } catch (error) {
+                showStatus('无法获取邮件配置状态', 'error');
+            }
+        });
+    </script>
+</body>
+</html>

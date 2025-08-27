@@ -1,0 +1,833 @@
+# -*- coding: utf-8 -*-
+# @Project : Pet_Memory_Star
+# @File : reminder_setup.html
+# @IDE : Cursor
+# @Author : yangzz
+# @Date : 2025-01-08 15:30:00
+
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>设置纪念日提醒 - 宠忆星云</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', 'Microsoft YaHei', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        
+        .header {
+            text-align: center;
+            color: white;
+            margin-bottom: 40px;
+        }
+        
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.3);
+        }
+        
+        .header p {
+            font-size: 1.2rem;
+            opacity: 0.9;
+        }
+        
+        .reminder-form {
+            background: white;
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.1);
+            margin-bottom: 30px;
+        }
+        
+        .form-title {
+            text-align: center;
+            color: #333;
+            margin-bottom: 30px;
+            font-size: 1.8rem;
+        }
+        
+        .form-group {
+            margin-bottom: 25px;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: #555;
+            font-weight: 500;
+        }
+        
+        .form-group input,
+        .form-group select {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e1e5e9;
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: border-color 0.3s ease;
+        }
+        
+        .form-group input:focus,
+        .form-group select:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+        
+        .reminder-types {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 25px;
+        }
+        
+        .reminder-type {
+            background: #f8f9fa;
+            border: 2px solid #e1e5e9;
+            border-radius: 10px;
+            padding: 15px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .reminder-type:hover {
+            border-color: #667eea;
+            background: #e8f0fe;
+        }
+        
+        .reminder-type.selected {
+            border-color: #667eea;
+            background: #667eea;
+            color: white;
+        }
+        
+        .reminder-type input[type="radio"] {
+            display: none;
+        }
+        
+        .reminder-type .icon {
+            font-size: 2rem;
+            margin-bottom: 10px;
+            display: block;
+        }
+        
+        .submit-btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 15px 40px;
+            border-radius: 25px;
+            font-size: 1.1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            width: 100%;
+            margin-top: 20px;
+        }
+        
+        .submit-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(102, 126, 234, 0.3);
+        }
+        
+        .reminders-list {
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.1);
+        }
+        
+        .reminders-title {
+            text-align: center;
+            color: #333;
+            margin-bottom: 25px;
+            font-size: 1.5rem;
+        }
+        
+        .reminder-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px;
+            background: #f8f9fa;
+            border-radius: 10px;
+            margin-bottom: 15px;
+        }
+        
+        .reminder-info {
+            flex: 1;
+        }
+        
+        .reminder-type-label {
+            font-weight: 600;
+            color: #667eea;
+            margin-bottom: 5px;
+        }
+        
+        .reminder-date {
+            color: #666;
+            font-size: 0.9rem;
+        }
+        
+        .reminder-description {
+            color: #888;
+            font-size: 0.85rem;
+            font-style: italic;
+            margin-top: 3px;
+        }
+        
+        .delete-btn {
+            background: #dc3545;
+            color: white;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            transition: all 0.3s ease;
+        }
+        
+        .delete-btn:hover {
+            background: #c82333;
+            transform: scale(1.05);
+        }
+        
+        .back-btn {
+            background: rgba(255,255,255,0.2);
+            color: white;
+            border: 2px solid white;
+            padding: 12px 30px;
+            border-radius: 25px;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-block;
+            margin-top: 20px;
+            text-align: center;
+        }
+        
+        .back-btn:hover {
+            background: white;
+            color: #667eea;
+        }
+        
+        .hidden {
+            display: none;
+        }
+        
+        /* 自定义提醒操作框样式 */
+        .custom-reminder-box {
+            background: #f8f9fa;
+            border: 2px solid #e1e5e9;
+            border-radius: 15px;
+            padding: 25px;
+            margin: 20px 0;
+            border-left: 5px solid #667eea;
+        }
+        
+        .custom-reminder-box .form-group {
+            margin-bottom: 20px;
+        }
+        
+        .custom-reminder-box label {
+            color: #555;
+            font-weight: 600;
+        }
+        
+        .custom-reminder-box input,
+        .custom-reminder-box textarea {
+            border-color: #667eea;
+            background: white;
+        }
+        
+        .custom-reminder-box textarea {
+            resize: vertical;
+            min-height: 80px;
+        }
+        
+
+        
+        @media (max-width: 768px) {
+            .reminder-form,
+            .reminders-list {
+                padding: 25px;
+            }
+            
+            .header h1 {
+                font-size: 2rem;
+            }
+        }
+        
+        /* 主题样式定义 */
+        .theme-warm .header {
+            background: linear-gradient(135deg, #ffecd2 0%, #fcb69f 100%);
+        }
+        .theme-warm .submit-btn {
+            background: linear-gradient(135deg, #fcb69f 0%, #ffecd2 100%);
+        }
+        
+        .theme-elegant .header {
+            background: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%);
+        }
+        .theme-elegant .submit-btn {
+            background: linear-gradient(135deg, #fed6e3 0%, #a8edea 100%);
+        }
+        
+        .theme-nature .header {
+            background: linear-gradient(135deg, #d299c2 0%, #fef9d7 100%);
+        }
+        .theme-nature .submit-btn {
+            background: linear-gradient(135deg, #d299c2 0%, #fef9d7 100%);
+        }
+        
+        .theme-modern .header {
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+        }
+        .theme-modern .submit-btn {
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+        }
+        
+        .theme-classic .header {
+            background: linear-gradient(135deg, #fa709a 0%, #fee140 100%);
+        }
+        .theme-classic .submit-btn {
+            background: linear-gradient(135deg, #fa709a 0%, #fee140 100%);
+        }
+        
+        .theme-simple .header {
+            background: linear-gradient(135deg, #a8caba 0%, #5d4e75 100%);
+        }
+        .theme-simple .submit-btn {
+            background: linear-gradient(135deg, #a8caba 0%, #5d4e75 100%);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>📅 纪念日提醒设置</h1>
+            <p>设置重要的纪念日期，我们会在特殊日子提醒您</p>
+        </div>
+        
+        <div class="reminder-form">
+            <h2 class="form-title">添加新的纪念日提醒</h2>
+            <form id="reminderForm">
+                <div class="form-group">
+                    <label>选择提醒类型：</label>
+                    <div class="reminder-types">
+                        <label class="reminder-type">
+                            <input type="radio" name="reminder_type" value="birthday" required>
+                            <span class="icon">🎂</span>
+                            <div>生日</div>
+                        </label>
+                        <label class="reminder-type">
+                            <input type="radio" name="reminder_type" value="memorial" required>
+                            <span class="icon">🕯️</span>
+                            <div>忌日</div>
+                        </label>
+                        <label class="reminder-type">
+                            <input type="radio" name="reminder_type" value="adoption" required>
+                            <span class="icon">🏠</span>
+                            <div>领养日</div>
+                        </label>
+                        <label class="reminder-type">
+                            <input type="radio" name="reminder_type" value="custom" required>
+                            <span class="icon">⭐</span>
+                            <div>自定义</div>
+                        </label>
+                    </div>
+                </div>
+                
+                <!-- 自定义提醒操作框 -->
+                <div id="customReminderBox" class="custom-reminder-box hidden">
+                    <div class="form-group">
+                        <label for="customReminderName">提醒名称：</label>
+                        <input type="text" id="customReminderName" placeholder="例如：第一次见面、特殊纪念日等">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="customReminderDesc">提醒描述：</label>
+                        <textarea id="customReminderDesc" placeholder="描述这个提醒的特殊意义..." rows="3"></textarea>
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label for="reminder_date">提醒日期：</label>
+                    <input type="text" id="reminder_date" name="reminder_date" placeholder="年/月/日" readonly style="cursor: pointer;" required>
+                </div>
+                
+                <button type="submit" class="submit-btn">添加提醒</button>
+            </form>
+        </div>
+        
+        <div class="reminders-list" id="remindersList">
+            <h3 class="reminders-title">当前设置的提醒</h3>
+            <div id="remindersContainer">
+                <!-- 提醒列表将通过JavaScript动态加载 -->
+            </div>
+        </div>
+        
+        <div style="text-align: center;">
+            <a href="/" class="back-btn">返回首页</a>
+        </div>
+    </div>
+    
+    <script>
+        // 获取纪念馆ID
+        function getMemorialId() {
+            const urlParams = new URLSearchParams(window.location.search);
+            return urlParams.get('memorial_id');
+        }
+        
+        // 页面加载完成后加载提醒
+        window.addEventListener('load', function() {
+            loadReminders();
+            setupFormHandlers();
+            applySavedTheme();
+            initMainDatePicker();
+        });
+        
+        // 应用保存的主题
+        function applySavedTheme() {
+            const savedTheme = localStorage.getItem('selectedTheme');
+            if (savedTheme) {
+                applyThemeStyles(savedTheme);
+            }
+        }
+        
+        // 应用主题样式
+        function applyThemeStyles(themeName) {
+            const container = document.querySelector('.container');
+            
+            // 移除所有主题类
+            container.classList.remove('theme-warm', 'theme-elegant', 'theme-nature', 'theme-modern', 'theme-classic', 'theme-simple');
+            
+            // 添加新主题类
+            container.classList.add(`theme-${themeName}`);
+        }
+        
+        // 设置表单处理
+        function setupFormHandlers() {
+            // 提醒类型选择
+            document.querySelectorAll('.reminder-type').forEach(type => {
+                type.addEventListener('click', function() {
+                    // 移除其他选中状态
+                    document.querySelectorAll('.reminder-type').forEach(t => t.classList.remove('selected'));
+                    // 添加当前选中状态
+                    this.classList.add('selected');
+                    // 选中对应的radio
+                    this.querySelector('input[type="radio"]').checked = true;
+                    
+                    // 如果是自定义类型，显示自定义操作框
+                    if (this.querySelector('input[type="radio"]').value === 'custom') {
+                        showCustomReminderBox();
+                    } else {
+                        hideCustomReminderBox();
+                    }
+                });
+                // 如果radio被选中，添加选中状态
+                if (type.querySelector('input[type="radio"]').checked) {
+                    type.classList.add('selected');
+                }
+            });
+            
+            // 表单提交
+            document.getElementById('reminderForm').addEventListener('submit', function(e) {
+                e.preventDefault();
+                submitReminder();
+            });
+        }
+        
+        // 显示自定义提醒操作框
+        function showCustomReminderBox() {
+            const customBox = document.getElementById('customReminderBox');
+            if (customBox) {
+                customBox.classList.remove('hidden');
+                // 清空之前的输入内容
+                document.getElementById('customReminderName').value = '';
+                document.getElementById('customReminderDesc').value = '';
+            }
+        }
+        
+        // 隐藏自定义提醒操作框
+        function hideCustomReminderBox() {
+            const customBox = document.getElementById('customReminderBox');
+            if (customBox) {
+                customBox.classList.add('hidden');
+            }
+        }
+        
+        // 初始化主页面的日期选择器
+        function initMainDatePicker() {
+            const mainDateInput = document.getElementById('reminder_date');
+            if (mainDateInput) {
+                mainDateInput.onclick = function() {
+                    showMainDatePicker(this);
+                };
+                // 设置默认占位符
+                mainDateInput.placeholder = "年/月/日";
+            }
+        }
+        
+        // 显示主页面的日期选择器
+        function showMainDatePicker(inputElement) {
+            // 创建日期选择器容器
+            const datePickerContainer = document.createElement('div');
+            datePickerContainer.style.cssText = `
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                background: rgba(0, 0, 0, 0.5);
+                z-index: 2000;
+                display: flex;
+                justify-content: center;
+                align-items: center;
+            `;
+            
+            // 创建日期选择器面板
+            const datePickerPanel = document.createElement('div');
+            datePickerPanel.style.cssText = `
+                background: white;
+                border-radius: 15px;
+                padding: 20px;
+                box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+                max-width: 300px;
+                width: 90%;
+            `;
+            
+            // 获取当前日期
+            const now = new Date();
+            const currentYear = now.getFullYear();
+            
+            // 创建年份选择
+            const yearSelect = document.createElement('select');
+            yearSelect.style.cssText = `
+                width: 100%;
+                padding: 10px;
+                margin-bottom: 10px;
+                border: 2px solid #e2e8f0;
+                border-radius: 8px;
+                font-size: 16px;
+            `;
+            
+            // 添加年份选项（从当前年份往前50年）
+            for (let year = currentYear; year >= currentYear - 50; year--) {
+                const option = document.createElement('option');
+                option.value = year;
+                option.textContent = year + '年';
+                yearSelect.appendChild(option);
+            }
+            
+            // 创建月份选择
+            const monthSelect = document.createElement('select');
+            monthSelect.style.cssText = `
+                width: 100%;
+                padding: 10px;
+                margin-bottom: 10px;
+                border: 2px solid #e2e8f0;
+                border-radius: 8px;
+                font-size: 16px;
+            `;
+            
+            // 添加月份选项
+            for (let month = 1; month <= 12; month++) {
+                const option = document.createElement('option');
+                option.value = month;
+                option.textContent = month + '月';
+                monthSelect.appendChild(option);
+            }
+            
+            // 创建日期选择
+            const daySelect = document.createElement('select');
+            daySelect.style.cssText = `
+                width: 100%;
+                padding: 10px;
+                margin-bottom: 20px;
+                border: 2px solid #e2e8f0;
+                border-radius: 8px;
+                font-size: 16px;
+            `;
+            
+            // 更新日期选项的函数
+            function updateDays() {
+                daySelect.innerHTML = '';
+                const year = parseInt(yearSelect.value);
+                const month = parseInt(monthSelect.value);
+                const daysInMonth = new Date(year, month, 0).getDate();
+                
+                for (let day = 1; day <= daysInMonth; day++) {
+                    const option = document.createElement('option');
+                    option.value = day;
+                    option.textContent = day + '日';
+                    daySelect.appendChild(option);
+                }
+            }
+            
+            // 初始化日期选项
+            updateDays();
+            
+            // 当年份或月份改变时更新日期选项
+            yearSelect.addEventListener('change', updateDays);
+            monthSelect.addEventListener('change', updateDays);
+            
+            // 创建按钮容器
+            const buttonContainer = document.createElement('div');
+            buttonContainer.style.cssText = `
+                display: flex;
+                gap: 10px;
+                justify-content: flex-end;
+            `;
+            
+            // 创建确定按钮
+            const confirmButton = document.createElement('button');
+            confirmButton.textContent = '确定';
+            confirmButton.style.cssText = `
+                background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                color: white;
+                padding: 10px 20px;
+                border: none;
+                border-radius: 8px;
+                cursor: pointer;
+                font-size: 14px;
+                font-weight: 600;
+            `;
+            
+            // 创建取消按钮
+            const cancelButton = document.createElement('button');
+            cancelButton.textContent = '取消';
+            cancelButton.style.cssText = `
+                background: #e2e8f0;
+                color: #4a5568;
+                padding: 10px 20px;
+                border: none;
+                border-radius: 8px;
+                cursor: pointer;
+                font-size: 14px;
+                font-weight: 600;
+            `;
+            
+            // 确定按钮点击事件
+            confirmButton.onclick = function() {
+                const year = yearSelect.value;
+                const month = monthSelect.value.padStart(2, '0');
+                const day = daySelect.value.padStart(2, '0');
+                const dateString = `${year}年${month}月${day}日`;
+                inputElement.value = dateString;
+                document.body.removeChild(datePickerContainer);
+            };
+            
+            // 取消按钮点击事件
+            cancelButton.onclick = function() {
+                document.body.removeChild(datePickerContainer);
+            };
+            
+            // 点击背景关闭日期选择器
+            datePickerContainer.onclick = function(e) {
+                if (e.target === datePickerContainer) {
+                    document.body.removeChild(datePickerContainer);
+                }
+            };
+            
+            // 组装日期选择器
+            buttonContainer.appendChild(cancelButton);
+            buttonContainer.appendChild(confirmButton);
+            
+            datePickerPanel.appendChild(yearSelect);
+            datePickerPanel.appendChild(monthSelect);
+            datePickerPanel.appendChild(daySelect);
+            datePickerPanel.appendChild(buttonContainer);
+            
+            datePickerContainer.appendChild(datePickerPanel);
+            document.body.appendChild(datePickerContainer);
+        }
+        
+        // 加载提醒列表
+        async function loadReminders() {
+            const memorialId = getMemorialId();
+            if (!memorialId) {
+                document.getElementById('remindersList').classList.add('hidden');
+                return;
+            }
+            
+            try {
+                const response = await fetch(`/api/reminders/${memorialId}`);
+                const data = await response.json();
+                
+                if (data.success) {
+                    displayReminders(data.reminders);
+                }
+            } catch (error) {
+                console.error('加载提醒失败:', error);
+            }
+        }
+        
+        // 显示提醒列表
+        function displayReminders(reminders) {
+            const container = document.getElementById('remindersContainer');
+            if (!container) return;
+            
+            if (reminders.length === 0) {
+                container.innerHTML = '<p style="text-align: center; color: #999; padding: 20px;">还没有设置任何提醒</p>';
+                return;
+            }
+            
+            container.innerHTML = reminders.map(reminder => {
+                let displayName = getReminderTypeName(reminder.type);
+                // 如果是自定义提醒且有自定义名称，显示自定义名称
+                if (reminder.type === 'custom' && reminder.custom_name) {
+                    displayName = reminder.custom_name;
+                }
+                
+                return `
+                    <div class="reminder-item">
+                        <div class="reminder-info">
+                            <div class="reminder-type-label">${displayName}</div>
+                            <div class="reminder-date">${formatDateForDisplay(reminder.date)}</div>
+                            ${reminder.custom_description ? `<div class="reminder-description">${reminder.custom_description}</div>` : ''}
+                        </div>
+                        <button class="delete-btn" onclick="deleteReminder(${reminder.id})">删除</button>
+                    </div>
+                `;
+            }).join('');
+        }
+        
+        // 获取提醒类型名称
+        function getReminderTypeName(type) {
+            const typeNames = {
+                'birthday': '生日',
+                'memorial': '忌日',
+                'adoption': '领养日',
+                'custom': '自定义'
+            };
+            return typeNames[type] || type;
+        }
+        
+        // 格式化日期显示
+        function formatDateForDisplay(dateString) {
+            if (!dateString) return '';
+            try {
+                const date = new Date(dateString);
+                if (isNaN(date.getTime())) {
+                    // 如果日期无效，尝试解析其他格式
+                    const parts = dateString.split('-');
+                    if (parts.length === 3) {
+                        return `${parts[0]}年${parts[1]}月${parts[2]}日`;
+                    }
+                    return dateString;
+                }
+                const year = date.getFullYear();
+                const month = String(date.getMonth() + 1).padStart(2, '0');
+                const day = String(date.getDate()).padStart(2, '0');
+                return `${year}年${month}月${day}日`;
+            } catch (error) {
+                console.error('日期格式化错误:', error);
+                return dateString;
+            }
+        }
+        
+        // 提交提醒
+        async function submitReminder() {
+            const memorialId = getMemorialId();
+            if (!memorialId) {
+                alert('无法获取纪念馆信息');
+                return;
+            }
+            
+            const formData = new FormData(document.getElementById('reminderForm'));
+            const reminderType = formData.get('reminder_type');
+            const reminderDate = formData.get('reminder_date');
+            
+            if (!reminderType || !reminderDate) {
+                alert('请填写完整的提醒信息');
+                return;
+            }
+            
+            // 如果是自定义提醒，检查必填字段
+            if (reminderType === 'custom') {
+                const customName = document.getElementById('customReminderName').value.trim();
+                if (!customName) {
+                    alert('请填写自定义提醒名称');
+                    return;
+                }
+            }
+            
+            try {
+                const submitData = new FormData();
+                submitData.append('memorial_id', memorialId);
+                submitData.append('reminder_type', reminderType);
+                submitData.append('reminder_date', reminderDate);
+                
+                // 如果是自定义提醒，添加额外信息
+                if (reminderType === 'custom') {
+                    const customName = document.getElementById('customReminderName').value.trim();
+                    const customDesc = document.getElementById('customReminderDesc').value.trim();
+                    submitData.append('custom_name', customName);
+                    submitData.append('custom_description', customDesc);
+                }
+                
+                const response = await fetch('/api/reminder', {
+                    method: 'POST',
+                    body: submitData
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    alert('提醒设置成功！');
+                    document.getElementById('reminderForm').reset();
+                    document.querySelectorAll('.reminder-type').forEach(t => t.classList.remove('selected'));
+                    hideCustomReminderBox(); // 隐藏自定义操作框
+                    loadReminders(); // 重新加载提醒列表
+                } else {
+                    alert('提醒设置失败：' + data.error);
+                }
+            } catch (error) {
+                console.error('提交提醒失败:', error);
+                alert('提醒设置失败，请稍后重试');
+            }
+        }
+        
+        // 删除提醒
+        async function deleteReminder(reminderId) {
+            if (confirm('确定要删除这个提醒吗？')) {
+                try {
+                    const response = await fetch(`/api/reminder/${reminderId}`, {
+                        method: 'DELETE'
+                    });
+                    
+                    const data = await response.json();
+                    
+                    if (data.success) {
+                        alert('提醒删除成功！');
+                        // 重新加载提醒列表
+                        loadReminders();
+                    } else {
+                        alert('删除失败：' + data.error);
+                    }
+                } catch (error) {
+                    console.error('删除提醒失败:', error);
+                    alert('删除失败，请稍后重试');
+                }
+            }
+        }
+    </script>
+</body>
+</html>

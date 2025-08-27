@@ -1,0 +1,971 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>宠物性格测试 - 宠忆星·云纪念馆</title>
+    <style>
+        body {
+            font-family: 'Microsoft YaHei', sans-serif;
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            min-height: 100vh;
+        }
+        .container {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 30px;
+            border-radius: 15px;
+            backdrop-filter: blur(10px);
+        }
+        h1 {
+            text-align: center;
+            margin-bottom: 30px;
+            font-size: 2.5em;
+        }
+        .form-group {
+            margin-bottom: 20px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        input, select, textarea {
+            width: 100%;
+            padding: 10px;
+            border: none;
+            border-radius: 5px;
+            font-size: 16px;
+        }
+        .question-container {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 10px;
+            border: 2px solid rgba(255, 255, 255, 0.2);
+        }
+        .question-text {
+            font-size: 18px;
+            font-weight: bold;
+            margin-bottom: 15px;
+            color: #fff;
+        }
+        .answer-options {
+            display: grid;
+            gap: 10px;
+        }
+        .answer-option {
+            background: rgba(255, 255, 255, 0.2);
+            padding: 15px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: 2px solid transparent;
+        }
+        .answer-option:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: translateY(-2px);
+        }
+        .answer-option.selected {
+            background: rgba(76, 175, 80, 0.6);
+            border-color: #4CAF50;
+        }
+        .answer-option input[type="radio"] {
+            margin-right: 10px;
+        }
+        .navigation {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 30px;
+        }
+        button {
+            background: #4CAF50;
+            color: white;
+            padding: 15px 30px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 18px;
+            transition: background 0.3s ease;
+        }
+        button:hover {
+            background: #45a049;
+        }
+        button:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+        }
+        .progress-bar {
+            width: 100%;
+            height: 10px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 5px;
+            margin: 20px 0;
+            overflow: hidden;
+        }
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #4CAF50, #45a049);
+            transition: width 0.3s ease;
+        }
+        .hidden {
+            display: none;
+        }
+        .pet-info-section {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 20px;
+            margin-bottom: 20px;
+            border-radius: 10px;
+        }
+        .grid-2 {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+        .grid-2 .form-group {
+            margin-bottom: 0;
+        }
+        .grid-2 .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #2d3748;
+        }
+        .grid-2 .form-group input,
+        .grid-2 .form-group select {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid #e2e8f0;
+            border-radius: 10px;
+            font-size: 16px;
+            background: white;
+            color: #2d3748;
+            transition: all 0.3s ease;
+            box-sizing: border-box;
+        }
+        .grid-2 .form-group input:focus,
+        .grid-2 .form-group select:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+        
+        /* 日期输入框特殊样式 */
+        .grid-2 .form-group input[readonly] {
+            cursor: pointer;
+            background-color: #f8fafc;
+            position: relative;
+        }
+        
+        .grid-2 .form-group input[readonly]:hover {
+            background-color: #f1f5f9;
+            border-color: #cbd5e0;
+        }
+        
+        .grid-2 .form-group input[readonly]:after {
+            content: "📅";
+            position: absolute;
+            right: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+            pointer-events: none;
+        }
+        .upload-area {
+            border: 2px dashed #cbd5e0;
+            padding: 25px;
+            text-align: center;
+            border-radius: 12px;
+            margin-bottom: 20px;
+            background: rgba(247, 250, 252, 0.8);
+            transition: all 0.3s ease;
+        }
+        .upload-area:hover {
+            border-color: #667eea;
+            background: rgba(102, 126, 234, 0.05);
+        }
+        .upload-area input[type="file"] {
+            margin-bottom: 10px;
+        }
+        .upload-area p {
+            margin: 0;
+            color: #4a5568;
+            font-size: 14px;
+        }
+        .form-row {
+            display: flex;
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+        .form-group {
+            flex: 1;
+            margin-bottom: 0;
+        }
+        .form-group.full-width {
+            flex: none;
+            width: 100%;
+        }
+        .form-group.half-width {
+            flex: 0 0 calc(50% - 10px);
+        }
+        .form-group.third-width {
+            flex: 0 0 calc(33.33% - 14px);
+        }
+        .form-group.quarter-width {
+            flex: 0 0 calc(25% - 15px);
+        }
+        
+        /* 创建进度条样式 */
+        .progress-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+        
+        .progress-modal {
+            background: white;
+            padding: 40px;
+            border-radius: 20px;
+            text-align: center;
+            max-width: 600px;
+            width: 90%;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+        }
+        
+        .progress-modal h3 {
+            color: #2d3748;
+            margin-bottom: 30px;
+            font-size: 24px;
+        }
+        
+        .creation-progress-bar {
+            width: 100%;
+            height: 20px;
+            background: #e2e8f0;
+            border-radius: 10px;
+            margin: 20px 0;
+            overflow: hidden;
+            box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+        
+        .creation-progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #667eea, #764ba2);
+            border-radius: 10px;
+            transition: width 0.5s ease;
+            width: 0%;
+        }
+        
+        .creation-progress-fill.complete {
+            background: linear-gradient(90deg, #48bb78, #38a169);
+        }
+        
+        #creationProgressText {
+            color: #4a5568;
+            font-size: 16px;
+            margin: 20px 0;
+            font-weight: 500;
+        }
+        
+        .progress-steps {
+            display: grid;
+            grid-template-columns: repeat(6, 1fr);
+            gap: 15px;
+            margin-top: 30px;
+        }
+        
+        .step {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            opacity: 0.4;
+            transition: all 0.3s ease;
+        }
+        
+        .step.active {
+            opacity: 1;
+            transform: scale(1.1);
+        }
+        
+        .step.completed {
+            opacity: 1;
+            color: #48bb78;
+        }
+        
+        .step-icon {
+            font-size: 24px;
+            margin-bottom: 8px;
+            display: block;
+        }
+        
+        .step-text {
+            font-size: 12px;
+            text-align: center;
+            color: #4a5568;
+            font-weight: 500;
+        }
+        
+        @media (max-width: 768px) {
+            .progress-steps {
+                grid-template-columns: repeat(3, 1fr);
+                gap: 10px;
+            }
+            
+            .step-text {
+                font-size: 10px;
+            }
+            
+            .progress-modal {
+                padding: 30px 20px;
+                margin: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🐾 宠物性格测试 🐾</h1>
+        
+        <!-- 宠物基本信息 -->
+        <div class="pet-info-section">
+            <h2>宠物基本信息</h2>
+            <form id="petInfoForm">
+                <div class="grid-2">
+                    <div class="form-group">
+                        <label for="pet_name">宠物姓名 *</label>
+                        <input type="text" id="pet_name" name="pet_name" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="species">宠物种类 *</label>
+                        <select id="species" name="species" required>
+                            <option value="">请选择</option>
+                            <option value="猫">猫</option>
+                            <option value="狗">狗</option>
+                            <option value="兔子">兔子</option>
+                            <option value="鸟">鸟</option>
+                            <option value="仓鼠">仓鼠</option>
+                            <option value="其他">其他</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="breed">品种</label>
+                        <input type="text" id="breed" name="breed" placeholder="如：英短、金毛等">
+                    </div>
+                    <div class="form-group">
+                        <label for="color">毛色</label>
+                        <input type="text" id="color" name="color" placeholder="如：白色、橘色等">
+                    </div>
+                    <div class="form-group">
+                        <label for="gender">性别</label>
+                        <select id="gender" name="gender">
+                            <option value="">请选择</option>
+                            <option value="公">公</option>
+                            <option value="母">母</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="weight">体重(kg)</label>
+                        <input type="number" id="weight" name="weight" step="0.1" min="0">
+                    </div>
+                    <div class="form-group">
+                        <label for="birth_date">出生日期</label>
+                        <input type="text" id="birth_date" name="birth_date" placeholder="年/月/日" readonly>
+                    </div>
+                    <div class="form-group">
+                        <label for="memorial_date">纪念日期 *</label>
+                        <input type="text" id="memorial_date" name="memorial_date" placeholder="年/月/日" required readonly>
+                    </div>
+                </div>
+                
+                <div class="form-group" style="margin-top: 20px;">
+                    <label for="email" style="display: block; margin-bottom: 8px; font-weight: 600; color: #2d3748;">邮箱地址 *</label>
+                    <input type="email" id="email" name="email" required style="width: 100%; padding: 12px 15px; border: 2px solid #e2e8f0; border-radius: 10px; font-size: 16px; background: white; color: #2d3748; transition: all 0.3s ease; box-sizing: border-box;">
+                </div>
+                
+                <div class="form-group" style="margin-top: 20px;">
+                    <label for="photos" style="display: block; margin-bottom: 8px; font-weight: 600; color: #2d3748;">上传照片 *</label>
+                    <div class="upload-area">
+                        <input type="file" id="photos" name="photos" multiple accept="image/*" required>
+                        <p>可以选择多张照片</p>
+                    </div>
+                </div>
+            </form>
+        </div>
+        
+        <!-- 性格测试部分 -->
+        <div id="personalityTest" class="hidden">
+            <h2>性格测试</h2>
+            <p>请根据你的宠物的真实行为选择最符合的答案</p>
+            
+            <div class="progress-bar">
+                <div class="progress-fill" id="progressFill"></div>
+            </div>
+            
+            <div id="questionsContainer"></div>
+            
+            <div class="navigation">
+                <button id="prevBtn" onclick="previousQuestion()" disabled>上一题</button>
+                <button id="nextBtn" onclick="nextQuestion()">下一题</button>
+                <button id="submitBtn" onclick="submitTest()" class="hidden">完成测试</button>
+            </div>
+        </div>
+        
+        <!-- 结果展示 -->
+        <div id="resultsContainer" class="hidden">
+            <h2>测试结果</h2>
+            <div id="personalityResult"></div>
+            <button onclick="createMemorial()" style="width: 100%; margin-top: 20px;">创建纪念馆</button>
+        </div>
+        
+        <!-- 创建进度条 -->
+        <div id="progressContainer" class="hidden">
+            <div class="progress-overlay">
+                <div class="progress-modal">
+                    <h3>🔄 正在创建纪念馆</h3>
+                    <div class="creation-progress-bar">
+                        <div class="creation-progress-fill" id="creationProgressFill"></div>
+                    </div>
+                    <p id="creationProgressText">正在准备创建纪念馆...</p>
+                    <div class="progress-steps">
+                        <div class="step active" id="step1">
+                            <span class="step-icon">📝</span>
+                            <span class="step-text">收集信息</span>
+                        </div>
+                        <div class="step" id="step2">
+                            <span class="step-icon">📸</span>
+                            <span class="step-text">处理照片</span>
+                        </div>
+                        <div class="step" id="step3">
+                            <span class="step-icon">🧠</span>
+                            <span class="step-text">分析性格</span>
+                        </div>
+                        <div class="step" id="step4">
+                            <span class="step-icon">💌</span>
+                            <span class="step-text">生成信件</span>
+                        </div>
+                        <div class="step" id="step5">
+                            <span class="step-icon">📧</span>
+                            <span class="step-text">发送邮件</span>
+                        </div>
+                        <div class="step" id="step6">
+                            <span class="step-icon">✅</span>
+                            <span class="step-text">完成创建</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let currentQuestion = 1;
+        let totalQuestions = 10;
+        let answers = {};
+        let questions = {};
+        let options = {};
+        
+        // 页面加载完成后获取问题
+        window.addEventListener('load', async function() {
+            await loadQuestions();
+        });
+        
+        async function loadQuestions() {
+            try {
+                const response = await fetch('/api/personality-questions');
+                const data = await response.json();
+                questions = data.questions;
+                totalQuestions = Object.keys(questions).length;
+                
+                // 初始化进度条
+                updateTestProgress();
+                
+                // 加载第一题
+                await loadQuestion(1);
+            } catch (error) {
+                console.error('加载问题失败:', error);
+            }
+        }
+        
+        async function loadQuestion(questionId) {
+            try {
+                const response = await fetch(`/api/personality-options/${questionId}`);
+                const data = await response.json();
+                options[questionId] = data.options;
+                
+                displayQuestion(questionId);
+                updateTestProgress();
+                updateNavigation();
+            } catch (error) {
+                console.error('加载选项失败:', error);
+            }
+        }
+        
+        function displayQuestion(questionId) {
+            const container = document.getElementById('questionsContainer');
+            const question = questions[questionId];
+            const questionOptions = options[questionId];
+            
+            if (!question || !questionOptions) return;
+            
+            let optionsHtml = '';
+            for (const [key, value] of Object.entries(questionOptions)) {
+                const isSelected = answers[questionId] === key ? 'selected' : '';
+                optionsHtml += `
+                    <div class="answer-option ${isSelected}" onclick="selectAnswer(${questionId}, '${key}')">
+                        <input type="radio" name="q${questionId}" value="${key}" ${isSelected ? 'checked' : ''}>
+                        <span>${value}</span>
+                    </div>
+                `;
+            }
+            
+            container.innerHTML = `
+                <div class="question-container">
+                    <div class="question-text">第${questionId}题：${question}</div>
+                    <div class="answer-options">
+                        ${optionsHtml}
+                    </div>
+                </div>
+            `;
+        }
+        
+        function selectAnswer(questionId, answer) {
+            answers[questionId] = answer;
+            displayQuestion(questionId);
+            // 选择答案后更新进度条
+            updateTestProgress();
+        }
+        
+        function nextQuestion() {
+            if (currentQuestion < totalQuestions) {
+                currentQuestion++;
+                loadQuestion(currentQuestion);
+            }
+        }
+        
+        function previousQuestion() {
+            if (currentQuestion > 1) {
+                currentQuestion--;
+                loadQuestion(currentQuestion);
+            }
+        }
+        
+        function updateTestProgress() {
+            const progressFill = document.getElementById('progressFill');
+            const progress = (currentQuestion / totalQuestions) * 100;
+            progressFill.style.width = progress + '%';
+        }
+        
+        function updateNavigation() {
+            const prevBtn = document.getElementById('prevBtn');
+            const nextBtn = document.getElementById('nextBtn');
+            const submitBtn = document.getElementById('submitBtn');
+            
+            prevBtn.disabled = currentQuestion === 1;
+            
+            if (currentQuestion === totalQuestions) {
+                nextBtn.classList.add('hidden');
+                submitBtn.classList.remove('hidden');
+            } else {
+                nextBtn.classList.remove('hidden');
+                submitBtn.classList.add('hidden');
+            }
+        }
+        
+        function submitTest() {
+            // 检查是否所有问题都回答了
+            const answeredCount = Object.keys(answers).length;
+            if (answeredCount < totalQuestions) {
+                alert(`请回答所有问题！当前已回答 ${answeredCount}/${totalQuestions} 题`);
+                return;
+            }
+            
+            // 显示结果
+            showResults();
+        }
+        
+        function showResults() {
+            document.getElementById('personalityTest').classList.add('hidden');
+            document.getElementById('resultsContainer').classList.remove('hidden');
+            
+            // 这里可以添加性格分析结果的展示
+            const resultContainer = document.getElementById('personalityResult');
+            resultContainer.innerHTML = `
+                <div class="question-container">
+                    <h3>测试完成！</h3>
+                    <p>你已经完成了性格测试，现在可以创建纪念馆了。</p>
+                    <p>测试答案：${JSON.stringify(answers)}</p>
+                </div>
+            `;
+        }
+        
+        function createMemorial() {
+            // 显示进度条
+            showProgressBar();
+            
+            // 获取表单数据
+            const formData = new FormData(document.getElementById('petInfoForm'));
+            formData.append('personality_answers', JSON.stringify(answers));
+            
+            // 模拟进度更新
+            let progress = 0;
+            const progressInterval = setInterval(() => {
+                progress += Math.random() * 15;
+                if (progress > 90) progress = 90;
+                updateProgress(progress, getProgressMessage(progress));
+            }, 500);
+            
+            // 提交到服务器
+            fetch('/create-memorial-advanced', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                clearInterval(progressInterval);
+                if (data.success) {
+                    updateProgress(100, '纪念馆创建完成！正在跳转...');
+                    setTimeout(() => {
+                        window.location.href = data.memorial_url;
+                    }, 1500);
+                } else {
+                    hideProgressBar();
+                    alert('创建失败：' + data.error);
+                }
+            })
+            .catch(error => {
+                clearInterval(progressInterval);
+                console.error('提交失败:', error);
+                hideProgressBar();
+                alert('提交失败，请重试');
+            });
+        }
+        
+        function getProgressMessage(percentage) {
+            if (percentage < 20) return '正在收集宠物信息...';
+            if (percentage < 40) return '正在处理上传的照片...';
+            if (percentage < 60) return '正在分析性格特征...';
+            if (percentage < 80) return '正在生成AI信件...';
+            if (percentage < 90) return '正在发送通知邮件...';
+            return '正在完成最后步骤...';
+        }
+        
+        function showProgressBar() {
+            const progressContainer = document.getElementById('progressContainer');
+            progressContainer.classList.remove('hidden');
+            updateProgress(0, '正在准备创建纪念馆...');
+            updateStep(1);
+        }
+        
+        function hideProgressBar() {
+            const progressContainer = document.getElementById('progressContainer');
+            progressContainer.classList.add('hidden');
+        }
+        
+        function updateProgress(percentage, message) {
+            const progressFill = document.getElementById('creationProgressFill');
+            const progressText = document.getElementById('creationProgressText');
+            
+            progressFill.style.width = percentage + '%';
+            progressText.textContent = message;
+            
+            // 根据进度更新步骤
+            if (percentage >= 100) {
+                updateStep(6);
+                progressFill.classList.add('complete');
+            } else if (percentage >= 80) {
+                updateStep(5);
+            } else if (percentage >= 60) {
+                updateStep(4);
+            } else if (percentage >= 40) {
+                updateStep(3);
+            } else if (percentage >= 20) {
+                updateStep(2);
+            }
+        }
+        
+        function updateStep(stepNumber) {
+            // 重置所有步骤
+            for (let i = 1; i <= 6; i++) {
+                const step = document.getElementById(`step${i}`);
+                step.classList.remove('active', 'completed');
+            }
+            
+            // 激活当前步骤和完成之前的步骤
+            for (let i = 1; i <= stepNumber; i++) {
+                const step = document.getElementById(`step${i}`);
+                if (i < stepNumber) {
+                    step.classList.add('completed');
+                } else {
+                    step.classList.add('active');
+                }
+            }
+        }
+        
+        // 开始测试按钮
+        function startTest() {
+            // 验证基本信息是否填写完整
+            const requiredFields = ['pet_name', 'species', 'memorial_date', 'email'];
+            for (const field of requiredFields) {
+                const value = document.getElementById(field).value.trim();
+                if (!value) {
+                    alert('请填写所有必填项！');
+                    return;
+                }
+            }
+            
+            // 检查是否上传了照片
+            const photos = document.getElementById('photos').files;
+            if (photos.length === 0) {
+                alert('请至少上传一张照片！');
+                return;
+            }
+            
+            // 显示性格测试
+            document.getElementById('personalityTest').classList.remove('hidden');
+            
+            // 滚动到测试部分
+            document.getElementById('personalityTest').scrollIntoView({ behavior: 'smooth' });
+        }
+        
+        // 添加开始测试按钮到基本信息部分
+        document.addEventListener('DOMContentLoaded', function() {
+            const petInfoSection = document.querySelector('.pet-info-section');
+            const startButton = document.createElement('button');
+            startButton.textContent = '开始性格测试';
+            startButton.onclick = startTest;
+            startButton.style.cssText = `
+                width: 100%;
+                margin-top: 20px;
+                background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                color: white;
+                padding: 15px 30px;
+                border: none;
+                border-radius: 10px;
+                cursor: pointer;
+                font-size: 18px;
+                font-weight: 600;
+                transition: all 0.3s ease;
+                box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+            `;
+            
+            // 添加悬停效果
+            startButton.addEventListener('mouseenter', function() {
+                this.style.transform = 'translateY(-2px)';
+                this.style.boxShadow = '0 6px 20px rgba(102, 126, 234, 0.4)';
+            });
+            
+            startButton.addEventListener('mouseleave', function() {
+                this.style.transform = 'translateY(0)';
+                this.style.boxShadow = '0 4px 15px rgba(102, 126, 234, 0.3)';
+            });
+            
+            petInfoSection.appendChild(startButton);
+            
+            // 初始化日期选择器
+            initDatePickers();
+        });
+        
+        // 初始化日期选择器
+        function initDatePickers() {
+            const birthDateInput = document.getElementById('birth_date');
+            const memorialDateInput = document.getElementById('memorial_date');
+            
+            // 为出生日期添加点击事件
+            birthDateInput.addEventListener('click', function() {
+                showDatePicker(this);
+            });
+            
+            // 为纪念日期添加点击事件
+            memorialDateInput.addEventListener('click', function() {
+                showDatePicker(this);
+            });
+        }
+        
+        // 显示日期选择器
+        function showDatePicker(inputElement) {
+            // 创建日期选择器容器
+            const datePickerContainer = document.createElement('div');
+            datePickerContainer.style.cssText = `
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                background: rgba(0, 0, 0, 0.5);
+                z-index: 1000;
+                display: flex;
+                justify-content: center;
+                align-items: center;
+            `;
+            
+            // 创建日期选择器面板
+            const datePickerPanel = document.createElement('div');
+            datePickerPanel.style.cssText = `
+                background: white;
+                border-radius: 15px;
+                padding: 20px;
+                box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+                max-width: 300px;
+                width: 90%;
+            `;
+            
+            // 获取当前日期
+            const now = new Date();
+            const currentYear = now.getFullYear();
+            const currentMonth = now.getMonth();
+            const currentDay = now.getDate();
+            
+            // 创建年份选择
+            const yearSelect = document.createElement('select');
+            yearSelect.style.cssText = `
+                width: 100%;
+                padding: 10px;
+                margin-bottom: 10px;
+                border: 2px solid #e2e8f0;
+                border-radius: 8px;
+                font-size: 16px;
+            `;
+            
+            // 添加年份选项（从当前年份往前50年）
+            for (let year = currentYear; year >= currentYear - 50; year--) {
+                const option = document.createElement('option');
+                option.value = year;
+                option.textContent = year + '年';
+                yearSelect.appendChild(option);
+            }
+            
+            // 创建月份选择
+            const monthSelect = document.createElement('select');
+            monthSelect.style.cssText = `
+                width: 100%;
+                padding: 10px;
+                margin-bottom: 10px;
+                border: 2px solid #e2e8f0;
+                border-radius: 8px;
+                font-size: 16px;
+            `;
+            
+            // 添加月份选项
+            for (let month = 1; month <= 12; month++) {
+                const option = document.createElement('option');
+                option.value = month;
+                option.textContent = month + '月';
+                monthSelect.appendChild(option);
+            }
+            
+            // 创建日期选择
+            const daySelect = document.createElement('select');
+            daySelect.style.cssText = `
+                width: 100%;
+                padding: 10px;
+                margin-bottom: 20px;
+                border: 2px solid #e2e8f0;
+                border-radius: 8px;
+                font-size: 16px;
+            `;
+            
+            // 更新日期选项的函数
+            function updateDays() {
+                daySelect.innerHTML = '';
+                const year = parseInt(yearSelect.value);
+                const month = parseInt(monthSelect.value);
+                const daysInMonth = new Date(year, month, 0).getDate();
+                
+                for (let day = 1; day <= daysInMonth; day++) {
+                    const option = document.createElement('option');
+                    option.value = day;
+                    option.textContent = day + '日';
+                    daySelect.appendChild(option);
+                }
+            }
+            
+            // 初始化日期选项
+            updateDays();
+            
+            // 当年份或月份改变时更新日期选项
+            yearSelect.addEventListener('change', updateDays);
+            monthSelect.addEventListener('change', updateDays);
+            
+            // 创建按钮容器
+            const buttonContainer = document.createElement('div');
+            buttonContainer.style.cssText = `
+                display: flex;
+                gap: 10px;
+                justify-content: flex-end;
+            `;
+            
+            // 创建确定按钮
+            const confirmButton = document.createElement('button');
+            confirmButton.textContent = '确定';
+            confirmButton.style.cssText = `
+                background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                color: white;
+                padding: 10px 20px;
+                border: none;
+                border-radius: 8px;
+                cursor: pointer;
+                font-size: 14px;
+                font-weight: 600;
+            `;
+            
+            // 创建取消按钮
+            const cancelButton = document.createElement('button');
+            cancelButton.textContent = '取消';
+            cancelButton.style.cssText = `
+                background: #e2e8f0;
+                color: #4a5568;
+                padding: 10px 20px;
+                border: none;
+                border-radius: 8px;
+                cursor: pointer;
+                font-size: 14px;
+                font-weight: 600;
+            `;
+            
+            // 确定按钮点击事件
+            confirmButton.addEventListener('click', function() {
+                const year = yearSelect.value;
+                const month = monthSelect.value.padStart(2, '0');
+                const day = daySelect.value.padStart(2, '0');
+                const dateString = `${year}/${month}/${day}`;
+                inputElement.value = dateString;
+                document.body.removeChild(datePickerContainer);
+            });
+            
+            // 取消按钮点击事件
+            cancelButton.addEventListener('click', function() {
+                document.body.removeChild(datePickerContainer);
+            });
+            
+            // 点击背景关闭日期选择器
+            datePickerContainer.addEventListener('click', function(e) {
+                if (e.target === datePickerContainer) {
+                    document.body.removeChild(datePickerContainer);
+                }
+            });
+            
+            // 组装日期选择器
+            buttonContainer.appendChild(cancelButton);
+            buttonContainer.appendChild(confirmButton);
+            
+            datePickerPanel.appendChild(yearSelect);
+            datePickerPanel.appendChild(monthSelect);
+            datePickerPanel.appendChild(daySelect);
+            datePickerPanel.appendChild(buttonContainer);
+            
+            datePickerContainer.appendChild(datePickerPanel);
+            document.body.appendChild(datePickerContainer);
+        }
+    </script>
+</body>
+</html>

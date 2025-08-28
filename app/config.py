@@ -36,6 +36,10 @@ class Config:
     # 安全配置
     SECRET_KEY = os.getenv('SECRET_KEY', 'pet-memory-star-2024-secure-key-pk12138-production')
     
+    # DeepSeek API配置
+    DEEPSEEK_API_KEY = os.getenv('DEEPSEEK_API_KEY', 'sk-f791e06a786145aaa715342d97df3591')
+    DEEPSEEK_API_URL = os.getenv('DEEPSEEK_API_URL', 'https://api.deepseek.com/v1/chat/completions')
+    
     @classmethod
     def get_database_url(cls):
         """获取数据库连接URL"""

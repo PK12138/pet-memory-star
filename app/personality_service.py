@@ -198,28 +198,106 @@ class PersonalityService:
     
     def _build_letter_prompt(self, pet_info: Dict, personality_type: str, answers: Dict[int, str]) -> str:
         """构建AI提示词"""
-        prompt = f"""
-        请以{pet_info['name']}（一只{pet_info['species']}）的身份，写一封信给主人。
+        # 分析性格测试答案，提取个性化特征
+        personality_traits = self._analyze_personality_traits(answers)
         
-        宠物信息：
+        # 基于品种和毛色生成特色描述
+        species_traits = self._get_species_traits(pet_info.get('species', ''))
+        color_traits = self._get_color_traits(pet_info.get('color', ''))
+        
+        prompt = f"""
+        请以{pet_info['name']}（一只{pet_info['species']}）的身份，写一封独特而感人的信给主人。
+
+        宠物详细信息：
         - 名字：{pet_info['name']}
         - 品种：{pet_info.get('breed', '未知')}
-        - 毛色：{pet_info.get('color', '未知')}
+        - 毛色：{pet_info.get('color', '未知')} {color_traits}
         - 性别：{pet_info.get('gender', '未知')}
         - 性格类型：{personality_type}
-        
-        性格测试答案：{answers}
-        
-        请写一封温暖、感人的信，表达：
-        1. 对主人的感谢和爱
-        2. 回忆一起度过的美好时光
-        3. 对主人的安慰和鼓励
-        4. 希望主人在没有自己的日子里也要快乐
-        5. 表达永远的爱和陪伴
-        
-        要求：语言要温暖、真诚，符合宠物的性格特点，长度在300-500字左右。
+        - 性格特征：{personality_traits}
+        - 品种特点：{species_traits}
+
+        性格测试详细答案：{answers}
+
+        请根据以上信息，写一封完全个性化的信件，要求：
+
+        1. 语言风格要完全符合{personality_type}的性格特点
+        2. 融入{species_traits}的独特行为描述
+        3. 体现{color_traits}的视觉特征
+        4. 基于性格测试答案{answers}，展现{pet_info['name']}独特的个性
+        5. 回忆要具体、生动，避免模板化表达
+        6. 情感要真挚、温暖，但不要过于悲伤
+        7. 长度控制在400-600字
+        8. 要有独特的开头和结尾，避免千篇一律
+
+        请确保这封信是{pet_info['name']}专属的，与其他宠物的信完全不同。要体现{pet_info['name']}作为{pet_info['species']}的独特魅力和与主人的特殊情感联系。
         """
         return prompt
+    
+    def _analyze_personality_traits(self, answers: Dict[int, str]) -> str:
+        """分析性格测试答案，提取个性化特征"""
+        traits = []
+        
+        # 分析各种性格倾向
+        social_count = sum(1 for answer in answers.values() if answer in ['A', 'B'])
+        independent_count = sum(1 for answer in answers.values() if answer in ['C', 'D'])
+        active_count = sum(1 for answer in answers.values() if answer in ['A', 'C'])
+        calm_count = sum(1 for answer in answers.values() if answer in ['B', 'D'])
+        
+        if social_count > independent_count:
+            traits.append("社交性强，喜欢与人互动")
+        else:
+            traits.append("相对独立，有自己的小世界")
+            
+        if active_count > calm_count:
+            traits.append("活泼好动，充满活力")
+        else:
+            traits.append("安静温和，喜欢安静时光")
+        
+        # 分析具体答案模式
+        if answers.get(1) == 'A':
+            traits.append("对新环境充满好奇")
+        elif answers.get(1) == 'D':
+            traits.append("对新环境需要时间适应")
+            
+        if answers.get(3) == 'A':
+            traits.append("喜欢主动表达爱意")
+        elif answers.get(3) == 'D':
+            traits.append("用安静的方式表达爱")
+            
+        if answers.get(5) == 'A':
+            traits.append("情绪表达丰富")
+        elif answers.get(5) == 'D':
+            traits.append("情绪内敛深沉")
+        
+        return "，".join(traits)
+    
+    def _get_species_traits(self, species: str) -> str:
+        """获取品种特色描述"""
+        species_traits = {
+            "猫": "优雅独立，喜欢高处观察，有独特的呼噜声表达满足，会用身体蹭人表达爱意",
+            "狗": "忠诚热情，喜欢摇尾巴表达快乐，会叼玩具分享，对主人回家特别兴奋",
+            "兔子": "温顺可爱，喜欢蹦跳表达快乐，会用小鼻子轻触主人，安静时喜欢依偎",
+            "仓鼠": "小巧活泼，喜欢在轮子上奔跑，会在主人手心里安心睡觉",
+            "鸟": "聪明机灵，会模仿声音，喜欢站在主人肩膀上，用翅膀轻抚表达爱意",
+            "其他": "有着独特的个性和表达方式"
+        }
+        return species_traits.get(species, species_traits["其他"])
+    
+    def _get_color_traits(self, color: str) -> str:
+        """获取毛色特色描述"""
+        color_traits = {
+            "白色": "如雪花般纯洁美丽",
+            "黑色": "如夜空般神秘深邃", 
+            "棕色": "如巧克力般温暖甜蜜",
+            "橙色": "如夕阳般温暖明亮",
+            "灰色": "如云朵般柔软优雅",
+            "花色": "有着独特的美丽花纹",
+            "金色": "如阳光般闪闪发光",
+            "银色": "如月光般优雅神秘",
+            "黄色": "如小太阳般温暖明亮"
+        }
+        return color_traits.get(color, "有着独特的美丽")
     
     def _generate_template_letter(self, pet_info: Dict, personality_type: str, answers: Dict[int, str]) -> str:
         """生成模板信件（当AI服务不可用时使用）"""
@@ -230,25 +308,112 @@ class PersonalityService:
             "独立自主型": "虽然我有时很独立，但我的心永远属于你。"
         }
         
-        letter = f"""
-亲爱的{pet_info['name']}的主人：
+        # 基于宠物信息生成个性化内容
+        import random
+        import hashlib
+        import time
+        
+        # 使用宠物信息和当前时间创建种子，确保每次生成都不同但可控
+        seed_str = f"{pet_info.get('name', '')}{pet_info.get('species', '')}{pet_info.get('breed', '')}{pet_info.get('color', '')}{personality_type}{int(time.time())}"
+        seed = int(hashlib.md5(seed_str.encode()).hexdigest(), 16) % (2**32)
+        random.seed(seed)
+        
+        # 性格化的开头段落
+        personality_openings = {
+            "内向谨慎型": [
+                "虽然我平时不太爱表达，但今天我想对你说说心里话。我一直在角落里默默观察着你，用我自己的方式爱着你。",
+                "我知道我有时候很安静，但我的心里装着满满的爱。每一次你轻抚我的时候，我都能感受到你的温柔。",
+                "也许我不是最活泼的小家伙，但我用我独特的方式深深地爱着你，那种爱比任何言语都要真实。"
+            ],
+            "外向友好型": [
+                "嗨！我最亲爱的主人！你知道我有多爱和你玩耍吗？每一天都是我们的冒险日！",
+                "我总是那个最爱撒娇、最爱粘着你的小家伙！还记得我每天都要缠着你陪我玩的样子吗？",
+                "我是你最活泼的小伙伴！每次看到你回家，我都兴奋得不得了，因为又可以和你一起快乐了！"
+            ],
+            "敏感依赖型": [
+                "我能感受到你内心的每一丝情感，就像你总能读懂我的心思一样。我们之间的默契是那么特别。",
+                "你的每一个眼神，每一次抚摸，都深深印在我的心里。我们的心灵连接是如此深刻。",
+                "我总是能察觉到你的情绪变化，当你开心时我也开心，当你难过时我会默默陪伴。"
+            ],
+            "独立自主型": [
+                "虽然我总是表现得很独立，但你知道吗？你就是我心中最重要的存在。",
+                "我可能不常主动粘着你，但那并不意味着我不需要你。我用我自己的方式深深地依恋着你。",
+                "我喜欢保持一点距离，但我的心从未远离过你。你是我选择信任和依靠的唯一。"
+            ]
+        }
+        
+        # 基于品种的特色回忆
+        species_memories = {
+            "猫": [
+                "还记得我蜷缩在你腿上打呼噜的午后吗？那是我最安心的时光。",
+                "我喜欢在窗台上晒太阳，但更喜欢你在身边的感觉。",
+                "每次你回家，我都会优雅地走过来蹭蹭你，那是我表达思念的方式。"
+            ],
+            "狗": [
+                "还记得我每天在门口等你回家，摇着尾巴迎接你的样子吗？",
+                "我们一起散步的时光是我最快乐的记忆，我总是兴奋地跑在你前面。",
+                "我会把我最喜欢的玩具叼给你，因为我想和你分享我最珍贵的东西。"
+            ],
+            "兔子": [
+                "我最喜欢蹦蹦跳跳地围着你转圈，那是我在向你表达快乐。",
+                "当我用小鼻子轻触你的手时，我在告诉你我有多爱你。",
+                "安静地依偎在你怀里是我最幸福的时刻。"
+            ],
+            "其他": [
+                "我们一起度过的每个安静的时光都是我最珍贵的回忆。",
+                "你总是那么耐心地照顾我，理解我的每一个小习惯。",
+                "我用我独特的方式表达着对你的爱，希望你能感受到。"
+            ]
+        }
+        
+        # 基于毛色的诗意描述
+        color_descriptions = {
+            "白色": "雪花般纯洁的我", "黑色": "如夜空般神秘的我", "棕色": "像巧克力一样甜蜜的我",
+            "橙色": "如夕阳般温暖的我", "灰色": "像云朵一样柔软的我", "花色": "有着独特花纹的我",
+            "金色": "闪闪发光的我", "银色": "如月光般优雅的我", "黄色": "像小太阳一样的我"
+        }
+        
+        # 随机选择内容元素
+        opening = random.choice(personality_openings.get(personality_type, ["我想对你说说心里话"]))
+        species = pet_info.get('species', '小动物')
+        memory = random.choice(species_memories.get(species, species_memories["其他"]))
+        color = pet_info.get('color', '')
+        color_desc = color_descriptions.get(color, "独一无二的我") if color else "特别的我"
+        
+        # 随机选择结尾段落
+        endings = [
+            "在彩虹桥这边，我每天都在想念你。这里很美，但没有你在身边，再美的地方也不完整。我会在这里耐心等待，直到我们再次相遇的那一天。",
+            "我会在天上的每一颗星星里守护你，在每一缕阳光中拥抱你。虽然我们暂时分别了，但我们的爱永远连接着彼此的心。",
+            "我希望你记住我们在一起时的快乐，而不是分别的悲伤。因为真正的爱是永恒的，我们的爱也会永远存在。",
+            "请你一定要好好照顾自己，就像你曾经那么用心地照顾我一样。当你想念我的时候，就看看天空，我一定在那里看着你。"
+        ]
+        
+        ending = random.choice(endings)
+        
+        # 随机选择温馨的细节
+        sweet_details = [
+            f"你知道吗？{color_desc}，在你眼中总是最美的。",
+            f"作为一只{species}，能遇到你是我这辈子最大的幸运。",
+            "你为我准备的每一餐，给我的每一个拥抱，都是我最珍贵的宝藏。",
+            "我们一起度过的每个平凡的日子，现在想来都闪闪发光。"
+        ]
+        
+        detail = random.choice(sweet_details)
+        
+        letter = f"""亲爱的主人：
 
-当你看到这封信的时候，我已经在彩虹桥的那一边了。但请相信，我的心永远和你在一起。
+{opening}
 
-{personality_descriptions.get(personality_type, "我们之间的感情是那么特别。")}
+{memory}
 
-还记得我们第一次见面的时候吗？那时的我可能还很小，但我知道你就是我一直在等待的那个人。我们一起度过了那么多美好的时光，每一个瞬间都深深地印在我的心里。
+{detail}
 
-你教会了我什么是爱，什么是家。虽然我只是一只{pet_info['species']}，但我知道你对我的爱是那么真实，那么深沉。我也用我全部的爱回报着你。
+{ending}
 
-现在我要离开了，但请不要为我难过。我在彩虹桥这边过得很好，这里有温暖的阳光，有美丽的花园，还有其他的小动物朋友。我会在这里等你，直到我们再次相见的那一天。
+请记住，无论何时何地，我都是你最爱的{pet_info['name']}，你也永远是我心中最重要的人。我们的爱超越了生死，超越了时间，永远不会消失。
 
-请你一定要快乐，要继续你的生活。我知道你是一个坚强的人，你一定能够度过这个难关。记住，我永远爱你，永远感谢你给了我一个温暖的家。
-
-如果有一天你感到孤单，请抬头看看天空，我会在那里看着你，守护着你。
-
-永远爱你的{pet_info['name']}
-        """
+带着满满的爱和思念，
+你永远的{pet_info['name']} ❤️"""
         return letter.strip()
     
     def _generate_fallback_letter(self, pet_info: Dict, personality_type: str) -> str:

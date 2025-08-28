@@ -24,7 +24,7 @@ class Config:
     SMTP_SERVER = os.getenv('SMTP_SERVER', 'smtp.qq.com')
     SMTP_PORT = int(os.getenv('SMTP_PORT', 587))
     SMTP_USERNAME = os.getenv('SMTP_USERNAME', '1208155205@qq.com')
-    SMTP_PASSWORD = os.getenv('SMTP_PASSWORD', '')
+    SMTP_PASSWORD = os.getenv('SMTP_PASSWORD', 'qq1208155205')
     
     # 文件存储路径
     STORAGE_PATH = os.getenv('STORAGE_PATH', 'storage')
@@ -34,7 +34,7 @@ class Config:
     API_V1_PREFIX = '/api'
     
     # 安全配置
-    SECRET_KEY = os.getenv('SECRET_KEY', 'your-secret-key-change-in-production')
+    SECRET_KEY = os.getenv('SECRET_KEY', 'pet-memory-star-2024-secure-key-pk12138-production')
     
     @classmethod
     def get_database_url(cls):

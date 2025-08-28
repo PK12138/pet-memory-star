@@ -119,6 +119,80 @@
             object-fit: cover;
         }
         
+        /* AI信件样式 */
+        .ai-letter-section {
+            margin: 30px 20px;
+            padding: 25px;
+            background: linear-gradient(135deg, #fff9e6 0%, #fff4d6 100%);
+            border-radius: 15px;
+            border: 1px solid #f0e6cc;
+        }
+        
+        .letter-content {
+            margin-top: 20px;
+        }
+        
+        .letter-paper {
+            background: #ffffff;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            border-left: 4px solid #ffd700;
+            position: relative;
+        }
+        
+        .letter-paper:before {
+            content: "✉️";
+            position: absolute;
+            top: -10px;
+            right: -10px;
+            font-size: 24px;
+            background: #ffd700;
+            padding: 8px;
+            border-radius: 50%;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+        }
+        
+        .letter-text {
+            font-size: 1.1rem;
+            line-height: 1.8;
+            color: #5a5a5a;
+            font-family: 'Georgia', serif;
+        }
+
+        /* 性格测试结果样式 */
+        .personality-section {
+            margin: 30px 20px;
+            padding: 25px;
+            background: linear-gradient(135deg, #e8f4f8 0%, #d6eaf8 100%);
+            border-radius: 15px;
+            border: 1px solid #bee5eb;
+        }
+        
+        .personality-content {
+            margin-top: 20px;
+        }
+        
+        .personality-type {
+            background: #ffffff;
+            padding: 25px;
+            border-radius: 10px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            border-left: 4px solid #17a2b8;
+        }
+        
+        .personality-type h3 {
+            color: #17a2b8;
+            font-size: 1.4rem;
+            margin-bottom: 15px;
+        }
+        
+        .personality-desc {
+            color: #5a5a5a;
+            font-size: 1.1rem;
+            line-height: 1.6;
+        }
+
         /* 留言区域样式 */
         .messages-section {
             padding: 30px 20px;
@@ -932,6 +1006,33 @@
             </div>
         </div>
         
+        <!-- AI信件区域 -->
+        {% if ai_letter %}
+        <div class="ai-letter-section">
+            <h2 class="section-title">💌 来自{{ pet_name }}的信</h2>
+            <div class="letter-content">
+                <div class="letter-paper">
+                    <div class="letter-text">{{ ai_letter|replace('\n', '<br>')|safe }}</div>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+
+        <!-- 性格测试结果 -->
+        {% if personality_type %}
+        <div class="personality-section">
+            <h2 class="section-title">🌟 性格分析</h2>
+            <div class="personality-content">
+                <div class="personality-type">
+                    <h3>性格类型：{{ personality_type }}</h3>
+                    {% if personality_description %}
+                    <p class="personality-desc">{{ personality_description }}</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        {% endif %}
+
         <!-- 访客留言区 -->
         <div class="messages-section">
             <h2 class="section-title">访客留言</h2>

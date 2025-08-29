@@ -69,7 +69,19 @@ nohup python3 start_server.py > app.log 2>&1 &
 
 ## 🤖 自动化部署
 
-### Linux服务器
+### 一键部署（推荐）
+```bash
+# Linux服务器
+chmod +x one_click_deploy.sh
+./one_click_deploy.sh
+
+# Windows服务器
+one_click_deploy.bat
+```
+
+### 分步部署
+
+#### Linux服务器
 ```bash
 # 给脚本执行权限
 chmod +x deploy.sh
@@ -81,7 +93,7 @@ chmod +x deploy.sh
 ./quick_deploy.sh
 ```
 
-### Windows服务器
+#### Windows服务器
 ```cmd
 # 运行Windows部署脚本
 deploy.bat

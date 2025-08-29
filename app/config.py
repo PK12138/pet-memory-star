@@ -15,7 +15,7 @@ class Config:
     # 基础配置
     DEBUG = os.getenv('DEBUG', 'False').lower() == 'true'
     HOST = os.getenv('HOST', '0.0.0.0')
-    PORT = int(os.getenv('PORT', 8000))
+    PORT = int(os.getenv('PORT', 80))
     
     # 数据库配置
     DATABASE_URL = os.getenv('DATABASE_URL', 'sqlite:///pet_memorials.db')

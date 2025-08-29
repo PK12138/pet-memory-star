@@ -23,4 +23,4 @@ sleep 2
 nohup python start_server.py > app.log 2>&1 &
 
 echo "✅ 部署完成！"
-echo "📊 服务地址: http://localhost:8000"
+echo "📊 服务地址: http://42.193.230.145"

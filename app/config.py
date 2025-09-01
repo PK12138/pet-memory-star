@@ -1,54 +1,52 @@
-"""
-配置文件 - 宠忆星·云纪念馆
-Configuration file for Pet Memory Star
-"""
-
 import os
-from dotenv import load_dotenv
-
-# 加载环境变量
-load_dotenv()
 
 class Config:
-    """应用配置类"""
-    
-    # 基础配置
-    DEBUG = os.getenv('DEBUG', 'False').lower() == 'true'
-    HOST = os.getenv('HOST', '0.0.0.0')
-    PORT = int(os.getenv('PORT', 80))
-    
-    # 数据库配置
-    DATABASE_URL = os.getenv('DATABASE_URL', 'sqlite:///pet_memorials.db')
-    
-    # 邮件配置
-    SMTP_SERVER = os.getenv('SMTP_SERVER', 'smtp.qq.com')
-    SMTP_PORT = int(os.getenv('SMTP_PORT', 587))
-    SMTP_USERNAME = os.getenv('SMTP_USERNAME', '1208155205@qq.com')
-    SMTP_PASSWORD = os.getenv('SMTP_PASSWORD', 'qq1208155205')
-    
-    # 文件存储路径
-    STORAGE_PATH = os.getenv('STORAGE_PATH', 'storage')
-    UPLOAD_MAX_SIZE = int(os.getenv('UPLOAD_MAX_SIZE', 10 * 1024 * 1024))  # 10MB
-    
-    # API配置
-    API_V1_PREFIX = '/api'
-    
-    # 安全配置
-    SECRET_KEY = os.getenv('SECRET_KEY', 'pet-memory-star-2024-secure-key-pk12138-production')
-    
+    # 邮件服务配置
+    SMTP_SERVER = "smtp.qq.com"
+    SMTP_PORT = 587
+    SENDER_EMAIL = "1208155205@qq.com"
+    SENDER_PASSWORD = "tscvmzpbazgbbaeh"
+
+    # 服务器配置
+    SERVER_BASE_URL = "http://42.193.230.145"  # 生产环境服务器地址
+    LOCAL_BASE_URL = "http://localhost:8000"    # 本地开发地址
+
+    # 根据环境变量选择服务器地址
+    if os.getenv('ENVIRONMENT') == 'production':
+        BASE_URL = SERVER_BASE_URL
+    else:
+        BASE_URL = LOCAL_BASE_URL
+
     # DeepSeek API配置
-    DEEPSEEK_API_KEY = os.getenv('DEEPSEEK_API_KEY', 'sk-f791e06a786145aaa715342d97df3591')
-    DEEPSEEK_API_URL = os.getenv('DEEPSEEK_API_URL', 'https://api.deepseek.com/v1/chat/completions')
-    
+    DEEPSEEK_API_KEY = "sk-f791e06a786145aaa715342d97df3591"
+    DEEPSEEK_API_URL = "https://api.deepseek.com/v1/chat/completions"
+
+    # 安全配置
+    SECRET_KEY = "pet-memory-star-2024-secure-key-pk12138-production"
+
+    # 数据库配置
+    DATABASE_URL = "sqlite:///pet_memorials.db"
+
+    # 文件存储路径
+    STORAGE_PATH = "storage"
+    MEMORIALS_PATH = "storage/memorials"
+    PHOTOS_PATH = "storage/photos"
+
     @classmethod
     def get_database_url(cls):
-        """获取数据库连接URL"""
         return cls.DATABASE_URL
-    
-    @classmethod
-    def is_email_configured(cls):
-        """检查邮件是否配置完整"""
-        return bool(cls.SMTP_USERNAME and cls.SMTP_PASSWORD)
 
-# 全局配置实例
+    @classmethod
+    def get_storage_path(cls):
+        return cls.STORAGE_PATH
+
+    @classmethod
+    def get_memorials_path(cls):
+        return cls.MEMORIALS_PATH
+
+    @classmethod
+    def get_photos_path(cls):
+        return cls.PHOTOS_PATH
+
+# 创建全局配置实例
 config = Config()

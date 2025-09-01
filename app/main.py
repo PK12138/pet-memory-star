@@ -1,13 +1,15 @@
-from fastapi import FastAPI, UploadFile, File, Form, Request
+from fastapi import FastAPI, UploadFile, File, Form, Request, HTTPException, Depends, Header
 from fastapi.responses import HTMLResponse, JSONResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 from database import Database
 from services import MemorialService, EmailService
+from auth_service import AuthService
 import os
 import uuid
 import uvicorn
 import json
+from typing import Optional
 
 app = FastAPI(title="宠忆星·云纪念馆")
 
@@ -28,6 +30,20 @@ templates = Jinja2Templates(directory=os.path.join(os.path.dirname(__file__), "t
 db = Database()
 memorial_service = MemorialService(db)
 email_service = EmailService()
+auth_service = AuthService(db)
+
+# 依赖函数：获取当前用户
+async def get_current_user(authorization: Optional[str] = Header(None)):
+    if not authorization or not authorization.startswith("Bearer "):
+        raise HTTPException(status_code=401, detail="未提供有效的认证令牌")
+    
+    session_token = authorization.replace("Bearer ", "")
+    user = auth_service.get_current_user(session_token)
+    
+    if not user:
+        raise HTTPException(status_code=401, detail="认证令牌无效或已过期")
+    
+    return user
 
 @app.get("/", response_class=HTMLResponse)
 async def index():
@@ -35,6 +51,39 @@ async def index():
     try:
         # 使用绝对路径读取模板文件
         template_path = os.path.join(os.path.dirname(__file__), "templates", "index.html")
+        with open(template_path, "r", encoding="utf-8") as f:
+            content = f.read()
+        return HTMLResponse(content=content)
+    except Exception as e:
+        return HTMLResponse(content=f"<h1>页面加载错误</h1><p>{str(e)}</p>", status_code=500)
+
+@app.get("/login", response_class=HTMLResponse)
+async def login_page():
+    """登录页面"""
+    try:
+        template_path = os.path.join(os.path.dirname(__file__), "templates", "login.html")
+        with open(template_path, "r", encoding="utf-8") as f:
+            content = f.read()
+        return HTMLResponse(content=content)
+    except Exception as e:
+        return HTMLResponse(content=f"<h1>页面加载错误</h1><p>{str(e)}</p>", status_code=500)
+
+@app.get("/register", response_class=HTMLResponse)
+async def register_page():
+    """注册页面"""
+    try:
+        template_path = os.path.join(os.path.dirname(__file__), "templates", "register.html")
+        with open(template_path, "r", encoding="utf-8") as f:
+            content = f.read()
+        return HTMLResponse(content=content)
+    except Exception as e:
+        return HTMLResponse(content=f"<h1>页面加载错误</h1><p>{str(e)}</p>", status_code=500)
+
+@app.get("/dashboard", response_class=HTMLResponse)
+async def dashboard_page():
+    """用户中心页面"""
+    try:
+        template_path = os.path.join(os.path.dirname(__file__), "templates", "dashboard.html")
         with open(template_path, "r", encoding="utf-8") as f:
             content = f.read()
         return HTMLResponse(content=content)
@@ -74,6 +123,125 @@ async def reminder_setup_page():
     except Exception as e:
         return HTMLResponse(content=f"<h1>页面加载错误</h1><p>{str(e)}</p>", status_code=500)
 
+# 认证相关API
+@app.post("/api/auth/register")
+async def register_user(request: Request):
+    """用户注册API"""
+    try:
+        data = await request.json()
+        email = data.get("email")
+        password = data.get("password")
+        
+        result = auth_service.register_user(email, password)
+        return JSONResponse(content=result)
+    except Exception as e:
+        return JSONResponse(
+            content={"success": False, "message": f"注册失败：{str(e)}"},
+            status_code=500
+        )
+
+@app.post("/api/auth/login")
+async def login_user(request: Request):
+    """用户登录API"""
+    try:
+        data = await request.json()
+        email = data.get("email")
+        password = data.get("password")
+        
+        # 获取客户端IP和User-Agent
+        client_ip = request.client.host if request.client else None
+        user_agent = request.headers.get("user-agent")
+        
+        result = auth_service.login_user(email, password, client_ip, user_agent)
+        return JSONResponse(content=result)
+    except Exception as e:
+        return JSONResponse(
+            content={"success": False, "message": f"登录失败：{str(e)}"},
+            status_code=500
+        )
+
+@app.post("/api/auth/logout")
+async def logout_user(request: Request, current_user: dict = Depends(get_current_user)):
+    """用户登出API"""
+    try:
+        # 从请求头获取session_token
+        authorization = request.headers.get("authorization")
+        if authorization and authorization.startswith("Bearer "):
+            session_token = authorization.replace("Bearer ", "")
+            result = auth_service.logout_user(session_token)
+            return JSONResponse(content=result)
+        else:
+            return JSONResponse(content={"success": True, "message": "登出成功"})
+    except Exception as e:
+        return JSONResponse(
+            content={"success": False, "message": f"登出失败：{str(e)}"},
+            status_code=500
+        )
+
+@app.get("/api/auth/me")
+async def get_current_user_info(current_user: dict = Depends(get_current_user)):
+    """获取当前用户信息API"""
+    try:
+        # 获取用户仪表板数据
+        dashboard_data = auth_service.get_user_dashboard_data(current_user["id"])
+        
+        return JSONResponse(content={
+            "success": True,
+            "user": current_user,
+            "dashboard_data": dashboard_data
+        })
+    except Exception as e:
+        return JSONResponse(
+            content={"success": False, "message": f"获取用户信息失败：{str(e)}"},
+            status_code=500
+        )
+
+@app.get("/api/auth/can-create-memorial")
+async def check_can_create_memorial(current_user: dict = Depends(get_current_user)):
+    """检查用户是否可以创建纪念馆"""
+    try:
+        result = auth_service.can_create_memorial(current_user["id"])
+        return JSONResponse(content=result)
+    except Exception as e:
+        return JSONResponse(
+            content={"can_create": False, "message": f"检查失败：{str(e)}"},
+            status_code=500
+        )
+
+@app.delete("/api/memorials/{memorial_id}")
+async def delete_memorial(memorial_id: str, current_user: dict = Depends(get_current_user)):
+    """删除纪念馆"""
+    try:
+        # 检查纪念馆是否属于当前用户
+        user_memorials = db.get_user_memorials(current_user["id"])
+        memorial_belongs_to_user = any(memorial[0] == memorial_id for memorial in user_memorials)
+        
+        if not memorial_belongs_to_user:
+            return JSONResponse(
+                content={"success": False, "message": "无权删除此纪念馆"},
+                status_code=403
+            )
+        
+        # 删除纪念馆文件
+        storage_base = os.path.join(os.path.dirname(os.path.dirname(__file__)), "storage")
+        memorial_path = os.path.join(storage_base, "memorials", f"{memorial_id}.html")
+        if os.path.exists(memorial_path):
+            os.remove(memorial_path)
+        
+        # 从数据库中删除纪念馆记录
+        if db.delete_memorial(memorial_id, current_user["id"]):
+            return JSONResponse(content={"success": True, "message": "纪念馆删除成功"})
+        else:
+            return JSONResponse(
+                content={"success": False, "message": "删除失败：纪念馆不存在或无权限"},
+                status_code=404
+            )
+    except Exception as e:
+        return JSONResponse(
+            content={"success": False, "message": f"删除失败：{str(e)}"},
+            status_code=500
+        )
+
 @app.get("/api/personality-questions")
 async def get_personality_questions():
     """获取性格测试问题"""
@@ -89,6 +257,7 @@ async def get_personality_options(question_id: int):
 @app.post("/create-memorial-advanced")
 async def create_memorial_advanced(
     request: Request,
+    current_user: dict = Depends(get_current_user),  # 要求用户登录
     email: str = Form(...),
     pet_name: str = Form(...),
     species: str = Form(...),
@@ -98,6 +267,7 @@ async def create_memorial_advanced(
     birth_date: str = Form(""),
     memorial_date: str = Form(...),
     weight: float = Form(0.0),
+    pet_status: str = Form("alive"),
     photos: list[UploadFile] = File(...),
     personality_answers: str = Form("{}")
 ):
@@ -129,7 +299,8 @@ async def create_memorial_advanced(
             "gender": gender,
             "birth_date": birth_date,
             "memorial_date": memorial_date,
-            "weight": weight
+            "weight": weight,
+            "status": pet_status
         }
         
         # 创建纪念馆
@@ -137,7 +308,8 @@ async def create_memorial_advanced(
             email=email,
             pet_info=pet_info,
             photos=photo_paths,
-            personality_answers=personality_answers_dict
+            personality_answers=personality_answers_dict,
+            user_id=current_user["id"]  # 传递当前用户ID
         )
         
         # 发送通知邮件
@@ -196,6 +368,84 @@ async def get_email_config():
         "sender_email": os.getenv('SENDER_EMAIL', 'your_email@163.com'),
         "has_password": bool(os.getenv('SENDER_PASSWORD'))
     }
+
+# 密码找回相关API
+@app.get("/forgot-password", response_class=HTMLResponse)
+async def forgot_password_page():
+    """忘记密码页面"""
+    try:
+        template_path = os.path.join(os.path.dirname(__file__), "templates", "forgot_password.html")
+        with open(template_path, "r", encoding="utf-8") as f:
+            content = f.read()
+        return HTMLResponse(content=content)
+    except Exception as e:
+        return HTMLResponse(content=f"<h1>页面加载错误</h1><p>{str(e)}</p>", status_code=500)
+
+@app.post("/api/auth/send-verification-code")
+async def send_verification_code(request: Request):
+    """发送邮箱验证码"""
+    try:
+        data = await request.json()
+        email = data.get('email', '').strip()
+        
+        if not email:
+            return {"success": False, "message": "请输入邮箱地址"}
+        
+        # 检查邮箱格式
+        import re
+        if not re.match(r'^[^\s@]+@[^\s@]+\.[^\s@]+$', email):
+            return {"success": False, "message": "邮箱格式不正确"}
+        
+        # 检查用户是否存在
+        if not db.user_exists(email):
+            return {"success": False, "message": "该邮箱未注册，请先注册账户"}
+        
+        # 生成验证码
+        code = db.create_email_code(email, "password_reset")
+        
+        # 发送验证码邮件
+        success = email_service.send_verification_code(email, code)
+        
+        if success:
+            return {"success": True, "message": "验证码已发送到您的邮箱"}
+        else:
+            return {"success": False, "message": "验证码发送失败，请稍后重试"}
+            
+    except Exception as e:
+        print(f"发送验证码失败: {e}")
+        return {"success": False, "message": "发送验证码失败，请稍后重试"}
+
+@app.post("/api/auth/reset-password")
+async def reset_password(request: Request):
+    """重置密码"""
+    try:
+        data = await request.json()
+        email = data.get('email', '').strip()
+        verification_code = data.get('verification_code', '').strip()
+        new_password = data.get('new_password', '').strip()
+        
+        if not all([email, verification_code, new_password]):
+            return {"success": False, "message": "请填写所有必填字段"}
+        
+        # 验证密码长度
+        if len(new_password) < 6:
+            return {"success": False, "message": "密码长度至少6位"}
+        
+        # 验证验证码
+        if not db.verify_email_code(email, verification_code, "password_reset"):
+            return {"success": False, "message": "验证码错误或已过期"}
+        
+        # 重置密码
+        success = db.reset_user_password(email, new_password)
+        
+        if success:
+            return {"success": True, "message": "密码重置成功"}
+        else:
+            return {"success": False, "message": "密码重置失败，请稍后重试"}
+            
+    except Exception as e:
+        print(f"重置密码失败: {e}")
+        return {"success": False, "message": "密码重置失败，请稍后重试"}
 
 @app.get("/email-config", response_class=HTMLResponse)
 async def email_config_page():

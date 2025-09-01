@@ -385,6 +385,17 @@
                         <label for="memorial_date">纪念日期 *</label>
                         <input type="text" id="memorial_date" name="memorial_date" placeholder="年/月/日" required readonly>
                     </div>
+                    <div class="form-group">
+                        <label for="pet_status">宠物状态 *</label>
+                        <select id="pet_status" name="pet_status" required>
+                            <option value="">请选择</option>
+                            <option value="alive">健在</option>
+                            <option value="passed">已逝世</option>
+                        </select>
+                        <small style="color: #e2e8f0; font-size: 0.9rem; margin-top: 5px; display: block;">
+                            选择"健在"时，AI信件将被隐藏，直到您主动查看
+                        </small>
+                    </div>
                 </div>
                 
                 <div class="form-group" style="margin-top: 20px;">
@@ -609,6 +620,14 @@
         }
         
         function createMemorial() {
+            // 检查用户登录状态
+            const sessionToken = localStorage.getItem('session_token');
+            if (!sessionToken) {
+                alert('请先登录后再创建纪念馆');
+                window.location.href = '/login';
+                return;
+            }
+            
             // 显示进度条
             showProgressBar();
             
@@ -627,6 +646,9 @@
             // 提交到服务器
             fetch('/create-memorial-advanced', {
                 method: 'POST',
+                headers: {
+                    'Authorization': `Bearer ${sessionToken}`
+                },
                 body: formData
             })
             .then(response => response.json())
@@ -714,7 +736,7 @@
         // 开始测试按钮
         function startTest() {
             // 验证基本信息是否填写完整
-            const requiredFields = ['pet_name', 'species', 'memorial_date', 'email'];
+            const requiredFields = ['pet_name', 'species', 'memorial_date', 'email', 'pet_status'];
             for (const field of requiredFields) {
                 const value = document.getElementById(field).value.trim();
                 if (!value) {

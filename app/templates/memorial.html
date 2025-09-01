@@ -869,6 +869,77 @@
             transform: translateY(-2px);
             box-shadow: 0 8px 20px rgba(245, 101, 101, 0.3);
         }
+        
+        /* 信件通知区域样式 */
+        .letter-notice-section {
+            padding: 30px 20px;
+            background: #f8f9fe;
+        }
+        
+        .letter-notice-content {
+            max-width: 600px;
+            margin: 0 auto;
+        }
+        
+        .letter-notice-paper {
+            background: linear-gradient(135deg, #fff9c4 0%, #fff59d 100%);
+            border: 2px solid #fbc02d;
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: 0 8px 25px rgba(251, 192, 45, 0.2);
+            position: relative;
+        }
+        
+        .letter-notice-paper::before {
+            content: '';
+            position: absolute;
+            top: -2px;
+            left: -2px;
+            right: -2px;
+            bottom: -2px;
+            background: linear-gradient(45deg, #fbc02d, #f57f17, #fbc02d);
+            border-radius: 15px;
+            z-index: -1;
+        }
+        
+        .letter-notice-text {
+            text-align: center;
+            color: #5d4037;
+            line-height: 1.8;
+        }
+        
+        .letter-notice-text p {
+            margin-bottom: 15px;
+            font-size: 1.1rem;
+        }
+        
+        .letter-notice-actions {
+            margin-top: 25px;
+            text-align: center;
+        }
+        
+        .view-letter-btn {
+            background: linear-gradient(135deg, #4caf50 0%, #388e3c 100%);
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 25px;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-bottom: 10px;
+        }
+        
+        .view-letter-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(76, 175, 80, 0.3);
+        }
+        
+        .notice-text {
+            font-size: 0.9rem;
+            color: #666;
+            font-style: italic;
+        }
 
         .footer {
             text-align: center;
@@ -1008,14 +1079,43 @@
         
         <!-- AI信件区域 -->
         {% if ai_letter %}
-        <div class="ai-letter-section">
-            <h2 class="section-title">💌 来自{{ pet_name }}的信</h2>
-            <div class="letter-content">
-                <div class="letter-paper">
-                    <div class="letter-text">{{ ai_letter|replace('\n', '<br>')|safe }}</div>
+            {% if pet_status == 'passed' %}
+            <!-- 宠物已逝世，显示AI信件 -->
+            <div class="ai-letter-section">
+                <h2 class="section-title">💌 来自{{ pet_name }}的信</h2>
+                <div class="letter-content">
+                    <div class="letter-paper">
+                        <div class="letter-text">{{ ai_letter|replace('\n', '<br>')|safe }}</div>
+                    </div>
                 </div>
             </div>
-        </div>
+            {% else %}
+            <!-- 宠物健在，显示隐藏的信件区域 -->
+            <div class="ai-letter-section" id="hiddenLetterSection" style="display: none;">
+                <h2 class="section-title">💌 来自{{ pet_name }}的信</h2>
+                <div class="letter-content">
+                    <div class="letter-paper">
+                        <div class="letter-text">{{ ai_letter|replace('\n', '<br>')|safe }}</div>
+                    </div>
+                </div>
+            </div>
+            <div class="letter-notice-section">
+                <h2 class="section-title">💌 来自{{ pet_name }}的信</h2>
+                <div class="letter-notice-content">
+                    <div class="letter-notice-paper">
+                        <div class="letter-notice-text">
+                            <p>亲爱的{{ pet_name }}的主人：</p>
+                            <p>这里有一封来自{{ pet_name }}的信，将在适当的时候为您展示。</p>
+                            <p>愿{{ pet_name }}健康快乐，陪伴您度过更多美好时光。</p>
+                            <div class="letter-notice-actions">
+                                <button class="view-letter-btn" onclick="showHiddenLetter()">查看信件</button>
+                                <p class="notice-text">（请谨慎选择，信件内容可能包含情感表达）</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endif %}
         {% endif %}
 
         <!-- 性格测试结果 -->
@@ -1730,6 +1830,21 @@
                 return `${Math.floor(diff / 86400000)}天前`;
             } else {
                 return date.toLocaleDateString('zh-CN');
+            }
+        }
+        
+        // 显示隐藏的信件
+        function showHiddenLetter() {
+            if (confirm('确定要查看这封信吗？信件内容可能包含情感表达。')) {
+                const hiddenSection = document.getElementById('hiddenLetterSection');
+                const noticeSection = document.querySelector('.letter-notice-section');
+                
+                if (hiddenSection) {
+                    hiddenSection.style.display = 'block';
+                }
+                if (noticeSection) {
+                    noticeSection.style.display = 'none';
+                }
             }
         }
         

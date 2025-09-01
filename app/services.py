@@ -23,7 +23,7 @@ class MemorialService:
         Path(os.path.join(storage_base, "downloads")).mkdir(parents=True, exist_ok=True)
         Path(os.path.join(storage_base, "qrcodes")).mkdir(parents=True, exist_ok=True)
     
-    def create_memorial_advanced(self, email, pet_info, photos, personality_answers):
+    def create_memorial_advanced(self, email, pet_info, photos, personality_answers, user_id=None):
         """创建纪念馆完整流程（包含性格测试和AI信件）"""
         # 生成唯一ID
         pet_id = uuid.uuid4().hex
@@ -39,7 +39,9 @@ class MemorialService:
             gender=pet_info.get('gender', ''),
             birth_date=pet_info.get('birth_date', ''),
             memorial_date=pet_info.get('memorial_date', ''),
-            weight=pet_info.get('weight', 0.0)
+            weight=pet_info.get('weight', 0.0),
+            user_id=user_id,  # 关联到用户
+            status=pet_info.get('status', 'alive')  # 宠物状态
         )
         
         # 保存性格测试答案
@@ -70,6 +72,10 @@ class MemorialService:
             memorial_url=memorial_url,
             ai_letter=ai_letter
         )
+        
+        # 如果提供了用户ID，将纪念馆关联到用户
+        if user_id:
+            self.db.link_memorial_to_user(user_id, memorial_id)
         
         return memorial_url, personality_type, ai_letter
     
@@ -210,6 +216,7 @@ class MemorialService:
             birth_date=pet_info.get('birth_date', ''),
             weight=pet_info.get('weight', ''),
             memorial_date=pet_info.get('memorial_date', ''),
+            pet_status=pet_info.get('status', 'alive'),
             personality_type=personality_type,
             personality_description=self.get_personality_description(personality_type),
             ai_letter=ai_letter,
@@ -277,7 +284,14 @@ class EmailService:
     
     def _build_email_html(self, pet_name, memorial_url, personality_type, ai_letter):
         """构建HTML邮件内容"""
-        base_url = "http://localhost:8000"
+        # 使用配置文件中的服务器地址
+        try:
+            from .config import config
+            base_url = config.BASE_URL
+        except ImportError:
+            # 如果相对导入失败，尝试绝对导入
+            import os
+            base_url = os.getenv('SERVER_BASE_URL', 'http://42.193.230.145')
         full_memorial_url = f"{base_url}{memorial_url}"
         
         html = f"""
@@ -590,3 +604,236 @@ class EmailService:
         """
         
         return self._send_email(to_email, subject, html_content)
+    
+    def send_verification_code(self, to_email, code):
+        """发送验证码邮件"""
+        subject = "🔐 宠忆星·云纪念馆 - 邮箱验证码"
+        html_content = self._build_verification_email_html(code)
+        
+        return self._send_email(to_email, subject, html_content)
+    
+    def send_password_reset_email(self, to_email, reset_url):
+        """发送密码重置邮件"""
+        subject = "🔑 宠忆星·云纪念馆 - 密码重置"
+        html_content = self._build_password_reset_email_html(reset_url)
+        
+        return self._send_email(to_email, subject, html_content)
+    
+    def _build_verification_email_html(self, code):
+        """构建验证码邮件HTML内容"""
+        html = f"""
+        <!DOCTYPE html>
+        <html lang="zh-CN">
+        <head>
+            <meta charset="UTF-8">
+            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+            <title>邮箱验证码</title>
+            <style>
+                body {{
+                    font-family: 'Microsoft YaHei', Arial, sans-serif;
+                    line-height: 1.6;
+                    color: #333;
+                    max-width: 600px;
+                    margin: 0 auto;
+                    padding: 20px;
+                    background-color: #f5f5f5;
+                }}
+                .email-container {{
+                    background-color: white;
+                    border-radius: 10px;
+                    padding: 30px;
+                    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+                }}
+                .header {{
+                    text-align: center;
+                    padding: 20px 0;
+                    border-bottom: 3px solid #667eea;
+                    margin-bottom: 30px;
+                }}
+                .header h1 {{
+                    color: #667eea;
+                    margin: 0;
+                    font-size: 2em;
+                }}
+                .code-container {{
+                    text-align: center;
+                    margin: 30px 0;
+                    padding: 20px;
+                    background-color: #f8f9fa;
+                    border-radius: 10px;
+                    border: 2px dashed #667eea;
+                }}
+                .verification-code {{
+                    font-size: 3em;
+                    font-weight: bold;
+                    color: #667eea;
+                    letter-spacing: 10px;
+                    margin: 20px 0;
+                }}
+                .warning {{
+                    background-color: #fff3cd;
+                    border: 1px solid #ffeaa7;
+                    border-radius: 5px;
+                    padding: 15px;
+                    margin: 20px 0;
+                    color: #856404;
+                }}
+                .footer {{
+                    text-align: center;
+                    margin-top: 30px;
+                    padding-top: 20px;
+                    border-top: 1px solid #eee;
+                    color: #666;
+                    font-size: 0.9em;
+                }}
+            </style>
+        </head>
+        <body>
+            <div class="email-container">
+                <div class="header">
+                    <h1>🐾 宠忆星·云纪念馆</h1>
+                    <p>邮箱验证码</p>
+                </div>
+                
+                <div class="content">
+                    <h2>亲爱的用户：</h2>
+                    
+                    <p>您正在使用邮箱验证功能，请在验证码输入框中输入以下验证码：</p>
+                    
+                    <div class="code-container">
+                        <div class="verification-code">{code}</div>
+                        <p><strong>验证码有效期：10分钟</strong></p>
+                    </div>
+                    
+                    <div class="warning">
+                        <p><strong>⚠️ 安全提醒：</strong></p>
+                        <ul>
+                            <li>请勿将验证码告诉他人</li>
+                            <li>验证码将在10分钟后自动失效</li>
+                            <li>如非本人操作，请忽略此邮件</li>
+                        </ul>
+                    </div>
+                    
+                    <p>如果您没有进行相关操作，请忽略此邮件。</p>
+                </div>
+                
+                <div class="footer">
+                    <p>此邮件由宠忆星·云纪念馆系统自动发送</p>
+                    <p>© {datetime.now().year} 宠忆星·云纪念馆 - 让爱永远延续</p>
+                </div>
+            </div>
+        </body>
+        </html>
+        """
+        
+        return html
+    
+    def _build_password_reset_email_html(self, reset_url):
+        """构建密码重置邮件HTML内容"""
+        html = f"""
+        <!DOCTYPE html>
+        <html lang="zh-CN">
+        <head>
+            <meta charset="UTF-8">
+            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+            <title>密码重置</title>
+            <style>
+                body {{
+                    font-family: 'Microsoft YaHei', Arial, sans-serif;
+                    line-height: 1.6;
+                    color: #333;
+                    max-width: 600px;
+                    margin: 0 auto;
+                    padding: 20px;
+                    background-color: #f5f5f5;
+                }}
+                .email-container {{
+                    background-color: white;
+                    border-radius: 10px;
+                    padding: 30px;
+                    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+                }}
+                .header {{
+                    text-align: center;
+                    padding: 20px 0;
+                    border-bottom: 3px solid #667eea;
+                    margin-bottom: 30px;
+                }}
+                .header h1 {{
+                    color: #667eea;
+                    margin: 0;
+                    font-size: 2em;
+                }}
+                .button {{
+                    display: inline-block;
+                    background-color: #667eea;
+                    color: white;
+                    padding: 15px 30px;
+                    text-decoration: none;
+                    border-radius: 25px;
+                    font-weight: bold;
+                    margin: 20px 0;
+                    text-align: center;
+                }}
+                .button:hover {{
+                    background-color: #5a6fd8;
+                }}
+                .warning {{
+                    background-color: #fff3cd;
+                    border: 1px solid #ffeaa7;
+                    border-radius: 5px;
+                    padding: 15px;
+                    margin: 20px 0;
+                    color: #856404;
+                }}
+                .footer {{
+                    text-align: center;
+                    margin-top: 30px;
+                    padding-top: 20px;
+                    border-top: 1px solid #eee;
+                    color: #666;
+                    font-size: 0.9em;
+                }}
+            </style>
+        </head>
+        <body>
+            <div class="email-container">
+                <div class="header">
+                    <h1>🐾 宠忆星·云纪念馆</h1>
+                    <p>密码重置</p>
+                </div>
+                
+                <div class="content">
+                    <h2>亲爱的用户：</h2>
+                    
+                    <p>我们收到了您的密码重置请求。请点击下面的按钮重置您的密码：</p>
+                    
+                    <div style="text-align: center;">
+                        <a href="{reset_url}" class="button">🔑 重置密码</a>
+                    </div>
+                    
+                    <p>如果按钮无法点击，请复制以下链接到浏览器中打开：</p>
+                    <p style="word-break: break-all; color: #667eea;">{reset_url}</p>
+                    
+                    <div class="warning">
+                        <p><strong>⚠️ 安全提醒：</strong></p>
+                        <ul>
+                            <li>此链接将在1小时后自动失效</li>
+                            <li>请勿将此链接分享给他人</li>
+                            <li>如非本人操作，请忽略此邮件</li>
+                        </ul>
+                    </div>
+                    
+                    <p>如果您没有请求重置密码，请忽略此邮件，您的密码将保持不变。</p>
+                </div>
+                
+                <div class="footer">
+                    <p>此邮件由宠忆星·云纪念馆系统自动发送</p>
+                    <p>© {datetime.now().year} 宠忆星·云纪念馆 - 让爱永远延续</p>
+                </div>
+            </div>
+        </body>
+        </html>
+        """
+        
+        return html

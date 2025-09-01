@@ -1,0 +1,636 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>用户中心 - 宠忆星·云纪念馆</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Microsoft YaHei', 'Segoe UI', sans-serif;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            color: #2d3748;
+            line-height: 1.6;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px 0;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+        }
+        
+        .header-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .logo {
+            font-size: 1.8em;
+            font-weight: 800;
+        }
+        
+        .user-nav {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+        
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .user-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+        }
+        
+        .logout-btn {
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 20px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .logout-btn:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 40px 20px;
+        }
+        
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: 300px 1fr;
+            gap: 30px;
+        }
+        
+        .sidebar {
+            background: white;
+            border-radius: 16px;
+            padding: 30px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+            height: fit-content;
+        }
+        
+        .main-content {
+            background: white;
+            border-radius: 16px;
+            padding: 30px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+        }
+        
+        .user-profile {
+            text-align: center;
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid #e2e8f0;
+        }
+        
+        .profile-avatar {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2em;
+            color: white;
+            margin: 0 auto 15px;
+        }
+        
+        .profile-name {
+            font-size: 1.4em;
+            font-weight: 700;
+            margin-bottom: 5px;
+        }
+        
+        .profile-email {
+            color: #666;
+            font-size: 0.9em;
+        }
+        
+        .membership-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+        
+        .membership-title {
+            font-size: 1.1em;
+            font-weight: 600;
+            margin-bottom: 10px;
+        }
+        
+        .membership-features {
+            font-size: 0.9em;
+            opacity: 0.9;
+            line-height: 1.5;
+        }
+        
+        .upgrade-btn {
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            margin-top: 15px;
+            width: 100%;
+            transition: all 0.3s ease;
+        }
+        
+        .upgrade-btn:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+        
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        
+        .stat-card {
+            background: linear-gradient(135deg, #f7fafc 0%, #edf2f7 100%);
+            border: 1px solid #e2e8f0;
+            border-radius: 12px;
+            padding: 20px;
+            text-align: center;
+        }
+        
+        .stat-number {
+            font-size: 2em;
+            font-weight: 800;
+            color: #667eea;
+            margin-bottom: 5px;
+        }
+        
+        .stat-label {
+            color: #666;
+            font-size: 0.9em;
+        }
+        
+        .section-title {
+            font-size: 1.5em;
+            font-weight: 700;
+            margin-bottom: 20px;
+            color: #2d3748;
+        }
+        
+        .memorials-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 20px;
+        }
+        
+        .memorial-card {
+            background: #f7fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 12px;
+            padding: 20px;
+            transition: all 0.3s ease;
+        }
+        
+        .memorial-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+        }
+        
+        .memorial-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+        
+        .memorial-name {
+            font-size: 1.2em;
+            font-weight: 600;
+            color: #2d3748;
+        }
+        
+        .memorial-species {
+            background: #667eea;
+            color: white;
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-size: 0.8em;
+        }
+        
+        .memorial-date {
+            color: #666;
+            font-size: 0.9em;
+            margin-bottom: 15px;
+        }
+        
+        .memorial-actions {
+            display: flex;
+            gap: 10px;
+        }
+        
+        .action-btn {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.9em;
+            transition: all 0.3s ease;
+        }
+        
+        .view-btn {
+            background: #667eea;
+            color: white;
+        }
+        
+        .view-btn:hover {
+            background: #5a67d8;
+        }
+        
+        .edit-btn {
+            background: #48bb78;
+            color: white;
+        }
+        
+        .edit-btn:hover {
+            background: #38a169;
+        }
+        
+        .delete-btn {
+            background: #e53e3e;
+            color: white;
+        }
+        
+        .delete-btn:hover {
+            background: #c53030;
+        }
+        
+        .create-memorial {
+            background: linear-gradient(135deg, #48bb78 0%, #38a169 100%);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 12px;
+            font-size: 1.1em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-bottom: 30px;
+        }
+        
+        .create-memorial:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(72, 187, 120, 0.4);
+        }
+        
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: #666;
+        }
+        
+        .empty-icon {
+            font-size: 4em;
+            margin-bottom: 20px;
+            opacity: 0.5;
+        }
+        
+        .loading {
+            text-align: center;
+            padding: 40px;
+        }
+        
+        .loading::after {
+            content: '';
+            display: inline-block;
+            width: 30px;
+            height: 30px;
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #667eea;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        @media (max-width: 768px) {
+            .dashboard-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .header-content {
+                flex-direction: column;
+                gap: 15px;
+            }
+            
+            .stats-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            
+            .memorials-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <div class="header-content">
+            <div class="logo">🐾 宠忆星·云纪念馆</div>
+            <div class="user-nav">
+                <div class="user-info">
+                    <div class="user-avatar" id="userAvatar">U</div>
+                    <span id="userName">用户</span>
+                </div>
+                <button class="logout-btn" onclick="logout()">退出登录</button>
+            </div>
+        </div>
+    </header>
+    
+    <div class="container">
+        <div class="dashboard-grid">
+            <!-- 侧边栏 -->
+            <div class="sidebar">
+                <div class="user-profile">
+                    <div class="profile-avatar" id="profileAvatar">U</div>
+                    <div class="profile-name" id="profileName">用户名</div>
+                    <div class="profile-email" id="profileEmail">user@example.com</div>
+                </div>
+                
+                <div class="membership-card">
+                    <div class="membership-title" id="membershipTitle">免费用户</div>
+                    <div class="membership-features" id="membershipFeatures">
+                        基础功能，1个纪念馆，10张照片
+                    </div>
+                    <button class="upgrade-btn" onclick="upgradeMembership()">升级会员</button>
+                </div>
+            </div>
+            
+            <!-- 主内容区 -->
+            <div class="main-content">
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-number" id="memorialCount">0</div>
+                        <div class="stat-label">纪念馆数量</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number" id="maxMemorials">1</div>
+                        <div class="stat-label">最大纪念馆数</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number" id="maxPhotos">10</div>
+                        <div class="stat-label">最大照片数</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number" id="aiEnabled">❌</div>
+                        <div class="stat-label">AI功能</div>
+                    </div>
+                </div>
+                
+                <button class="create-memorial" onclick="createNewMemorial()">
+                    🎯 创建新纪念馆
+                </button>
+                
+                <h2 class="section-title">我的纪念馆</h2>
+                
+                <div id="memorialsContainer">
+                    <div class="loading" id="loadingMemorials"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        let userData = null;
+        let dashboardData = null;
+        
+        // 页面加载时检查登录状态
+        window.addEventListener('load', async function() {
+            await checkAuthAndLoadData();
+        });
+        
+        // 检查认证状态并加载数据
+        async function checkAuthAndLoadData() {
+            const sessionToken = localStorage.getItem('session_token');
+            if (!sessionToken) {
+                window.location.href = '/login';
+                return;
+            }
+            
+            try {
+                const response = await fetch('/api/auth/me', {
+                    headers: {
+                        'Authorization': `Bearer ${sessionToken}`
+                    }
+                });
+                
+                if (!response.ok) {
+                    localStorage.removeItem('session_token');
+                    localStorage.removeItem('user_info');
+                    window.location.href = '/login';
+                    return;
+                }
+                
+                const result = await response.json();
+                if (result.success) {
+                    userData = result.user;
+                    dashboardData = result.dashboard_data;
+                    updateUI();
+                } else {
+                    throw new Error(result.message);
+                }
+            } catch (error) {
+                console.error('认证检查失败:', error);
+                localStorage.removeItem('session_token');
+                localStorage.removeItem('user_info');
+                window.location.href = '/login';
+            }
+        }
+        
+        // 更新UI
+        function updateUI() {
+            if (!userData || !dashboardData) return;
+            
+                         // 更新用户信息
+             const userEmail = userData.email;
+             const userInitial = userEmail.charAt(0).toUpperCase();
+             
+             document.getElementById('userName').textContent = userEmail;
+             document.getElementById('userAvatar').textContent = userInitial;
+             document.getElementById('profileName').textContent = userEmail;
+             document.getElementById('profileEmail').textContent = userEmail;
+             document.getElementById('profileAvatar').textContent = userInitial;
+            
+            // 更新会员信息
+            const levelInfo = dashboardData.level_info;
+            document.getElementById('membershipTitle').textContent = levelInfo.name;
+            document.getElementById('membershipFeatures').textContent = levelInfo.description;
+            
+            // 更新统计信息
+            document.getElementById('memorialCount').textContent = dashboardData.memorial_count;
+            document.getElementById('maxMemorials').textContent = levelInfo.max_memorials === -1 ? '∞' : levelInfo.max_memorials;
+            document.getElementById('maxPhotos').textContent = levelInfo.max_photos === -1 ? '∞' : levelInfo.max_photos;
+            document.getElementById('aiEnabled').textContent = levelInfo.can_use_ai ? '✅' : '❌';
+            
+            // 更新纪念馆列表
+            updateMemorialsList();
+        }
+        
+        // 更新纪念馆列表
+        function updateMemorialsList() {
+            const container = document.getElementById('memorialsContainer');
+            const memorials = dashboardData.memorials;
+            
+            if (memorials.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <div class="empty-icon">🐾</div>
+                        <h3>还没有纪念馆</h3>
+                        <p>创建您的第一个纪念馆，记录美好回忆</p>
+                    </div>
+                `;
+                return;
+            }
+            
+            const memorialsHTML = memorials.map(memorial => `
+                <div class="memorial-card">
+                    <div class="memorial-header">
+                        <div class="memorial-name">${memorial[2]}</div>
+                        <div class="memorial-species">${memorial[3]}</div>
+                    </div>
+                    <div class="memorial-date">创建时间：${new Date(memorial[4]).toLocaleDateString()}</div>
+                    <div class="memorial-actions">
+                        <button class="action-btn view-btn" onclick="viewMemorial('${memorial[1]}')">查看</button>
+                        <button class="action-btn edit-btn" onclick="editMemorial('${memorial[0]}')">编辑</button>
+                        <button class="action-btn delete-btn" onclick="deleteMemorial('${memorial[0]}')">删除</button>
+                    </div>
+                </div>
+            `).join('');
+            
+            container.innerHTML = `
+                <div class="memorials-grid">
+                    ${memorialsHTML}
+                </div>
+            `;
+        }
+        
+        // 创建新纪念馆
+        async function createNewMemorial() {
+            try {
+                const sessionToken = localStorage.getItem('session_token');
+                const response = await fetch('/api/auth/can-create-memorial', {
+                    headers: {
+                        'Authorization': `Bearer ${sessionToken}`
+                    }
+                });
+                
+                const result = await response.json();
+                if (!result.can_create) {
+                    alert(result.message);
+                    return;
+                }
+                
+                window.location.href = '/personality-test';
+            } catch (error) {
+                console.error('检查权限失败:', error);
+                alert('检查权限失败，请重试');
+            }
+        }
+        
+        // 查看纪念馆
+        function viewMemorial(memorialUrl) {
+            window.open(memorialUrl, '_blank');
+        }
+        
+        // 编辑纪念馆
+        function editMemorial(memorialId) {
+            // TODO: 实现编辑功能
+            alert('编辑功能开发中...');
+        }
+        
+        // 删除纪念馆
+        async function deleteMemorial(memorialId) {
+            if (!confirm('确定要删除这个纪念馆吗？此操作不可恢复。')) {
+                return;
+            }
+            
+            try {
+                const sessionToken = localStorage.getItem('session_token');
+                const response = await fetch(`/api/memorials/${memorialId}`, {
+                    method: 'DELETE',
+                    headers: {
+                        'Authorization': `Bearer ${sessionToken}`
+                    }
+                });
+                
+                const result = await response.json();
+                if (result.success) {
+                    alert('纪念馆删除成功');
+                    await checkAuthAndLoadData(); // 重新加载数据
+                } else {
+                    alert('删除失败：' + result.message);
+                }
+            } catch (error) {
+                console.error('删除纪念馆失败:', error);
+                alert('删除失败，请重试');
+            }
+        }
+        
+        // 升级会员
+        function upgradeMembership() {
+            // TODO: 实现会员升级功能
+            alert('会员升级功能开发中...');
+        }
+        
+        // 退出登录
+        async function logout() {
+            try {
+                const sessionToken = localStorage.getItem('session_token');
+                if (sessionToken) {
+                    await fetch('/api/auth/logout', {
+                        method: 'POST',
+                        headers: {
+                            'Authorization': `Bearer ${sessionToken}`
+                        }
+                    });
+                }
+            } catch (error) {
+                console.error('退出登录失败:', error);
+            } finally {
+                localStorage.removeItem('session_token');
+                localStorage.removeItem('user_info');
+                window.location.href = '/';
+            }
+        }
+    </script>
+</body>
+</html>

@@ -274,7 +274,7 @@ async def create_memorial_advanced(
     """创建纪念馆完整流程（包含性格测试和AI信件）"""
     try:
         # 解析性格测试答案
-       try:
+        try:
             personality_answers_dict = json.loads(personality_answers)
         except:
             personality_answers_dict = {}

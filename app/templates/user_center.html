@@ -1,0 +1,533 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>个人中心 - 宠忆星</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Microsoft YaHei', Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .logo {
+            font-size: 2.5rem;
+            font-weight: bold;
+            color: white;
+            margin-bottom: 10px;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .subtitle {
+            color: rgba(255,255,255,0.9);
+            font-size: 1.1rem;
+        }
+
+        .user-info-card {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 20px;
+            padding: 30px;
+            margin-bottom: 30px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .user-avatar {
+            width: 80px;
+            height: 80px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 2rem;
+            font-weight: bold;
+            margin-right: 20px;
+        }
+
+        .user-details h2 {
+            color: white;
+            margin-bottom: 5px;
+        }
+
+        .user-level {
+            background: rgba(255, 255, 255, 0.2);
+            padding: 5px 15px;
+            border-radius: 20px;
+            color: white;
+            font-size: 0.9rem;
+            display: inline-block;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .stat-card {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 15px;
+            padding: 20px;
+            text-align: center;
+            color: white;
+        }
+
+        .stat-number {
+            font-size: 2rem;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .stat-label {
+            font-size: 0.9rem;
+            opacity: 0.8;
+        }
+
+        .permissions-section {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 20px;
+            padding: 30px;
+            margin-bottom: 30px;
+        }
+
+        .section-title {
+            color: white;
+            font-size: 1.5rem;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .permission-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .permission-item:last-child {
+            border-bottom: none;
+        }
+
+        .permission-name {
+            color: white;
+            font-weight: 500;
+        }
+
+        .permission-status {
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            font-weight: 500;
+        }
+
+        .status-allowed {
+            background: rgba(76, 175, 80, 0.3);
+            color: #4CAF50;
+            border: 1px solid rgba(76, 175, 80, 0.5);
+        }
+
+        .status-limited {
+            background: rgba(255, 152, 0, 0.3);
+            color: #FF9800;
+            border: 1px solid rgba(255, 152, 0, 0.5);
+        }
+
+        .status-denied {
+            background: rgba(244, 67, 54, 0.3);
+            color: #F44336;
+            border: 1px solid rgba(244, 67, 54, 0.5);
+        }
+
+        .upgrade-section {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 20px;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .upgrade-title {
+            color: white;
+            font-size: 1.5rem;
+            margin-bottom: 15px;
+        }
+
+        .upgrade-description {
+            color: rgba(255, 255, 255, 0.8);
+            margin-bottom: 25px;
+            line-height: 1.6;
+        }
+
+        .upgrade-btn {
+            background: linear-gradient(135deg, #FF6B6B 0%, #FF8E53 100%);
+            color: white;
+            padding: 15px 30px;
+            border: none;
+            border-radius: 25px;
+            font-size: 1.1rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-block;
+        }
+
+        .upgrade-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(255, 107, 107, 0.4);
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            margin-top: 30px;
+        }
+
+        .btn {
+            padding: 12px 25px;
+            border: none;
+            border-radius: 25px;
+            font-size: 1rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-block;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .btn-secondary {
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .verification-notice {
+            background: rgba(255, 193, 7, 0.2);
+            border: 1px solid rgba(255, 193, 7, 0.5);
+            border-radius: 10px;
+            padding: 15px;
+            margin-bottom: 20px;
+            color: #FFC107;
+            text-align: center;
+        }
+
+        .verification-notice.verified {
+            background: rgba(76, 175, 80, 0.2);
+            border: 1px solid rgba(76, 175, 80, 0.5);
+            color: #4CAF50;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 10px;
+            }
+
+            .user-info {
+                flex-direction: column;
+                text-align: center;
+            }
+
+            .user-avatar {
+                margin-right: 0;
+                margin-bottom: 15px;
+            }
+
+            .stats-grid {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 15px;
+            }
+
+            .action-buttons {
+                flex-direction: column;
+                align-items: center;
+            }
+
+            .btn {
+                width: 100%;
+                max-width: 300px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div class="logo">🐾 宠忆星</div>
+            <div class="subtitle">个人中心</div>
+        </div>
+
+        <!-- 用户信息卡片 -->
+        <div class="user-info-card">
+            <div class="user-info">
+                <div class="user-avatar">{{ user.email[0].upper() }}</div>
+                <div class="user-details">
+                    <h2>{{ user.email }}</h2>
+                    <div class="user-level">{{ user.level_name }}</div>
+                </div>
+            </div>
+
+            <!-- 邮箱验证状态 -->
+            <div class="verification-notice {% if user.email_verified %}verified{% endif %}">
+                {% if user.email_verified %}
+                    ✅ 邮箱已验证
+                {% else %}
+                    ⚠️ 邮箱未验证，请检查邮箱并完成验证
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- 统计信息 -->
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-number">{{ user.memorial_count }}</div>
+                <div class="stat-label">纪念馆数量</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number">{{ user.total_photos }}</div>
+                <div class="stat-label">照片总数</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number">{{ user.max_memorials if user.max_memorials != -1 else '∞' }}</div>
+                <div class="stat-label">最大纪念馆</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number">{{ user.max_photos if user.max_photos != -1 else '∞' }}</div>
+                <div class="stat-label">最大照片</div>
+            </div>
+        </div>
+
+        <!-- 权限信息 -->
+        <div class="permissions-section">
+            <h3 class="section-title">功能权限</h3>
+            
+            <div class="permission-item">
+                <span class="permission-name">创建纪念馆</span>
+                <span class="permission-status {% if permissions.can_create_memorial.can_create %}status-allowed{% else %}status-limited{% endif %}">
+                    {% if permissions.can_create_memorial.can_create %}
+                        允许
+                    {% else %}
+                        限制
+                    {% endif %}
+                </span>
+            </div>
+
+            <div class="permission-item">
+                <span class="permission-name">上传照片</span>
+                <span class="permission-status {% if user.max_photos == -1 %}status-allowed{% else %}status-limited{% endif %}">
+                    {% if user.max_photos == -1 %}
+                        无限制
+                    {% else %}
+                        最多{{ user.max_photos }}张
+                    {% endif %}
+                </span>
+            </div>
+
+            <div class="permission-item">
+                <span class="permission-name">AI功能</span>
+                <span class="permission-status {% if permissions.can_use_ai.can_use %}status-allowed{% else %}status-denied{% endif %}">
+                    {% if permissions.can_use_ai.can_use %}
+                        可用
+                    {% else %}
+                        不可用
+                    {% endif %}
+                </span>
+            </div>
+
+            <div class="permission-item">
+                <span class="permission-name">数据导出</span>
+                <span class="permission-status {% if permissions.can_export.can_export %}status-allowed{% else %}status-denied{% endif %}">
+                    {% if permissions.can_export.can_export %}
+                        可用
+                    {% else %}
+                        不可用
+                    {% endif %}
+                </span>
+            </div>
+        </div>
+
+        <!-- 升级提示 -->
+        {% if user.user_level == 0 %}
+        <div class="upgrade-section">
+            <h3 class="upgrade-title">升级到高级用户</h3>
+            <p class="upgrade-description">
+                解锁无限纪念馆和照片空间，享受AI功能和数据导出等高级功能
+            </p>
+            <button class="upgrade-btn" onclick="upgradeUser()">立即升级</button>
+        </div>
+        {% endif %}
+
+        <!-- 操作按钮 -->
+        <div class="action-buttons">
+            <a href="/" class="btn btn-primary">返回首页</a>
+            <a href="/personality-test" class="btn btn-secondary">创建纪念馆</a>
+            <button class="btn btn-secondary" onclick="logout()">退出登录</button>
+        </div>
+    </div>
+
+    <script>
+        // 页面加载时检查登录状态
+        window.addEventListener('DOMContentLoaded', function() {
+            // 从URL参数获取session_token
+            const urlParams = new URLSearchParams(window.location.search);
+            const sessionTokenFromUrl = urlParams.get('session_token');
+            
+            // 从localStorage获取session_token
+            const sessionTokenFromStorage = localStorage.getItem('session_token');
+            
+            // 优先使用URL中的session_token，如果没有则使用localStorage中的
+            const sessionToken = sessionTokenFromUrl || sessionTokenFromStorage;
+            
+            if (!sessionToken) {
+                alert('请先登录');
+                window.location.href = '/login';
+                return;
+            }
+            
+            // 将session_token保存到localStorage（如果是从URL获取的）
+            if (sessionTokenFromUrl && !sessionTokenFromStorage) {
+                localStorage.setItem('session_token', sessionToken);
+            }
+            
+            // 加载用户权限信息
+            loadUserPermissions();
+        });
+
+        function loadUserPermissions() {
+            const sessionToken = getSessionToken();
+            if (!sessionToken) return;
+
+            fetch('/api/user/permissions', {
+                method: 'GET',
+                headers: {
+                    'X-Session-Token': sessionToken
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (!data.success) {
+                    if (data.message === '用户未登录') {
+                        alert('登录已过期，请重新登录');
+                        localStorage.removeItem('session_token');
+                        localStorage.removeItem('user_info');
+                        window.location.href = '/login';
+                    } else {
+                        console.error('获取权限信息失败:', data.message);
+                    }
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+            });
+        }
+
+        function upgradeUser() {
+            if (confirm('确定要升级到高级用户吗？')) {
+                fetch('/api/user/upgrade', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-Session-Token': getSessionToken()
+                    },
+                    body: JSON.stringify({
+                        new_level: 1
+                    })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        alert('升级成功！');
+                        location.reload();
+                    } else {
+                        alert('升级失败：' + data.message);
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('升级失败，请稍后重试');
+                });
+            }
+        }
+
+        function logout() {
+            if (confirm('确定要退出登录吗？')) {
+                const sessionToken = getSessionToken();
+                fetch('/api/auth/logout', {
+                    method: 'POST',
+                    headers: {
+                        'X-Session-Token': sessionToken
+                    }
+                })
+                .then(() => {
+                    localStorage.removeItem('session_token');
+                    localStorage.removeItem('user_info');
+                    window.location.href = '/';
+                })
+                .catch(error => {
+                    console.error('Logout error:', error);
+                    localStorage.removeItem('session_token');
+                    localStorage.removeItem('user_info');
+                    window.location.href = '/';
+                });
+            }
+        }
+
+        function getSessionToken() {
+            // 优先从URL参数获取
+            const urlParams = new URLSearchParams(window.location.search);
+            const sessionTokenFromUrl = urlParams.get('session_token');
+            
+            if (sessionTokenFromUrl) {
+                return sessionTokenFromUrl;
+            }
+            
+            // 如果没有URL参数，从localStorage获取
+            return localStorage.getItem('session_token') || '';
+        }
+    </script>
+</body>
+</html>

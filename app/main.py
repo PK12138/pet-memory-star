@@ -13,6 +13,19 @@ from typing import Optional
 
 app = FastAPI(title="宠忆星·云纪念馆")
 
+# 添加session_token中间件
+@app.middleware("http")
+async def add_session_token_to_header(request: Request, call_next):
+    # 从查询参数中获取session_token
+    session_token = request.query_params.get("session_token")
+    if session_token:
+        # 将session_token添加到请求头中
+        request.headers.__dict__["_list"].append((b"x-session-token", session_token.encode()))
+        print(f"🔑 添加session_token到Header: {session_token[:20]}...")
+    
+    response = await call_next(request)
+    return response
+
 # 挂载静态文件目录
 # 当从项目根目录运行时，storage目录在项目根目录下
 storage_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), "storage")
@@ -273,6 +286,28 @@ async def create_memorial_advanced(
 ):
     """创建纪念馆完整流程（包含性格测试和AI信件）"""
     try:
+        # 检查用户权限
+        user_id = current_user["id"]
+        permission_check = auth_service.can_create_memorial(user_id)
+        if not permission_check["can_create"]:
+            return templates.TemplateResponse("error.html", {
+                "request": request,
+                "error_title": "权限不足",
+                "error_message": permission_check["message"],
+                "error_code": 403
+            })
+        
+        # 检查照片数量限制
+        level_info = database.get_user_level_info(current_user["user_level"])
+        if level_info and level_info[3] != -1:  # 如果不是无限照片
+            max_photos = level_info[3]
+            if len(photos) > max_photos:
+                return templates.TemplateResponse("error.html", {
+                    "request": request,
+                    "error_title": "照片数量超限",
+                    "error_message": f"最多只能上传{max_photos}张照片，请升级会员以获取更多照片空间",
+                    "error_code": 403
+                })
         # 解析性格测试答案
         try:
             personality_answers_dict = json.loads(personality_answers)
@@ -388,27 +423,39 @@ async def send_verification_code(request: Request):
         data = await request.json()
         email = data.get('email', '').strip()
         
+        print(f"🔍 发送验证码请求 - 邮箱: {email}")
+        
         if not email:
+            print("❌ 邮箱地址为空")
             return {"success": False, "message": "请输入邮箱地址"}
         
         # 检查邮箱格式
         import re
         if not re.match(r'^[^\s@]+@[^\s@]+\.[^\s@]+$', email):
+            print("❌ 邮箱格式不正确")
             return {"success": False, "message": "邮箱格式不正确"}
         
         # 检查用户是否存在
         if not db.user_exists(email):
+            print("❌ 用户不存在")
             return {"success": False, "message": "该邮箱未注册，请先注册账户"}
+        
+        print("✅ 用户存在，生成验证码")
         
         # 生成验证码
         code = db.create_email_code(email, "password_reset")
+        print(f"🔍 生成的验证码: {code}")
         
         # 发送验证码邮件
+        print("📧 开始发送验证码邮件")
         success = email_service.send_verification_code(email, code)
+        print(f"📧 邮件发送结果: {success}")
         
         if success:
+            print("✅ 验证码发送成功")
             return {"success": True, "message": "验证码已发送到您的邮箱"}
         else:
+            print("❌ 验证码发送失败")
             return {"success": False, "message": "验证码发送失败，请稍后重试"}
             
     except Exception as e:
@@ -662,6 +709,192 @@ async def get_visit_stats(memorial_id: str):
     except Exception as e:
         return {"success": False, "error": str(e)}
 
+
+# 权限管理相关接口
+@app.get("/api/user/permissions")
+async def get_user_permissions(session_token: str = Header(None, alias="x-session-token")):
+    """获取用户权限信息"""
+    try:
+        print(f"🔍 权限API - session_token: {session_token[:20] if session_token else 'None'}...")
+        
+        user = auth_service.get_current_user(session_token)
+        if not user:
+            print("❌ 权限API - 用户未登录")
+            return {"success": False, "message": "用户未登录"}
+        
+        user_id = user["id"]
+        dashboard_data = auth_service.get_user_dashboard_data(user_id)
+        
+        if not dashboard_data["success"]:
+            return dashboard_data
+        
+        return {
+            "success": True,
+            "permissions": {
+                "can_create_memorial": auth_service.can_create_memorial(user_id),
+                "can_use_ai": auth_service.can_use_ai_feature(user_id),
+                "can_export": auth_service.can_export_data(user_id),
+                "email_verified": user.get("email_verified", False)
+            },
+            "user_info": dashboard_data["user"]
+        }
+    except Exception as e:
+        return {"success": False, "error": str(e)}
+
+
+@app.post("/api/user/check-memorial-permission")
+async def check_memorial_permission(request: Request, session_token: str = Header(None, alias="x-session-token")):
+    """检查纪念馆创建权限"""
+    try:
+        user = auth_service.get_current_user(session_token)
+        if not user:
+            return {"success": False, "message": "用户未登录"}
+        
+        user_id = user["id"]
+        permission = auth_service.can_create_memorial(user_id)
+        
+        return {
+            "success": True,
+            "permission": permission
+        }
+    except Exception as e:
+        return {"success": False, "error": str(e)}
+
+
+@app.post("/api/user/check-photo-permission")
+async def check_photo_permission(request: Request, session_token: str = Header(None, alias="x-session-token")):
+    """检查照片上传权限"""
+    try:
+        data = await request.json()
+        memorial_id = data.get("memorial_id")
+        
+        if not memorial_id:
+            return {"success": False, "message": "纪念馆ID不能为空"}
+        
+        user = auth_service.get_current_user(session_token)
+        if not user:
+            return {"success": False, "message": "用户未登录"}
+        
+        user_id = user["id"]
+        permission = auth_service.can_upload_photo(user_id, memorial_id)
+        
+        return {
+            "success": True,
+            "permission": permission
+        }
+    except Exception as e:
+        return {"success": False, "error": str(e)}
+
+
+@app.post("/api/user/check-ai-permission")
+async def check_ai_permission(session_token: str = Header(None, alias="x-session-token")):
+    """检查AI功能使用权限"""
+    try:
+        user = auth_service.get_current_user(session_token)
+        if not user:
+            return {"success": False, "message": "用户未登录"}
+        
+        user_id = user["id"]
+        permission = auth_service.can_use_ai_feature(user_id)
+        
+        return {
+            "success": True,
+            "permission": permission
+        }
+    except Exception as e:
+        return {"success": False, "error": str(e)}
+
+
+@app.post("/api/user/upgrade")
+async def upgrade_user_level(request: Request, session_token: str = Header(None, alias="x-session-token")):
+    """升级用户等级"""
+    try:
+        data = await request.json()
+        new_level = data.get("new_level")
+        
+        if new_level is None:
+            return {"success": False, "message": "目标等级不能为空"}
+        
+        user = auth_service.get_current_user(session_token)
+        if not user:
+            return {"success": False, "message": "用户未登录"}
+        
+        user_id = user["id"]
+        result = auth_service.upgrade_user_level(user_id, new_level)
+        
+        return result
+    except Exception as e:
+        return {"success": False, "error": str(e)}
+
+
+@app.get("/api/user/levels")
+async def get_user_levels():
+    """获取所有用户等级信息"""
+    try:
+        levels = database.get_all_user_levels()
+        return {
+            "success": True,
+            "levels": levels
+        }
+    except Exception as e:
+        return {"success": False, "error": str(e)}
+
+
+@app.get("/user-center")
+async def user_center(request: Request):
+    """用户中心页面"""
+    try:
+        # 从查询参数获取session_token
+        session_token = request.query_params.get("session_token")
+        print(f"🔍 用户中心访问 - session_token: {session_token[:20] if session_token else 'None'}...")
+        print(f"🔍 查询参数: {request.query_params}")
+        
+        # 如果没有找到session_token，返回登录页面
+        if not session_token:
+            print("❌ 没有找到session_token，返回登录页面")
+            return templates.TemplateResponse("login.html", {
+                "request": request,
+                "error_message": "请先登录"
+            })
+        
+        user = auth_service.get_current_user(session_token)
+        print(f"🔍 用户验证结果: {user}")
+        if not user:
+            print("❌ 用户验证失败，返回登录页面")
+            return templates.TemplateResponse("login.html", {
+                "request": request,
+                "error_message": "登录已过期，请重新登录"
+            })
+        
+        user_id = user["id"]
+        
+        # 获取用户权限信息
+        permissions = {
+            "can_create_memorial": auth_service.can_create_memorial(user_id),
+            "can_use_ai": auth_service.can_use_ai_feature(user_id),
+            "can_export": auth_service.can_export_data(user_id)
+        }
+        
+        # 获取用户仪表板数据
+        dashboard_data = auth_service.get_user_dashboard_data(user_id)
+        if not dashboard_data["success"]:
+            return templates.TemplateResponse("error.html", {
+                "request": request,
+                "error_title": "获取用户信息失败",
+                "error_message": dashboard_data["message"]
+            })
+        
+        return templates.TemplateResponse("user_center.html", {
+            "request": request,
+            "user": dashboard_data["user"],
+            "permissions": permissions
+        })
+    except Exception as e:
+        return templates.TemplateResponse("error.html", {
+            "request": request,
+            "error_title": "页面加载失败",
+            "error_message": str(e)
+        })
 
 
 if __name__ == "__main__":

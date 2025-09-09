@@ -539,7 +539,8 @@
                     
                     // 延迟跳转到用户中心
                     setTimeout(() => {
-                        window.location.href = '/dashboard';
+                        const sessionToken = result.session_token;
+                        window.location.href = `/user-center?session_token=${sessionToken}`;
                     }, 1500);
                 } else {
                     showGlobalError(result.message || '登录失败，请重试');

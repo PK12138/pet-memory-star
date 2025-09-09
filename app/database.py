@@ -5,7 +5,11 @@ import secrets
 from datetime import datetime, timedelta
 
 class Database:
-    def __init__(self, db_path="pet_memorials.db"):
+    def __init__(self, db_path=None):
+        if db_path is None:
+            # 获取当前文件所在目录
+            current_dir = os.path.dirname(os.path.abspath(__file__))
+            db_path = os.path.join(current_dir, "pet_memorials.db")
         self.conn = sqlite3.connect(db_path)
         self._create_tables()
     
@@ -246,9 +250,8 @@ class Database:
         cursor.execute("SELECT COUNT(*) FROM user_levels")
         if cursor.fetchone()[0] == 0:
             levels = [
-                (0, "免费用户", 1, 10, 0, 0, 0, 0.0, 0.0, "基础功能，1个纪念馆，10张照片"),
-                (1, "高级用户", 5, 100, 1, 1, 0, 29.9, 299.0, "5个纪念馆，100张照片，AI功能，数据导出"),
-                (2, "专业用户", -1, -1, 1, 1, 1, 99.9, 999.0, "无限纪念馆，无限照片，自定义域名，优先客服")
+                (0, "免费用户", 1, 6, 0, 0, 0, 0.0, 0.0, "基础功能，1个纪念馆，6张照片"),
+                (1, "高级用户", -1, -1, 1, 1, 0, 29.9, 299.0, "无限纪念馆，无限照片，AI功能，数据导出")
             ]
             
             cursor.executemany('''
@@ -278,9 +281,9 @@ class Database:
         
         try:
             cursor.execute('''
-            INSERT INTO users (email, password_hash, salt, email_verification_token, email_verification_expires)
-            VALUES (?, ?, ?, ?, ?)
-            ''', (email, password_hash, salt, verification_token, verification_expires))
+            INSERT INTO users (email, password_hash, salt, email_verification_token, email_verification_expires, user_level)
+            VALUES (?, ?, ?, ?, ?, ?)
+            ''', (email, password_hash, salt, verification_token, verification_expires, 0))
             
             user_id = cursor.lastrowid
             self.conn.commit()
@@ -476,20 +479,25 @@ class Database:
         """通过会话令牌获取用户信息"""
         cursor = self.conn.cursor()
         
+        print(f"🔍 查询会话: {session_token[:20]}...")
+        
         cursor.execute('''
-        SELECT u.id, u.email, u.user_level, u.is_active
+        SELECT u.id, u.email, u.user_level, u.is_active, u.email_verified
         FROM users u
         JOIN user_sessions s ON u.id = s.user_id
         WHERE s.session_token = ? AND s.expires_at > CURRENT_TIMESTAMP
         ''', (session_token,))
         
         user = cursor.fetchone()
+        print(f"🔍 数据库查询结果: {user}")
+        
         if user:
             return {
                 'id': user[0],
                 'email': user[1],
                 'user_level': user[2],
-                'is_active': user[3]
+                'is_active': user[3],
+                'email_verified': user[4]
             }
         return None
     
@@ -498,7 +506,7 @@ class Database:
         cursor = self.conn.cursor()
         
         cursor.execute('''
-        SELECT id, email, user_level, is_active
+        SELECT id, email, user_level, is_active, email_verified
         FROM users 
         WHERE id = ? AND is_active = 1
         ''', (user_id,))
@@ -509,7 +517,8 @@ class Database:
                 'id': user[0],
                 'email': user[1],
                 'user_level': user[2],
-                'is_active': user[3]
+                'is_active': user[3],
+                'email_verified': user[4]
             }
         return None
     
@@ -523,11 +532,50 @@ class Database:
     def get_user_level_info(self, level):
         """获取用户等级信息"""
         cursor = self.conn.cursor()
+        
+        print(f"🔍 查询用户等级信息: {level} (类型: {type(level)})")
+        
+        # 确保level是整数
+        try:
+            level = int(level)
+        except (ValueError, TypeError):
+            print(f"⚠️ 用户等级类型错误: {level}, 使用默认等级0")
+            level = 0
+        
         cursor.execute('''
         SELECT level, name, max_memorials, max_photos, can_use_ai, can_export, can_custom_domain, price_monthly, price_yearly, description
         FROM user_levels WHERE level = ?
         ''', (level,))
-        return cursor.fetchone()
+        
+        result = cursor.fetchone()
+        print(f"🔍 等级查询结果: {result}")
+        return result
+    
+    def get_all_user_levels(self):
+        """获取所有用户等级信息"""
+        cursor = self.conn.cursor()
+        cursor.execute('''
+        SELECT level, name, max_memorials, max_photos, can_use_ai, can_export, can_custom_domain, price_monthly, price_yearly, description
+        FROM user_levels ORDER BY level
+        ''')
+        levels = cursor.fetchall()
+        
+        result = []
+        for level in levels:
+            result.append({
+                "level": level[0],
+                "name": level[1],
+                "max_memorials": level[2],
+                "max_photos": level[3],
+                "can_use_ai": level[4],
+                "can_export": level[5],
+                "can_custom_domain": level[6],
+                "price_monthly": level[7],
+                "price_yearly": level[8],
+                "description": level[9]
+            })
+        
+        return result
     
     def get_user_memorials(self, user_id):
         """获取用户的所有纪念馆"""
@@ -540,7 +588,18 @@ class Database:
         WHERE um.user_id = ?
         ORDER BY m.created_at DESC
         ''', (user_id,))
-        return cursor.fetchall()
+        
+        results = cursor.fetchall()
+        memorials = []
+        for row in results:
+            memorials.append({
+                'id': row[0],
+                'memorial_url': row[1],
+                'name': row[2],
+                'species': row[3],
+                'created_at': row[4]
+            })
+        return memorials
     
     def link_memorial_to_user(self, user_id, memorial_id):
         """将纪念馆关联到用户"""
@@ -561,6 +620,14 @@ class Database:
         cursor.execute('''
         SELECT COUNT(*) FROM user_memorials WHERE user_id = ?
         ''', (user_id,))
+        return cursor.fetchone()[0]
+    
+    def get_memorial_photo_count(self, memorial_id):
+        """获取纪念馆的照片数量"""
+        cursor = self.conn.cursor()
+        cursor.execute('''
+        SELECT COUNT(*) FROM photos WHERE memorial_id = ?
+        ''', (memorial_id,))
         return cursor.fetchone()[0]
     
     def delete_memorial(self, memorial_id, user_id):
@@ -789,9 +856,9 @@ class Database:
         
         # 插入新验证码
         cursor.execute('''
-        INSERT INTO email_codes (email, code, type, expires_at)
-        VALUES (?, ?, ?, ?)
-        ''', (email, code, code_type, expires_at))
+        INSERT INTO email_codes (email, code, code_type, type, expires_at)
+        VALUES (?, ?, ?, ?, ?)
+        ''', (email, code, code_type, code_type, expires_at))
         
         self.conn.commit()
         return code

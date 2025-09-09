@@ -216,28 +216,147 @@ class AuthService:
         
         return {"can_create": True, "message": "可以创建纪念馆"}
     
-    def get_user_dashboard_data(self, user_id: int) -> Dict[str, Any]:
-        """获取用户仪表板数据"""
-        user = self.db.get_user_by_id(user_id)  # 修复：直接通过用户ID查询
+    def can_upload_photo(self, user_id: int, memorial_id: str) -> Dict[str, Any]:
+        """检查用户是否可以上传照片到指定纪念馆"""
+        user = self.db.get_user_by_id(user_id)
         if not user:
-            return {}
+            return {"can_upload": False, "message": "用户未登录"}
+        
+        # 检查邮箱是否已验证
+        if not user.get("email_verified", False):
+            return {"can_upload": False, "message": "请先验证邮箱"}
+        
+        # 检查纪念馆是否属于该用户
+        memorial = self.db.get_memorial_by_id(memorial_id)
+        if not memorial or memorial["user_id"] != user_id:
+            return {"can_upload": False, "message": "无权访问该纪念馆"}
         
         level_info = self.db.get_user_level_info(user["user_level"])
-        memorials = self.db.get_user_memorials(user_id)
+        if not level_info:
+            return {"can_upload": False, "message": "用户等级信息错误"}
+        
+        max_photos = level_info[3]
+        if max_photos == -1:  # 无限
+            return {"can_upload": True, "message": "可以上传照片"}
+        
+        current_count = self.db.get_memorial_photo_count(memorial_id)
+        if current_count >= max_photos:
+            return {
+                "can_upload": False, 
+                "message": f"已达到最大照片数量限制({max_photos}张)，请升级会员",
+                "current_count": current_count,
+                "max_count": max_photos
+            }
+        
+        return {"can_upload": True, "message": "可以上传照片"}
+    
+    def can_use_ai_feature(self, user_id: int) -> Dict[str, Any]:
+        """检查用户是否可以使用AI功能"""
+        user = self.db.get_user_by_id(user_id)
+        if not user:
+            return {"can_use": False, "message": "用户未登录"}
+        
+        # 检查邮箱是否已验证
+        if not user.get("email_verified", False):
+            return {"can_use": False, "message": "请先验证邮箱"}
+        
+        level_info = self.db.get_user_level_info(user["user_level"])
+        if not level_info:
+            return {"can_use": False, "message": "用户等级信息错误"}
+        
+        can_use_ai = level_info[4]
+        if can_use_ai:
+            return {"can_use": True, "message": "可以使用AI功能"}
+        else:
+            return {"can_use": False, "message": "当前等级不支持AI功能，请升级会员"}
+    
+    def can_export_data(self, user_id: int) -> Dict[str, Any]:
+        """检查用户是否可以导出数据"""
+        user = self.db.get_user_by_id(user_id)
+        if not user:
+            return {"can_export": False, "message": "用户未登录"}
+        
+        # 检查邮箱是否已验证
+        if not user.get("email_verified", False):
+            return {"can_export": False, "message": "请先验证邮箱"}
+        
+        level_info = self.db.get_user_level_info(user["user_level"])
+        if not level_info:
+            return {"can_export": False, "message": "用户等级信息错误"}
+        
+        can_export = level_info[5]
+        if can_export:
+            return {"can_export": True, "message": "可以导出数据"}
+        else:
+            return {"can_export": False, "message": "当前等级不支持数据导出，请升级会员"}
+    
+    def upgrade_user_level(self, user_id: int, new_level: int) -> Dict[str, Any]:
+        """升级用户等级"""
+        user = self.db.get_user_by_id(user_id)
+        if not user:
+            return {"success": False, "message": "用户不存在"}
+        
+        level_info = self.db.get_user_level_info(new_level)
+        if not level_info:
+            return {"success": False, "message": "目标等级不存在"}
+        
+        if new_level <= user["user_level"]:
+            return {"success": False, "message": "只能升级到更高等级"}
+        
+        success = self.db.update_user_level(user_id, new_level)
+        if success:
+            return {
+                "success": True, 
+                "message": f"成功升级到{level_info[1]}",
+                "new_level": new_level,
+                "level_info": {
+                    "name": level_info[1],
+                    "max_memorials": level_info[2],
+                    "max_photos": level_info[3],
+                    "can_use_ai": level_info[4],
+                    "can_export": level_info[5],
+                    "can_custom_domain": level_info[6],
+                    "description": level_info[9]
+                }
+            }
+        else:
+            return {"success": False, "message": "升级失败"}
+    
+    def get_user_dashboard_data(self, user_id: int) -> Dict[str, Any]:
+        """获取用户仪表板数据"""
+        user = self.db.get_user_by_id(user_id)
+        if not user:
+            return {"success": False, "message": "用户不存在"}
+        
+        # 获取用户等级信息
+        level_info = self.db.get_user_level_info(user["user_level"])
+        if not level_info:
+            return {"success": False, "message": "用户等级信息错误"}
+        
+        # 获取用户纪念馆数量
         memorial_count = self.db.get_user_memorial_count(user_id)
         
+        # 获取用户照片总数
+        total_photos = 0
+        user_memorials = self.db.get_user_memorials(user_id)
+        for memorial in user_memorials:
+            total_photos += self.db.get_memorial_photo_count(memorial["id"])
+        
         return {
-            "user": user,
-            "level_info": {
-                "name": level_info[1] if level_info else "未知",
-                "max_memorials": level_info[2] if level_info else 1,
-                "max_photos": level_info[3] if level_info else 10,
-                "can_use_ai": level_info[4] if level_info else False,
-                "can_export": level_info[5] if level_info else False,
-                "can_custom_domain": level_info[6] if level_info else False,
-                "description": level_info[9] if level_info else ""
-            },
-            "memorials": memorials,
-            "memorial_count": memorial_count,
-            "can_create_more": memorial_count < (level_info[2] if level_info and level_info[2] != -1 else float('inf'))
+            "success": True,
+            "user": {
+                "id": user["id"],
+                "email": user["email"],
+                "user_level": user["user_level"],
+                "level_name": level_info[1],
+                "memorial_count": memorial_count,
+                "max_memorials": level_info[2],
+                "total_photos": total_photos,
+                "max_photos": level_info[3],
+                "can_use_ai": level_info[4],
+                "can_export": level_info[5],
+                "can_custom_domain": level_info[6],
+                "level_description": level_info[9],
+                "email_verified": user.get("email_verified", False)
+            }
         }

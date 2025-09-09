@@ -305,6 +305,134 @@ class EmailService:
         except Exception as e:
             return {"success": False, "message": f"发送重置邮件失败: {str(e)}"}
     
+    def send_verification_code(self, to_email: str, verification_code: str) -> bool:
+        """发送验证码邮件"""
+        try:
+            subject = "宠忆星·密码重置验证码"
+            
+            # HTML邮件内容
+            html_content = f"""
+            <!DOCTYPE html>
+            <html>
+            <head>
+                <meta charset="UTF-8">
+                <meta name="viewport" content="width=device-width, initial-scale=1.0">
+                <title>密码重置验证码</title>
+                <style>
+                    body {{
+                        font-family: 'Microsoft YaHei', Arial, sans-serif;
+                        line-height: 1.6;
+                        color: #333;
+                        max-width: 600px;
+                        margin: 0 auto;
+                        padding: 20px;
+                        background-color: #f5f5f5;
+                    }}
+                    .container {{
+                        background-color: white;
+                        padding: 30px;
+                        border-radius: 10px;
+                        box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+                    }}
+                    .header {{
+                        text-align: center;
+                        margin-bottom: 30px;
+                    }}
+                    .logo {{
+                        font-size: 24px;
+                        font-weight: bold;
+                        color: #667eea;
+                        margin-bottom: 10px;
+                    }}
+                    .verification-code {{
+                        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                        color: white;
+                        padding: 20px;
+                        border-radius: 10px;
+                        text-align: center;
+                        margin: 20px 0;
+                        font-size: 32px;
+                        font-weight: bold;
+                        letter-spacing: 5px;
+                    }}
+                    .warning {{
+                        background-color: #fff3cd;
+                        border: 1px solid #ffeaa7;
+                        color: #856404;
+                        padding: 15px;
+                        border-radius: 5px;
+                        margin: 20px 0;
+                    }}
+                    .footer {{
+                        text-align: center;
+                        margin-top: 30px;
+                        color: #666;
+                        font-size: 14px;
+                    }}
+                </style>
+            </head>
+            <body>
+                <div class="container">
+                    <div class="header">
+                        <div class="logo">🔑 宠忆星·云纪念馆</div>
+                        <h1>密码重置验证码</h1>
+                    </div>
+                    
+                    <p>您好，</p>
+                    <p>您正在重置宠忆星·云纪念馆账户的密码，请使用以下验证码完成重置：</p>
+                    
+                    <div class="verification-code">
+                        {verification_code}
+                    </div>
+                    
+                    <div class="warning">
+                        <strong>⚠️ 安全提示：</strong>
+                        <ul>
+                            <li>此验证码有效期为10分钟</li>
+                            <li>请勿将验证码泄露给他人</li>
+                            <li>如非本人操作，请忽略此邮件</li>
+                        </ul>
+                    </div>
+                    
+                    <p>如果您没有请求重置密码，请忽略此邮件。</p>
+                    
+                    <div class="footer">
+                        <p>此邮件由系统自动发送，请勿回复</p>
+                        <p>© 2024 宠忆星·云纪念馆</p>
+                    </div>
+                </div>
+            </body>
+            </html>
+            """
+            
+            # 纯文本内容
+            text_content = f"""
+            宠忆星·云纪念馆 - 密码重置验证码
+            
+            您好，
+            
+            您正在重置宠忆星·云纪念馆账户的密码，请使用以下验证码完成重置：
+            
+            验证码：{verification_code}
+            
+            安全提示：
+            - 此验证码有效期为10分钟
+            - 请勿将验证码泄露给他人
+            - 如非本人操作，请忽略此邮件
+            
+            如果您没有请求重置密码，请忽略此邮件。
+            
+            此邮件由系统自动发送，请勿回复
+            © 2024 宠忆星·云纪念馆
+            """
+            
+            result = self._send_email(to_email, subject, html_content, text_content)
+            return result.get("success", False)
+            
+        except Exception as e:
+            print(f"发送验证码邮件失败: {str(e)}")
+            return False
+    
     def _send_email(self, to_email: str, subject: str, html_content: str, text_content: str) -> Dict[str, Any]:
         """发送邮件的通用方法"""
         try:

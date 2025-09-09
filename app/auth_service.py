@@ -46,13 +46,14 @@ class AuthService:
             return {"success": False, "message": password_validation["message"]}
         
         # 创建用户
-        user_id = self.db.create_user(email, password)
+        result = self.db.create_user(email, password)
         
-        if user_id:
+        if result and isinstance(result, dict):
             return {
                 "success": True, 
-                "message": "注册成功！",
-                "user_id": user_id
+                "message": "注册成功！请检查邮箱完成验证。",
+                "user_id": result["user_id"],
+                "verification_token": result["verification_token"]
             }
         else:
             return {"success": False, "message": "邮箱已存在"}
@@ -87,6 +88,69 @@ class AuthService:
             return {"success": True, "message": "登出成功"}
         else:
             return {"success": False, "message": "登出失败"}
+    
+    def verify_email(self, verification_token: str) -> Dict[str, Any]:
+        """验证邮箱"""
+        if not verification_token:
+            return {"success": False, "message": "验证令牌不能为空"}
+        
+        result = self.db.verify_email(verification_token)
+        if result:
+            return {
+                "success": True,
+                "message": "邮箱验证成功！现在可以正常使用所有功能。",
+                "user_id": result["user_id"],
+                "email": result["email"]
+            }
+        else:
+            return {"success": False, "message": "验证令牌无效或已过期"}
+    
+    def resend_verification_email(self, email: str) -> Dict[str, Any]:
+        """重新发送验证邮件"""
+        if not email:
+            return {"success": False, "message": "邮箱不能为空"}
+        
+        verification_token = self.db.resend_verification_email(email)
+        if verification_token:
+            return {
+                "success": True,
+                "message": "验证邮件已重新发送，请检查邮箱。",
+                "verification_token": verification_token
+            }
+        else:
+            return {"success": False, "message": "邮箱不存在或已验证"}
+    
+    def request_password_reset(self, email: str) -> Dict[str, Any]:
+        """请求密码重置"""
+        if not email:
+            return {"success": False, "message": "邮箱不能为空"}
+        
+        reset_token = self.db.create_password_reset_token(email)
+        if reset_token:
+            return {
+                "success": True,
+                "message": "密码重置邮件已发送，请检查邮箱。",
+                "reset_token": reset_token
+            }
+        else:
+            return {"success": False, "message": "邮箱不存在或未验证"}
+    
+    def reset_password(self, reset_token: str, new_password: str) -> Dict[str, Any]:
+        """重置密码"""
+        if not reset_token:
+            return {"success": False, "message": "重置令牌不能为空"}
+        
+        password_validation = self.validate_password(new_password)
+        if not password_validation["valid"]:
+            return {"success": False, "message": password_validation["message"]}
+        
+        if self.db.reset_password(reset_token, new_password):
+            return {
+                "success": True,
+                "message": "密码重置成功！请使用新密码登录。"
+            }
+        else:
+            return {"success": False, "message": "重置令牌无效或已过期"}
     
     def get_current_user(self, session_token: str) -> Optional[Dict[str, Any]]:
         """获取当前用户信息"""

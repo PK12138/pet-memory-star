@@ -21,6 +21,9 @@ class Database:
             salt TEXT NOT NULL,
             user_level INTEGER DEFAULT 0,
             is_active BOOLEAN DEFAULT 1,
+            email_verified BOOLEAN DEFAULT 0,
+            email_verification_token TEXT,
+            email_verification_expires TIMESTAMP,
             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
             last_login TIMESTAMP,
             avatar_url TEXT
@@ -41,6 +44,19 @@ class Database:
         )
         ''')
         
+        # 密码重置表
+        cursor.execute('''
+        CREATE TABLE IF NOT EXISTS password_resets (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            user_id INTEGER NOT NULL,
+            reset_token TEXT UNIQUE NOT NULL,
+            expires_at TIMESTAMP NOT NULL,
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            used BOOLEAN DEFAULT 0,
+            FOREIGN KEY (user_id) REFERENCES users(id)
+        )
+        ''')
+        
         # 用户等级表
         cursor.execute('''
         CREATE TABLE IF NOT EXISTS user_levels (
@@ -54,6 +70,20 @@ class Database:
             price_monthly REAL DEFAULT 0.0,
             price_yearly REAL DEFAULT 0.0,
             description TEXT
+        )
+        ''')
+        
+        # 用户权限表
+        cursor.execute('''
+        CREATE TABLE IF NOT EXISTS user_permissions (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            user_id INTEGER NOT NULL,
+            permission_name TEXT NOT NULL,
+            granted BOOLEAN DEFAULT 1,
+            granted_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            granted_by INTEGER,
+            FOREIGN KEY (user_id) REFERENCES users(id),
+            FOREIGN KEY (granted_by) REFERENCES users(id)
         )
         ''')
         
@@ -242,15 +272,19 @@ class Database:
         salt = secrets.token_hex(16)
         password_hash = hashlib.sha256((password + salt).encode()).hexdigest()
         
+        # 生成邮箱验证令牌
+        verification_token = secrets.token_urlsafe(32)
+        verification_expires = datetime.now() + timedelta(hours=24)
+        
         try:
             cursor.execute('''
-            INSERT INTO users (email, password_hash, salt)
-            VALUES (?, ?, ?)
-            ''', (email, password_hash, salt))
+            INSERT INTO users (email, password_hash, salt, email_verification_token, email_verification_expires)
+            VALUES (?, ?, ?, ?, ?)
+            ''', (email, password_hash, salt, verification_token, verification_expires))
             
             user_id = cursor.lastrowid
             self.conn.commit()
-            return user_id
+            return {"user_id": user_id, "verification_token": verification_token}
         except Exception as e:
             print(f"创建用户失败: {e}")
             return None
@@ -289,6 +323,138 @@ class Database:
             }
         
         return None
+    
+    def verify_email(self, verification_token):
+        """验证邮箱"""
+        cursor = self.conn.cursor()
+        
+        cursor.execute('''
+        SELECT id, email FROM users 
+        WHERE email_verification_token = ? 
+        AND email_verification_expires > CURRENT_TIMESTAMP
+        AND email_verified = 0
+        ''', (verification_token,))
+        
+        user = cursor.fetchone()
+        if not user:
+            return None
+        
+        try:
+            cursor.execute('''
+            UPDATE users 
+            SET email_verified = 1, 
+                email_verification_token = NULL, 
+                email_verification_expires = NULL
+            WHERE id = ?
+            ''', (user[0],))
+            
+            self.conn.commit()
+            return {"user_id": user[0], "email": user[1]}
+        except Exception as e:
+            print(f"邮箱验证失败: {e}")
+            return None
+    
+    def resend_verification_email(self, email):
+        """重新发送验证邮件"""
+        cursor = self.conn.cursor()
+        
+        cursor.execute('SELECT id, email_verified FROM users WHERE email = ?', (email,))
+        user = cursor.fetchone()
+        if not user:
+            return None
+        
+        if user[1]:  # 如果已经验证过
+            return None
+        
+        # 生成新的验证令牌
+        verification_token = secrets.token_urlsafe(32)
+        verification_expires = datetime.now() + timedelta(hours=24)
+        
+        try:
+            cursor.execute('''
+            UPDATE users 
+            SET email_verification_token = ?, 
+                email_verification_expires = ?
+            WHERE id = ?
+            ''', (verification_token, verification_expires, user[0]))
+            
+            self.conn.commit()
+            return verification_token
+        except Exception as e:
+            print(f"重新生成验证令牌失败: {e}")
+            return None
+    
+    def create_password_reset_token(self, email):
+        """创建密码重置令牌"""
+        cursor = self.conn.cursor()
+        
+        cursor.execute('SELECT id FROM users WHERE email = ? AND email_verified = 1', (email,))
+        user = cursor.fetchone()
+        if not user:
+            return None
+        
+        # 生成重置令牌
+        reset_token = secrets.token_urlsafe(32)
+        expires_at = datetime.now() + timedelta(hours=1)
+        
+        try:
+            cursor.execute('''
+            INSERT INTO password_resets (user_id, reset_token, expires_at)
+            VALUES (?, ?, ?)
+            ''', (user[0], reset_token, expires_at))
+            
+            self.conn.commit()
+            return reset_token
+        except Exception as e:
+            print(f"创建密码重置令牌失败: {e}")
+            return None
+    
+    def verify_password_reset_token(self, reset_token):
+        """验证密码重置令牌"""
+        cursor = self.conn.cursor()
+        
+        cursor.execute('''
+        SELECT user_id FROM password_resets 
+        WHERE reset_token = ? 
+        AND expires_at > CURRENT_TIMESTAMP 
+        AND used = 0
+        ''', (reset_token,))
+        
+        result = cursor.fetchone()
+        return result[0] if result else None
+    
+    def reset_password(self, reset_token, new_password):
+        """重置密码"""
+        cursor = self.conn.cursor()
+        
+        user_id = self.verify_password_reset_token(reset_token)
+        if not user_id:
+            return False
+        
+        # 生成新的盐值和密码哈希
+        salt = secrets.token_hex(16)
+        password_hash = hashlib.sha256((new_password + salt).encode()).hexdigest()
+        
+        try:
+            # 更新密码
+            cursor.execute('''
+            UPDATE users 
+            SET password_hash = ?, salt = ?
+            WHERE id = ?
+            ''', (password_hash, salt, user_id))
+            
+            # 标记重置令牌为已使用
+            cursor.execute('''
+            UPDATE password_resets 
+            SET used = 1
+            WHERE reset_token = ?
+            ''', (reset_token,))
+            
+            self.conn.commit()
+            return True
+        except Exception as e:
+            print(f"重置密码失败: {e}")
+            return False
     
     def create_session(self, user_id, ip_address=None, user_agent=None):
         """创建用户会话"""

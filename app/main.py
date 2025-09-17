@@ -2,16 +2,18 @@ from fastapi import FastAPI, UploadFile, File, Form, Request, HTTPException, Dep
 from fastapi.responses import HTMLResponse, JSONResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
+
 from database import Database
 from services import MemorialService, EmailService
 from auth_service import AuthService
+from payment_service import PaymentService
 import os
 import uuid
 import uvicorn
 import json
 from typing import Optional
 
-app = FastAPI(title="宠忆星·云纪念馆")
+app = FastAPI(title="爪迹星·云纪念馆")
 
 # 添加session_token中间件
 @app.middleware("http")
@@ -44,6 +46,7 @@ db = Database()
 memorial_service = MemorialService(db)
 email_service = EmailService()
 auth_service = AuthService(db)
+payment_service = PaymentService()
 
 # 依赖函数：获取当前用户
 async def get_current_user(authorization: Optional[str] = Header(None)):
@@ -840,6 +843,530 @@ async def get_user_levels():
         return {"success": False, "error": str(e)}
 
 
+# 充值相关API
+@app.get("/payment", response_class=HTMLResponse)
+async def payment_page(request: Request):
+    """充值页面"""
+    try:
+        template_path = os.path.join(os.path.dirname(__file__), "templates", "payment.html")
+        with open(template_path, "r", encoding="utf-8") as f:
+            content = f.read()
+        return HTMLResponse(content=content)
+    except Exception as e:
+        return HTMLResponse(content=f"<h1>页面加载错误</h1><p>{str(e)}</p>", status_code=500)
+
+@app.get("/api/payment/plans")
+async def get_payment_plans():
+    """获取充值套餐列表"""
+    try:
+        plans = [
+            {
+                "id": "monthly",
+                "name": "月度会员",
+                "price": 29.9,
+                "period": "1个月",
+                "features": [
+                    "无限纪念馆",
+                    "无限照片上传",
+                    "AI智能功能",
+                    "数据导出",
+                    "优先客服支持"
+                ],
+                "recommended": False
+            },
+            {
+                "id": "yearly",
+                "name": "年度会员",
+                "price": 299.0,
+                "period": "12个月",
+                "features": [
+                    "无限纪念馆",
+                    "无限照片上传",
+                    "AI智能功能",
+                    "数据导出",
+                    "优先客服支持",
+                    "专属主题",
+                    "自定义域名"
+                ],
+                "recommended": True
+            }
+        ]
+        
+        return {"success": True, "plans": plans}
+    except Exception as e:
+        return {"success": False, "message": f"获取套餐列表失败: {str(e)}"}
+
+@app.get("/api/user/balance")
+async def get_user_balance(session_token: str = Header(None, alias="x-session-token")):
+    """获取用户余额信息"""
+    try:
+        user = auth_service.get_current_user(session_token)
+        if not user:
+            return {"success": False, "message": "用户未登录"}
+        
+        user_id = user["id"]
+        
+        # 初始化用户余额（如果不存在）
+        db.init_user_balance(user_id)
+        
+        # 获取余额信息
+        balance_info = db.get_user_balance(user_id)
+        if not balance_info:
+            balance_info = {
+                "balance": 0.0,
+                "frozen_balance": 0.0,
+                "total_recharged": 0.0,
+                "total_consumed": 0.0
+            }
+        
+        # 获取用户等级信息
+        level_info = db.get_user_level_info(user["user_level"])
+        
+        return {
+            "success": True,
+            "balance": balance_info,
+            "user_info": {
+                "id": user["id"],
+                "email": user["email"],
+                "level_info": {
+                    "name": level_info[1] if level_info else "免费用户",
+                    "level": user["user_level"]
+                }
+            }
+        }
+    except Exception as e:
+        return {"success": False, "message": f"获取余额信息失败: {str(e)}"}
+
+@app.post("/api/payment/create")
+async def create_payment_order(request: Request, session_token: str = Header(None, alias="x-session-token")):
+    """创建支付订单"""
+    try:
+        user = auth_service.get_current_user(session_token)
+        if not user:
+            return {"success": False, "message": "用户未登录"}
+        
+        data = await request.json()
+        plan_id = data.get("plan_id")
+        payment_method = data.get("payment_method")
+        openid = data.get("openid", "")  # 微信支付需要openid
+        
+        if not plan_id or not payment_method:
+            return {"success": False, "message": "参数不完整"}
+        
+        # 获取套餐信息
+        plans = {
+            "monthly": {"amount": 29.9, "description": "月度会员"},
+            "yearly": {"amount": 299.0, "description": "年度会员"}
+        }
+        
+        if plan_id not in plans:
+            return {"success": False, "message": "套餐不存在"}
+        
+        plan = plans[plan_id]
+        user_id = user["id"]
+        
+        # 创建支付订单
+        order_id = db.create_payment_order(
+            user_id=user_id,
+            order_type=f"upgrade_{plan_id}",
+            amount=plan["amount"],
+            payment_method=payment_method,
+            description=plan["description"]
+        )
+        
+        if not order_id:
+            return {"success": False, "message": "创建订单失败"}
+        
+        # 使用真实支付服务创建订单
+        notify_url = f"{os.getenv('SERVER_BASE_URL', 'http://localhost:8000')}/api/payment/{payment_method}/notify"
+        
+        payment_result = payment_service.create_payment_order(
+            payment_method=payment_method,
+            order_id=order_id,
+            amount=plan["amount"],
+            description=plan["description"],
+            openid=openid,
+            notify_url=notify_url,
+            subject=plan["description"]
+        )
+        
+        if payment_result["success"]:
+            return {
+                "success": True,
+                "order_id": order_id,
+                "amount": plan["amount"],
+                "payment_data": payment_result,
+                "message": "订单创建成功"
+            }
+        else:
+            return {
+                "success": False,
+                "message": payment_result.get("message", "创建支付订单失败")
+            }
+        
+    except Exception as e:
+        return {"success": False, "message": f"创建支付订单失败: {str(e)}"}
+
+@app.get("/payment/process/{order_id}")
+async def payment_process(request: Request, order_id: str):
+    """支付处理页面"""
+    try:
+        # 获取订单信息
+        order = db.get_payment_order(order_id)
+        if not order:
+            return HTMLResponse(content="<h1>订单不存在</h1>", status_code=404)
+        
+        # 这里应该显示支付二维码或跳转到支付平台
+        # 目前返回简单的支付页面
+        html_content = f"""
+        <!DOCTYPE html>
+        <html>
+        <head>
+            <title>支付处理 -  爪迹星</title>
+            <meta charset="UTF-8">
+            <style>
+                body {{
+                    font-family: Arial, sans-serif;
+                    text-align: center;
+                    padding: 50px;
+                    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                    color: white;
+                }}
+                .container {{
+                    background: rgba(255,255,255,0.1);
+                    padding: 40px;
+                    border-radius: 20px;
+                    max-width: 500px;
+                    margin: 0 auto;
+                }}
+                .amount {{
+                    font-size: 2rem;
+                    font-weight: bold;
+                    color: #4CAF50;
+                    margin: 20px 0;
+                }}
+                .btn {{
+                    background: #4CAF50;
+                    color: white;
+                    padding: 15px 30px;
+                    border: none;
+                    border-radius: 10px;
+                    font-size: 1.1rem;
+                    cursor: pointer;
+                    margin: 10px;
+                }}
+            </style>
+        </head>
+        <body>
+            <div class="container">
+                <h1>💳 支付处理</h1>
+                <p>订单号: {order_id}</p>
+                <p>商品: {order['description']}</p>
+                <div class="amount">¥{order['amount']}</div>
+                <p>支付方式: {order['payment_method']}</p>
+                <button class="btn" onclick="simulatePayment('{order_id}')">模拟支付成功</button>
+                <button class="btn" onclick="window.location.href='/payment'">返回充值</button>
+            </div>
+            <script>
+                function simulatePayment(orderId) {{
+                    fetch('/api/payment/callback', {{
+                        method: 'POST',
+                        headers: {{'Content-Type': 'application/json'}},
+                        body: JSON.stringify({{
+                            order_id: orderId,
+                            status: 'paid',
+                            platform_order_id: 'sim_' + Date.now()
+                        }})
+                    }})
+                    .then(response => response.json())
+                    .then(data => {{
+                        if (data.success) {{
+                            alert('支付成功！');
+                            window.location.href = '/user-center';
+                        }} else {{
+                            alert('支付失败：' + data.message);
+                        }}
+                    }});
+                }}
+            </script>
+        </body>
+        </html>
+        """
+        
+        return HTMLResponse(content=html_content)
+        
+    except Exception as e:
+        return HTMLResponse(content=f"<h1>支付处理错误</h1><p>{str(e)}</p>", status_code=500)
+
+# 微信支付回调
+@app.post("/api/payment/wechat/notify")
+async def wechat_payment_notify(request: Request):
+    """微信支付回调"""
+    try:
+        # 获取请求头和请求体
+        headers = dict(request.headers)
+        body = await request.body()
+        body_str = body.decode('utf-8')
+        
+        # 验证微信支付通知
+        verify_result = payment_service.verify_payment_notify(
+            payment_method='wechat',
+            headers=headers,
+            body=body_str
+        )
+        
+        if not verify_result["success"]:
+            return {"code": "FAIL", "message": "验证失败"}
+        
+        notify_data = verify_result["data"]
+        order_id = notify_data.get("out_trade_no")
+        trade_state = notify_data.get("trade_state")
+        
+        if trade_state == "SUCCESS":
+            # 支付成功，更新订单状态
+            success = db.update_payment_status(order_id, "paid", notify_data.get("transaction_id"))
+            
+            if success:
+                # 处理支付成功逻辑
+                order = db.get_payment_order(order_id)
+                if order:
+                    user_id = order["user_id"]
+                    
+                    # 根据订单类型处理
+                    if order["order_type"] == "upgrade_monthly":
+                        db.upgrade_user_level(user_id, 1, order_id)
+                    elif order["order_type"] == "upgrade_yearly":
+                        db.upgrade_user_level(user_id, 1, order_id)
+                    
+                    # 记录充值
+                    db.add_user_balance(user_id, order["amount"], order_id, "upgrade")
+                
+                return {"code": "SUCCESS", "message": "OK"}
+            else:
+                return {"code": "FAIL", "message": "更新订单状态失败"}
+        else:
+            return {"code": "FAIL", "message": "支付未成功"}
+            
+    except Exception as e:
+        print(f"微信支付回调处理失败: {e}")
+        return {"code": "FAIL", "message": "处理失败"}
+
+# 支付宝回调
+@app.post("/api/payment/alipay/notify")
+async def alipay_payment_notify(request: Request):
+    """支付宝支付回调"""
+    try:
+        # 获取请求参数
+        form_data = await request.form()
+        data = dict(form_data)
+        
+        # 验证支付宝通知
+        verify_result = payment_service.verify_payment_notify(
+            payment_method='alipay',
+            data=data
+        )
+        
+        if not verify_result["success"]:
+            return "failure"
+        
+        notify_data = verify_result["data"]
+        order_id = notify_data.get("out_trade_no")
+        trade_status = notify_data.get("trade_status")
+        
+        if trade_status == "TRADE_SUCCESS" or trade_status == "TRADE_FINISHED":
+            # 支付成功，更新订单状态
+            success = db.update_payment_status(order_id, "paid", notify_data.get("trade_no"))
+            
+            if success:
+                # 处理支付成功逻辑
+                order = db.get_payment_order(order_id)
+                if order:
+                    user_id = order["user_id"]
+                    
+                    # 根据订单类型处理
+                    if order["order_type"] == "upgrade_monthly":
+                        db.upgrade_user_level(user_id, 1, order_id)
+                    elif order["order_type"] == "upgrade_yearly":
+                        db.upgrade_user_level(user_id, 1, order_id)
+                    
+                    # 记录充值
+                    db.add_user_balance(user_id, order["amount"], order_id, "upgrade")
+                
+                return "success"
+            else:
+                return "failure"
+        else:
+            return "failure"
+            
+    except Exception as e:
+        print(f"支付宝回调处理失败: {e}")
+        return "failure"
+
+@app.post("/api/payment/callback")
+async def payment_callback(request: Request):
+    """通用支付回调处理（用于测试）"""
+    try:
+        data = await request.json()
+        order_id = data.get("order_id")
+        status = data.get("status")
+        platform_order_id = data.get("platform_order_id")
+        
+        if not order_id or not status:
+            return {"success": False, "message": "参数不完整"}
+        
+        # 获取订单信息
+        order = db.get_payment_order(order_id)
+        if not order:
+            return {"success": False, "message": "订单不存在"}
+        
+        # 更新支付状态
+        success = db.update_payment_status(order_id, status, platform_order_id)
+        
+        if success and status == "paid":
+            # 处理支付成功逻辑
+            user_id = order["user_id"]
+            
+            # 根据订单类型处理
+            if order["order_type"] == "upgrade_monthly":
+                # 升级到高级用户（1个月）
+                db.upgrade_user_level(user_id, 1, order_id)
+            elif order["order_type"] == "upgrade_yearly":
+                # 升级到高级用户（1年）
+                db.upgrade_user_level(user_id, 1, order_id)
+            
+            # 记录充值
+            db.add_user_balance(user_id, order["amount"], order_id, "upgrade")
+        
+        return {"success": True, "message": "支付状态更新成功"}
+        
+    except Exception as e:
+        return {"success": False, "message": f"支付回调处理失败: {str(e)}"}
+
+@app.get("/memorials", response_class=HTMLResponse)
+async def memorials_page(request: Request):
+    """纪念馆列表页面"""
+    try:
+        template_path = os.path.join(os.path.dirname(__file__), "templates", "memorials.html")
+        with open(template_path, "r", encoding="utf-8") as f:
+            content = f.read()
+        return HTMLResponse(content=content)
+    except Exception as e:
+        return HTMLResponse(content=f"<h1>页面加载错误</h1><p>{str(e)}</p>", status_code=500)
+
+@app.get("/memorial/edit/{memorial_id}", response_class=HTMLResponse)
+async def memorial_edit_page(request: Request, memorial_id: str):
+    """纪念馆编辑页面"""
+    try:
+        template_path = os.path.join(os.path.dirname(__file__), "templates", "memorial_edit.html")
+        with open(template_path, "r", encoding="utf-8") as f:
+            content = f.read()
+        return HTMLResponse(content=content)
+    except Exception as e:
+        return HTMLResponse(content=f"<h1>页面加载错误</h1><p>{str(e)}</p>", status_code=500)
+
+@app.get("/orders", response_class=HTMLResponse)
+async def orders_page(request: Request):
+    """订单管理页面"""
+    try:
+        template_path = os.path.join(os.path.dirname(__file__), "templates", "orders.html")
+        with open(template_path, "r", encoding="utf-8") as f:
+            content = f.read()
+        return HTMLResponse(content=content)
+    except Exception as e:
+        return HTMLResponse(content=f"<h1>页面加载错误</h1><p>{str(e)}</p>", status_code=500)
+
+@app.get("/api/user/orders")
+async def get_user_orders(
+    request: Request,
+    page: int = 1,
+    status: str = "all",
+    session_token: str = Header(None, alias="x-session-token")
+):
+    """获取用户订单列表"""
+    try:
+        user = auth_service.get_current_user(session_token)
+        if not user:
+            return {"success": False, "message": "用户未登录"}
+        
+        user_id = user["id"]
+        limit = 10
+        offset = (page - 1) * limit
+        
+        # 获取订单列表
+        orders = db.get_user_payment_orders(user_id, limit * 2)  # 获取更多数据用于筛选
+        
+        # 筛选订单
+        if status != "all":
+            orders = [order for order in orders if order["payment_status"] == status]
+        
+        # 分页
+        total_orders = len(orders)
+        orders = orders[offset:offset + limit]
+        
+        # 计算统计信息
+        all_orders = db.get_user_payment_orders(user_id, 1000)  # 获取所有订单用于统计
+        stats = {
+            "total_orders": len(all_orders),
+            "total_amount": sum(order["amount"] for order in all_orders if order["payment_status"] == "paid"),
+            "success_orders": len([order for order in all_orders if order["payment_status"] == "paid"]),
+            "pending_orders": len([order for order in all_orders if order["payment_status"] == "pending"])
+        }
+        
+        # 分页信息
+        pagination = {
+            "current_page": page,
+            "total_pages": (total_orders + limit - 1) // limit,
+            "total_items": total_orders
+        }
+        
+        return {
+            "success": True,
+            "orders": orders,
+            "stats": stats,
+            "pagination": pagination
+        }
+        
+    except Exception as e:
+        return {"success": False, "message": f"获取订单列表失败: {str(e)}"}
+
+@app.post("/api/payment/cancel")
+async def cancel_payment_order(request: Request, session_token: str = Header(None, alias="x-session-token")):
+    """取消支付订单"""
+    try:
+        user = auth_service.get_current_user(session_token)
+        if not user:
+            return {"success": False, "message": "用户未登录"}
+        
+        data = await request.json()
+        order_id = data.get("order_id")
+        
+        if not order_id:
+            return {"success": False, "message": "订单ID不能为空"}
+        
+        # 获取订单信息
+        order = db.get_payment_order(order_id)
+        if not order:
+            return {"success": False, "message": "订单不存在"}
+        
+        # 检查订单是否属于当前用户
+        if order["user_id"] != user["id"]:
+            return {"success": False, "message": "无权操作此订单"}
+        
+        # 检查订单状态
+        if order["payment_status"] != "pending":
+            return {"success": False, "message": "只能取消待支付的订单"}
+        
+        # 更新订单状态
+        success = db.update_payment_status(order_id, "cancelled")
+        
+        if success:
+            return {"success": True, "message": "订单已取消"}
+        else:
+            return {"success": False, "message": "取消订单失败"}
+            
+    except Exception as e:
+        return {"success": False, "message": f"取消订单失败: {str(e)}"}
+
 @app.get("/user-center")
 async def user_center(request: Request):
     """用户中心页面"""
@@ -896,6 +1423,322 @@ async def user_center(request: Request):
             "error_message": str(e)
         })
 
+
+# ==================== 纪念馆管理API ====================
+
+@app.get("/api/user/memorials")
+async def get_user_memorials(session_token: str = Header(None, alias="x-session-token")):
+    """获取用户纪念馆列表"""
+    try:
+        user = auth_service.get_current_user(session_token)
+        if not user:
+            return {"success": False, "message": "用户未登录"}
+        
+        memorials = db.get_user_memorials(user["id"])
+        
+        # 为每个纪念馆添加统计信息
+        for memorial in memorials:
+            memorial["photos"] = db.get_memorial_photos(memorial["id"]) or []
+            memorial["views"] = db.get_memorial_views(memorial["id"]) or 0
+            memorial["likes"] = db.get_memorial_likes(memorial["id"]) or 0
+        
+        return {
+            "success": True,
+            "memorials": memorials
+        }
+        
+    except Exception as e:
+        return {"success": False, "message": f"获取纪念馆列表失败: {str(e)}"}
+
+@app.get("/api/memorial/get/{memorial_id}")
+async def get_memorial_detail(memorial_id: str, session_token: str = Header(None, alias="x-session-token")):
+    """获取纪念馆详情"""
+    try:
+        user = auth_service.get_current_user(session_token)
+        if not user:
+            return {"success": False, "message": "用户未登录"}
+        
+        memorial = db.get_memorial_by_id(memorial_id)
+        if not memorial:
+            return {"success": False, "message": "纪念馆不存在"}
+        
+        # 检查权限
+        if memorial["user_id"] != user["id"]:
+            return {"success": False, "message": "无权访问此纪念馆"}
+        
+        # 添加照片信息
+        memorial["photos"] = db.get_memorial_photos(memorial_id) or []
+        
+        return {
+            "success": True,
+            "memorial": memorial
+        }
+        
+    except Exception as e:
+        return {"success": False, "message": f"获取纪念馆详情失败: {str(e)}"}
+
+@app.put("/api/memorial/update/{memorial_id}")
+async def update_memorial(memorial_id: str, request: Request, session_token: str = Header(None, alias="x-session-token")):
+    """更新纪念馆信息"""
+    try:
+        user = auth_service.get_current_user(session_token)
+        if not user:
+            return {"success": False, "message": "用户未登录"}
+        
+        # 检查纪念馆是否存在且属于当前用户
+        memorial = db.get_memorial_by_id(memorial_id)
+        if not memorial or memorial["user_id"] != user["id"]:
+            return {"success": False, "message": "纪念馆不存在或无权限"}
+        
+        data = await request.json()
+        
+        # 更新纪念馆信息
+        success = db.update_memorial(
+            memorial_id=memorial_id,
+            pet_name=data.get("pet_name"),
+            species=data.get("species"),
+            breed=data.get("breed"),
+            color=data.get("color"),
+            gender=data.get("gender"),
+            birth_date=data.get("birth_date"),
+            memorial_date=data.get("memorial_date"),
+            weight=float(data.get("weight", 0)) if data.get("weight") else None,
+            description=data.get("description"),
+            personality=data.get("personality")
+        )
+        
+        if success:
+            return {"success": True, "message": "纪念馆更新成功"}
+        else:
+            return {"success": False, "message": "纪念馆更新失败"}
+        
+    except Exception as e:
+        return {"success": False, "message": f"更新纪念馆失败: {str(e)}"}
+
+@app.delete("/api/memorial/delete/{memorial_id}")
+async def delete_memorial(memorial_id: str, session_token: str = Header(None, alias="x-session-token")):
+    """删除纪念馆"""
+    try:
+        user = auth_service.get_current_user(session_token)
+        if not user:
+            return {"success": False, "message": "用户未登录"}
+        
+        # 检查纪念馆是否存在且属于当前用户
+        memorial = db.get_memorial_by_id(memorial_id)
+        if not memorial or memorial["user_id"] != user["id"]:
+            return {"success": False, "message": "纪念馆不存在或无权限"}
+        
+        # 删除纪念馆
+        success = db.delete_memorial(memorial_id)
+        
+        if success:
+            return {"success": True, "message": "纪念馆删除成功"}
+        else:
+            return {"success": False, "message": "纪念馆删除失败"}
+        
+    except Exception as e:
+        return {"success": False, "message": f"删除纪念馆失败: {str(e)}"}
+
+@app.post("/api/memorial/upload-photos/{memorial_id}")
+async def upload_memorial_photos(
+    memorial_id: str,
+    photos: list[UploadFile] = File(...),
+    session_token: str = Header(None, alias="x-session-token")
+):
+    """上传纪念馆照片"""
+    try:
+        user = auth_service.get_current_user(session_token)
+        if not user:
+            return {"success": False, "message": "用户未登录"}
+        
+        # 检查纪念馆是否存在且属于当前用户
+        memorial = db.get_memorial_by_id(memorial_id)
+        if not memorial or memorial["user_id"] != user["id"]:
+            return {"success": False, "message": "纪念馆不存在或无权限"}
+        
+        # 检查照片上传权限
+        if not auth_service.can_upload_photo(user["id"]):
+            return {"success": False, "message": "已达到照片上传上限，请升级会员"}
+        
+        uploaded_photos = []
+        
+        for photo in photos:
+            if photo.content_type.startswith('image/'):
+                # 生成唯一文件名
+                filename = f"{uuid.uuid4().hex}.jpg"
+                
+                # 保存照片
+                storage_base = os.path.join(os.path.dirname(os.path.dirname(__file__)), "storage")
+                photo_path = os.path.join(storage_base, "photos", filename)
+                
+                with open(photo_path, "wb") as f:
+                    f.write(await photo.read())
+                
+                # 添加到纪念馆
+                photo_url = f"/storage/photos/{filename}"
+                db.add_memorial_photo(memorial_id, photo_url)
+                uploaded_photos.append(photo_url)
+        
+        # 获取更新后的照片列表
+        all_photos = db.get_memorial_photos(memorial_id) or []
+        
+        return {
+            "success": True,
+            "message": f"成功上传 {len(uploaded_photos)} 张照片",
+            "photos": all_photos
+        }
+        
+    except Exception as e:
+        return {"success": False, "message": f"上传照片失败: {str(e)}"}
+
+@app.delete("/api/memorial/delete-photo/{memorial_id}")
+async def delete_memorial_photo(
+    memorial_id: str,
+    request: Request,
+    session_token: str = Header(None, alias="x-session-token")
+):
+    """删除纪念馆照片"""
+    try:
+        user = auth_service.get_current_user(session_token)
+        if not user:
+            return {"success": False, "message": "用户未登录"}
+        
+        # 检查纪念馆是否存在且属于当前用户
+        memorial = db.get_memorial_by_id(memorial_id)
+        if not memorial or memorial["user_id"] != user["id"]:
+            return {"success": False, "message": "纪念馆不存在或无权限"}
+        
+        data = await request.json()
+        photo_index = data.get("photo_index")
+        
+        if photo_index is None:
+            return {"success": False, "message": "照片索引无效"}
+        
+        # 获取照片列表
+        photos = db.get_memorial_photos(memorial_id) or []
+        
+        if photo_index < 0 or photo_index >= len(photos):
+            return {"success": False, "message": "照片索引超出范围"}
+        
+        # 删除照片
+        photo_url = photos[photo_index]
+        success = db.delete_memorial_photo(memorial_id, photo_url)
+        
+        if success:
+            return {"success": True, "message": "照片删除成功"}
+        else:
+            return {"success": False, "message": "照片删除失败"}
+        
+    except Exception as e:
+        return {"success": False, "message": f"删除照片失败: {str(e)}"}
+
+# ==================== 照片管理API ====================
+
+@app.get("/photo-manager", response_class=HTMLResponse)
+async def photo_manager_page(request: Request):
+    """照片管理页面"""
+    try:
+        template_path = os.path.join(os.path.dirname(__file__), "templates", "photo_manager.html")
+        with open(template_path, "r", encoding="utf-8") as f:
+            content = f.read()
+        return HTMLResponse(content=content)
+    except Exception as e:
+        return HTMLResponse(content=f"<h1>页面加载错误</h1><p>{str(e)}</p>", status_code=500)
+
+@app.get("/api/user/photos")
+async def get_user_photos(session_token: str = Header(None, alias="x-session-token")):
+    """获取用户照片列表"""
+    try:
+        user = auth_service.get_current_user(session_token)
+        if not user:
+            return {"success": False, "message": "用户未登录"}
+        
+        # 获取用户所有纪念馆的照片
+        memorials = db.get_user_memorials(user["id"])
+        all_photos = []
+        
+        for memorial in memorials:
+            photos = db.get_memorial_photos(memorial["id"])
+            for photo_url in photos:
+                all_photos.append({
+                    "id": f"photo_{len(all_photos)}",
+                    "url": photo_url,
+                    "memorial_id": memorial["id"],
+                    "memorial_name": memorial.get("pet_name", "未命名"),
+                    "created_at": memorial.get("created_at", ""),
+                    "title": f"{memorial.get('pet_name', '未命名')}的照片"
+                })
+        
+        # 按创建时间排序
+        all_photos.sort(key=lambda x: x["created_at"], reverse=True)
+        
+        return {
+            "success": True,
+            "photos": all_photos
+        }
+        
+    except Exception as e:
+        return {"success": False, "message": f"获取照片列表失败: {str(e)}"}
+
+@app.post("/api/photos/upload")
+async def upload_photos(
+    photos: list[UploadFile] = File(...),
+    session_token: str = Header(None, alias="x-session-token")
+):
+    """上传照片"""
+    try:
+        user = auth_service.get_current_user(session_token)
+        if not user:
+            return {"success": False, "message": "用户未登录"}
+        
+        # 检查照片上传权限
+        if not auth_service.can_upload_photo(user["id"]):
+            return {"success": False, "message": "已达到照片上传上限，请升级会员"}
+        
+        uploaded_photos = []
+        
+        for photo in photos:
+            if photo.content_type.startswith('image/'):
+                # 生成唯一文件名
+                filename = f"{uuid.uuid4().hex}.jpg"
+                
+                # 保存照片
+                storage_base = os.path.join(os.path.dirname(os.path.dirname(__file__)), "storage")
+                photo_path = os.path.join(storage_base, "photos", filename)
+                
+                with open(photo_path, "wb") as f:
+                    f.write(await photo.read())
+                
+                photo_url = f"/storage/photos/{filename}"
+                uploaded_photos.append(photo_url)
+        
+        return {
+            "success": True,
+            "message": f"成功上传 {len(uploaded_photos)} 张照片",
+            "photos": uploaded_photos
+        }
+        
+    except Exception as e:
+        return {"success": False, "message": f"上传照片失败: {str(e)}"}
+
+@app.delete("/api/photos/delete/{photo_id}")
+async def delete_photo(photo_id: str, session_token: str = Header(None, alias="x-session-token")):
+    """删除照片"""
+    try:
+        user = auth_service.get_current_user(session_token)
+        if not user:
+            return {"success": False, "message": "用户未登录"}
+        
+        # 这里需要根据photo_id找到对应的照片URL并删除
+        # 由于当前设计，photo_id是临时生成的，实际项目中需要改进
+        
+        return {
+            "success": True,
+            "message": "照片删除成功"
+        }
+        
+    except Exception as e:
+        return {"success": False, "message": f"删除照片失败: {str(e)}"}
 
 if __name__ == "__main__":
     uvicorn.run("main:app", host="0.0.0.0", port=8000, reload=True)

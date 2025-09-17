@@ -1,0 +1,745 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>我的纪念馆 - 爪迹星</title>
+    <link rel="stylesheet" href="/static/css/style.css">
+    <style>
+        .memorials-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        .page-header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+        
+        .page-title {
+            font-size: 2.5rem;
+            color: #2c3e50;
+            margin-bottom: 10px;
+        }
+        
+        .page-subtitle {
+            color: #7f8c8d;
+            font-size: 1.1rem;
+        }
+        
+        .memorials-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+            gap: 30px;
+            margin-bottom: 40px;
+        }
+        
+        .memorial-card {
+            background: rgba(255, 255, 255, 0.9);
+            border-radius: 20px;
+            padding: 25px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .memorial-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.15);
+        }
+        
+        .memorial-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 20px;
+        }
+        
+        .memorial-title {
+            font-size: 1.4rem;
+            color: #2c3e50;
+            margin: 0;
+            font-weight: 600;
+        }
+        
+        .memorial-actions {
+            display: flex;
+            gap: 10px;
+        }
+        
+        .action-btn {
+            padding: 8px 12px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+        }
+        
+        .btn-edit {
+            background: #3498db;
+            color: white;
+        }
+        
+        .btn-edit:hover {
+            background: #2980b9;
+        }
+        
+        .btn-delete {
+            background: #e74c3c;
+            color: white;
+        }
+        
+        .btn-delete:hover {
+            background: #c0392b;
+        }
+        
+        .btn-share {
+            background: #27ae60;
+            color: white;
+        }
+        
+        .btn-share:hover {
+            background: #229954;
+        }
+        
+        .btn-view {
+            background: #9b59b6;
+            color: white;
+        }
+        
+        .btn-view:hover {
+            background: #8e44ad;
+        }
+        
+        .memorial-info {
+            margin-bottom: 20px;
+        }
+        
+        .info-item {
+            display: flex;
+            margin-bottom: 8px;
+            font-size: 0.95rem;
+        }
+        
+        .info-label {
+            font-weight: 600;
+            color: #34495e;
+            min-width: 80px;
+        }
+        
+        .info-value {
+            color: #7f8c8d;
+        }
+        
+        .memorial-photos {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            overflow-x: auto;
+        }
+        
+        .photo-thumb {
+            width: 60px;
+            height: 60px;
+            border-radius: 8px;
+            object-fit: cover;
+            border: 2px solid #ecf0f1;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .photo-thumb:hover {
+            border-color: #3498db;
+            transform: scale(1.05);
+        }
+        
+        .memorial-description {
+            color: #7f8c8d;
+            font-size: 0.9rem;
+            line-height: 1.5;
+            margin-bottom: 20px;
+            max-height: 60px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        
+        .memorial-stats {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding-top: 15px;
+            border-top: 1px solid #ecf0f1;
+        }
+        
+        .stat-item {
+            text-align: center;
+        }
+        
+        .stat-number {
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: #2c3e50;
+        }
+        
+        .stat-label {
+            font-size: 0.8rem;
+            color: #7f8c8d;
+        }
+        
+        .create-memorial-btn {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.4);
+            transition: all 0.3s ease;
+            z-index: 1000;
+        }
+        
+        .create-memorial-btn:hover {
+            transform: scale(1.1);
+            box-shadow: 0 12px 35px rgba(102, 126, 234, 0.6);
+        }
+        
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: #7f8c8d;
+        }
+        
+        .empty-icon {
+            font-size: 4rem;
+            margin-bottom: 20px;
+        }
+        
+        .empty-title {
+            font-size: 1.5rem;
+            margin-bottom: 10px;
+            color: #2c3e50;
+        }
+        
+        .empty-description {
+            margin-bottom: 30px;
+        }
+        
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: #7f8c8d;
+        }
+        
+        .loading-spinner {
+            display: inline-block;
+            width: 40px;
+            height: 40px;
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #3498db;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 2000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(5px);
+        }
+        
+        .modal-content {
+            background-color: white;
+            margin: 5% auto;
+            padding: 30px;
+            border-radius: 20px;
+            width: 90%;
+            max-width: 500px;
+            position: relative;
+        }
+        
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        
+        .modal-title {
+            font-size: 1.5rem;
+            color: #2c3e50;
+            margin: 0;
+        }
+        
+        .close {
+            color: #aaa;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+        
+        .close:hover {
+            color: #000;
+        }
+        
+        .modal-body {
+            margin-bottom: 30px;
+        }
+        
+        .modal-footer {
+            display: flex;
+            justify-content: flex-end;
+            gap: 15px;
+        }
+        
+        .btn-confirm {
+            background: #e74c3c;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+        }
+        
+        .btn-cancel {
+            background: #95a5a6;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+        }
+        
+        .share-modal .share-options {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+        
+        .share-option {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 15px;
+            border: 2px solid #ecf0f1;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .share-option:hover {
+            border-color: #3498db;
+            background: #f8f9fa;
+        }
+        
+        .share-icon {
+            font-size: 2rem;
+            margin-bottom: 10px;
+        }
+        
+        .share-label {
+            font-size: 0.9rem;
+            color: #2c3e50;
+        }
+        
+        .share-url {
+            background: #f8f9fa;
+            border: 1px solid #dee2e6;
+            border-radius: 8px;
+            padding: 10px;
+            font-family: monospace;
+            font-size: 0.9rem;
+            word-break: break-all;
+        }
+        
+        .copy-btn {
+            background: #3498db;
+            color: white;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-left: 10px;
+        }
+        
+        @media (max-width: 768px) {
+            .memorials-grid {
+                grid-template-columns: 1fr;
+                gap: 20px;
+            }
+            
+            .memorial-card {
+                padding: 20px;
+            }
+            
+            .memorial-actions {
+                flex-wrap: wrap;
+            }
+            
+            .action-btn {
+                font-size: 0.8rem;
+                padding: 6px 10px;
+            }
+            
+            .create-memorial-btn {
+                bottom: 20px;
+                right: 20px;
+                width: 50px;
+                height: 50px;
+                font-size: 1.2rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="memorials-container">
+        <div class="page-header">
+            <h1 class="page-title">我的纪念馆</h1>
+            <p class="page-subtitle">记录每一个珍贵的回忆</p>
+        </div>
+        
+        <div id="memorials-content">
+            <div class="loading">
+                <div class="loading-spinner"></div>
+                <p>加载中...</p>
+            </div>
+        </div>
+        
+        <button class="create-memorial-btn" onclick="createMemorial()" title="创建新纪念馆">
+            +
+        </button>
+    </div>
+    
+    <!-- 删除确认模态框 -->
+    <div id="deleteModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title">确认删除</h3>
+                <span class="close" onclick="closeModal('deleteModal')">&times;</span>
+            </div>
+            <div class="modal-body">
+                <p>确定要删除这个纪念馆吗？删除后将无法恢复。</p>
+            </div>
+            <div class="modal-footer">
+                <button class="btn-cancel" onclick="closeModal('deleteModal')">取消</button>
+                <button class="btn-confirm" onclick="confirmDelete()">删除</button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- 分享模态框 -->
+    <div id="shareModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title">分享纪念馆</h3>
+                <span class="close" onclick="closeModal('shareModal')">&times;</span>
+            </div>
+            <div class="modal-body">
+                <div class="share-options">
+                    <div class="share-option" onclick="shareToWeChat()">
+                        <div class="share-icon">💚</div>
+                        <div class="share-label">微信</div>
+                    </div>
+                    <div class="share-option" onclick="shareToWeibo()">
+                        <div class="share-icon">📱</div>
+                        <div class="share-label">微博</div>
+                    </div>
+                    <div class="share-option" onclick="shareToQQ()">
+                        <div class="share-icon">🐧</div>
+                        <div class="share-label">QQ</div>
+                    </div>
+                    <div class="share-option" onclick="copyLink()">
+                        <div class="share-icon">🔗</div>
+                        <div class="share-label">复制链接</div>
+                    </div>
+                </div>
+                <div>
+                    <label>分享链接：</label>
+                    <div style="display: flex; align-items: center; margin-top: 10px;">
+                        <input type="text" id="shareUrl" class="share-url" readonly>
+                        <button class="copy-btn" onclick="copyToClipboard()">复制</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        let currentMemorialId = null;
+        let memorials = [];
+        
+        // 页面加载时获取纪念馆列表
+        document.addEventListener('DOMContentLoaded', function() {
+            loadMemorials();
+        });
+        
+        // 获取会话令牌
+        function getSessionToken() {
+            const urlParams = new URLSearchParams(window.location.search);
+            return urlParams.get('session_token') || localStorage.getItem('session_token');
+        }
+        
+        // 加载纪念馆列表
+        async function loadMemorials() {
+            try {
+                const sessionToken = getSessionToken();
+                if (!sessionToken) {
+                    window.location.href = '/login';
+                    return;
+                }
+                
+                const response = await fetch('/api/user/memorials', {
+                    headers: {
+                        'X-Session-Token': sessionToken
+                    }
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    memorials = data.memorials || [];
+                    renderMemorials();
+                } else {
+                    showError('加载纪念馆列表失败: ' + data.message);
+                }
+            } catch (error) {
+                console.error('加载纪念馆列表失败:', error);
+                showError('网络错误，请稍后重试');
+            }
+        }
+        
+        // 渲染纪念馆列表
+        function renderMemorials() {
+            const content = document.getElementById('memorials-content');
+            
+            if (memorials.length === 0) {
+                content.innerHTML = `
+                    <div class="empty-state">
+                        <div class="empty-icon">🐾</div>
+                        <h3 class="empty-title">还没有纪念馆</h3>
+                        <p class="empty-description">创建你的第一个纪念馆，记录珍贵的回忆</p>
+                        <button class="btn-primary" onclick="createMemorial()">创建纪念馆</button>
+                    </div>
+                `;
+                return;
+            }
+            
+            const memorialsHTML = memorials.map(memorial => `
+                <div class="memorial-card">
+                    <div class="memorial-header">
+                        <h3 class="memorial-title">${memorial.pet_name || '未命名'}</h3>
+                        <div class="memorial-actions">
+                            <a href="/memorial/${memorial.id}" class="action-btn btn-view" target="_blank">
+                                👁️ 查看
+                            </a>
+                            <button class="action-btn btn-edit" onclick="editMemorial('${memorial.id}')">
+                                ✏️ 编辑
+                            </button>
+                            <button class="action-btn btn-share" onclick="shareMemorial('${memorial.id}')">
+                                🔗 分享
+                            </button>
+                            <button class="action-btn btn-delete" onclick="deleteMemorial('${memorial.id}')">
+                                🗑️ 删除
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div class="memorial-info">
+                        <div class="info-item">
+                            <span class="info-label">品种:</span>
+                            <span class="info-value">${memorial.species || '未知'} ${memorial.breed || ''}</span>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label">性别:</span>
+                            <span class="info-value">${memorial.gender || '未知'}</span>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label">生日:</span>
+                            <span class="info-value">${memorial.birth_date || '未知'}</span>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label">纪念日:</span>
+                            <span class="info-value">${memorial.memorial_date || '未知'}</span>
+                        </div>
+                    </div>
+                    
+                    <div class="memorial-photos">
+                        ${(memorial.photos || []).slice(0, 5).map(photo => `
+                            <img src="${photo}" alt="照片" class="photo-thumb" onclick="viewPhoto('${photo}')">
+                        `).join('')}
+                        ${(memorial.photos || []).length > 5 ? `
+                            <div class="photo-thumb" style="display: flex; align-items: center; justify-content: center; background: #ecf0f1; color: #7f8c8d;">
+                                +${(memorial.photos || []).length - 5}
+                            </div>
+                        ` : ''}
+                    </div>
+                    
+                    <div class="memorial-description">
+                        ${memorial.description || '暂无描述'}
+                    </div>
+                    
+                    <div class="memorial-stats">
+                        <div class="stat-item">
+                            <div class="stat-number">${(memorial.photos || []).length}</div>
+                            <div class="stat-label">照片</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-number">${memorial.views || 0}</div>
+                            <div class="stat-label">访问</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-number">${memorial.likes || 0}</div>
+                            <div class="stat-label">点赞</div>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+            
+            content.innerHTML = `<div class="memorials-grid">${memorialsHTML}</div>`;
+        }
+        
+        // 创建纪念馆
+        function createMemorial() {
+            window.location.href = '/personality-test?session_token=' + getSessionToken();
+        }
+        
+        // 编辑纪念馆
+        function editMemorial(memorialId) {
+            window.location.href = `/memorial/edit/${memorialId}?session_token=${getSessionToken()}`;
+        }
+        
+        // 删除纪念馆
+        function deleteMemorial(memorialId) {
+            currentMemorialId = memorialId;
+            document.getElementById('deleteModal').style.display = 'block';
+        }
+        
+        // 确认删除
+        async function confirmDelete() {
+            try {
+                const sessionToken = getSessionToken();
+                const response = await fetch(`/api/memorial/delete/${currentMemorialId}`, {
+                    method: 'DELETE',
+                    headers: {
+                        'X-Session-Token': sessionToken
+                    }
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    showSuccess('纪念馆删除成功');
+                    closeModal('deleteModal');
+                    loadMemorials(); // 重新加载列表
+                } else {
+                    showError('删除失败: ' + data.message);
+                }
+            } catch (error) {
+                console.error('删除纪念馆失败:', error);
+                showError('网络错误，请稍后重试');
+            }
+        }
+        
+        // 分享纪念馆
+        function shareMemorial(memorialId) {
+            currentMemorialId = memorialId;
+            const shareUrl = `${window.location.origin}/memorial/${memorialId}`;
+            document.getElementById('shareUrl').value = shareUrl;
+            document.getElementById('shareModal').style.display = 'block';
+        }
+        
+        // 分享到微信
+        function shareToWeChat() {
+            const url = document.getElementById('shareUrl').value;
+            // 这里可以集成微信分享SDK
+            showSuccess('请复制链接到微信中分享');
+        }
+        
+        // 分享到微博
+        function shareToWeibo() {
+            const url = document.getElementById('shareUrl').value;
+            const text = '来看看这个可爱的宠物纪念馆';
+            window.open(`https://service.weibo.com/share/share.php?url=${encodeURIComponent(url)}&title=${encodeURIComponent(text)}`);
+        }
+        
+        // 分享到QQ
+        function shareToQQ() {
+            const url = document.getElementById('shareUrl').value;
+            const text = '来看看这个可爱的宠物纪念馆';
+            window.open(`https://connect.qq.com/widget/shareqq/index.html?url=${encodeURIComponent(url)}&title=${encodeURIComponent(text)}`);
+        }
+        
+        // 复制链接
+        function copyLink() {
+            copyToClipboard();
+        }
+        
+        // 复制到剪贴板
+        function copyToClipboard() {
+            const shareUrl = document.getElementById('shareUrl');
+            shareUrl.select();
+            document.execCommand('copy');
+            showSuccess('链接已复制到剪贴板');
+        }
+        
+        // 查看照片
+        function viewPhoto(photoUrl) {
+            // 这里可以实现照片查看器
+            window.open(photoUrl, '_blank');
+        }
+        
+        // 关闭模态框
+        function closeModal(modalId) {
+            document.getElementById(modalId).style.display = 'none';
+        }
+        
+        // 显示成功消息
+        function showSuccess(message) {
+            // 这里可以实现消息提示组件
+            alert(message);
+        }
+        
+        // 显示错误消息
+        function showError(message) {
+            // 这里可以实现消息提示组件
+            alert(message);
+        }
+        
+        // 点击模态框外部关闭
+        window.onclick = function(event) {
+            const deleteModal = document.getElementById('deleteModal');
+            const shareModal = document.getElementById('shareModal');
+            if (event.target === deleteModal) {
+                deleteModal.style.display = 'none';
+            }
+            if (event.target === shareModal) {
+                shareModal.style.display = 'none';
+            }
+        }
+    </script>
+</body>
+</html>

@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>个人中心 - 宠忆星</title>
+    <title>个人中心 - 爪迹星</title>
     <style>
         * {
             margin: 0;
@@ -241,6 +241,16 @@
             border: 1px solid rgba(255, 255, 255, 0.3);
         }
 
+        .btn-upgrade {
+            background: linear-gradient(135deg, #FFC107 0%, #FF9800 100%);
+            color: white;
+            border: 1px solid rgba(255, 193, 7, 0.3);
+        }
+
+        .btn-upgrade:hover {
+            box-shadow: 0 5px 15px rgba(255, 193, 7, 0.4);
+        }
+
         .btn:hover {
             transform: translateY(-2px);
             box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
@@ -297,7 +307,7 @@
 <body>
     <div class="container">
         <div class="header">
-            <div class="logo">🐾 宠忆星</div>
+            <div class="logo">⭐ 爪迹星</div>
             <div class="subtitle">个人中心</div>
         </div>
 
@@ -405,6 +415,10 @@
         <div class="action-buttons">
             <a href="/" class="btn btn-primary">返回首页</a>
             <a href="/personality-test" class="btn btn-secondary">创建纪念馆</a>
+            <a href="/memorials" class="btn btn-secondary">📚 我的纪念馆</a>
+            <a href="/photo-manager" class="btn btn-secondary">📷 照片管理</a>
+            <a href="/payment" class="btn btn-upgrade">💳 充值升级</a>
+            <a href="/orders" class="btn btn-secondary">📋 订单管理</a>
             <button class="btn btn-secondary" onclick="logout()">退出登录</button>
         </div>
     </div>

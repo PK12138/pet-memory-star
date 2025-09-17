@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-宠忆星·云纪念馆启动脚本
+ 爪迹星·云纪念馆启动脚本
 """
 
 import uvicorn
@@ -24,7 +24,7 @@ app_dir = os.path.join(current_dir, 'app')
 sys.path.insert(0, app_dir)
 
 if __name__ == "__main__":
-    print("🚀 启动宠忆星·云纪念馆服务...")
+    print("🚀 启动 爪迹星·云纪念馆服务...")
     print("📍 服务地址: http://localhost")
     print("📖 API文档: http://localhost/docs")
     print(f"📁 当前目录: {current_dir}")

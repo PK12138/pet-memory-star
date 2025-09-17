@@ -380,7 +380,7 @@ class EmailService:
         <body>
             <div class="email-container">
                 <div class="header">
-                    <h1>🐾 宠忆星·云纪念馆</h1>
+                    <h1>🐾  爪迹星·云纪念馆</h1>
                     <p>永远的回忆，永远的陪伴</p>
                 </div>
                 
@@ -432,8 +432,8 @@ class EmailService:
                 </div>
                 
                 <div class="footer">
-                            <p>此邮件由宠忆星·云纪念馆系统自动发送</p>
-        <p>© {datetime.now().year} 宠忆星·云纪念馆 - 让爱永远延续</p>
+                            <p>此邮件由 爪迹星·云纪念馆系统自动发送</p>
+        <p>© {datetime.now().year}  爪迹星·云纪念馆 - 让爱永远延续</p>
                 </div>
             </div>
         </body>
@@ -592,7 +592,7 @@ class EmailService:
     
     def send_test_email(self, to_email):
         """发送测试邮件"""
-        subject = "🧪 宠忆星·云纪念馆 - 邮件服务测试"
+        subject = "🧪  爪迹星·云纪念馆 - 邮件服务测试"
         html_content = f"""
         <html>
         <body>
@@ -607,14 +607,14 @@ class EmailService:
     
     def send_verification_code(self, to_email, code):
         """发送验证码邮件"""
-        subject = "🔐 宠忆星·云纪念馆 - 邮箱验证码"
+        subject = "🔐  爪迹星·云纪念馆 - 邮箱验证码"
         html_content = self._build_verification_email_html(code)
         
         return self._send_email(to_email, subject, html_content)
     
     def send_password_reset_email(self, to_email, reset_url):
         """发送密码重置邮件"""
-        subject = "🔑 宠忆星·云纪念馆 - 密码重置"
+        subject = "🔑  爪迹星·云纪念馆 - 密码重置"
         html_content = self._build_password_reset_email_html(reset_url)
         
         return self._send_email(to_email, subject, html_content)
@@ -691,7 +691,7 @@ class EmailService:
         <body>
             <div class="email-container">
                 <div class="header">
-                    <h1>🐾 宠忆星·云纪念馆</h1>
+                    <h1>🐾  爪迹星·云纪念馆</h1>
                     <p>邮箱验证码</p>
                 </div>
                 
@@ -718,8 +718,8 @@ class EmailService:
                 </div>
                 
                 <div class="footer">
-                    <p>此邮件由宠忆星·云纪念馆系统自动发送</p>
-                    <p>© {datetime.now().year} 宠忆星·云纪念馆 - 让爱永远延续</p>
+                    <p>此邮件由 爪迹星·云纪念馆系统自动发送</p>
+                    <p>© {datetime.now().year}  爪迹星·云纪念馆 - 让爱永远延续</p>
                 </div>
             </div>
         </body>
@@ -799,7 +799,7 @@ class EmailService:
         <body>
             <div class="email-container">
                 <div class="header">
-                    <h1>🐾 宠忆星·云纪念馆</h1>
+                    <h1>🐾  爪迹星·云纪念馆</h1>
                     <p>密码重置</p>
                 </div>
                 
@@ -828,8 +828,8 @@ class EmailService:
                 </div>
                 
                 <div class="footer">
-                    <p>此邮件由宠忆星·云纪念馆系统自动发送</p>
-                    <p>© {datetime.now().year} 宠忆星·云纪念馆 - 让爱永远延续</p>
+                    <p>此邮件由 爪迹星·云纪念馆系统自动发送</p>
+                    <p>© {datetime.now().year}  爪迹星·云纪念馆 - 让爱永远延续</p>
                 </div>
             </div>
         </body>

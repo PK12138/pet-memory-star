@@ -1,0 +1,878 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>编辑纪念馆 - 爪迹星</title>
+    <link rel="stylesheet" href="/static/css/style.css">
+    <style>
+        .edit-container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        .page-header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+        
+        .page-title {
+            font-size: 2.5rem;
+            color: #2c3e50;
+            margin-bottom: 10px;
+        }
+        
+        .page-subtitle {
+            color: #7f8c8d;
+            font-size: 1.1rem;
+        }
+        
+        .edit-form {
+            background: rgba(255, 255, 255, 0.9);
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        
+        .form-section {
+            margin-bottom: 40px;
+        }
+        
+        .section-title {
+            font-size: 1.3rem;
+            color: #2c3e50;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #ecf0f1;
+        }
+        
+        .form-group {
+            margin-bottom: 25px;
+        }
+        
+        .form-label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #34495e;
+        }
+        
+        .form-input {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid #ecf0f1;
+            border-radius: 10px;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            background: white;
+        }
+        
+        .form-input:focus {
+            outline: none;
+            border-color: #3498db;
+            box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.1);
+        }
+        
+        .form-textarea {
+            min-height: 120px;
+            resize: vertical;
+        }
+        
+        .form-select {
+            appearance: none;
+            background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6,9 12,15 18,9'%3e%3c/polyline%3e%3c/svg%3e");
+            background-repeat: no-repeat;
+            background-position: right 12px center;
+            background-size: 16px;
+            padding-right: 40px;
+        }
+        
+        .photo-upload-area {
+            border: 2px dashed #bdc3c7;
+            border-radius: 10px;
+            padding: 40px;
+            text-align: center;
+            background: #f8f9fa;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+        
+        .photo-upload-area:hover {
+            border-color: #3498db;
+            background: #f0f8ff;
+        }
+        
+        .photo-upload-area.dragover {
+            border-color: #3498db;
+            background: #e3f2fd;
+        }
+        
+        .upload-icon {
+            font-size: 3rem;
+            color: #bdc3c7;
+            margin-bottom: 15px;
+        }
+        
+        .upload-text {
+            color: #7f8c8d;
+            font-size: 1.1rem;
+            margin-bottom: 10px;
+        }
+        
+        .upload-hint {
+            color: #95a5a6;
+            font-size: 0.9rem;
+        }
+        
+        .photo-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+            gap: 15px;
+            margin-top: 20px;
+        }
+        
+        .photo-item {
+            position: relative;
+            aspect-ratio: 1;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        }
+        
+        .photo-item img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        
+        .photo-actions {
+            position: absolute;
+            top: 8px;
+            right: 8px;
+            display: flex;
+            gap: 5px;
+        }
+        
+        .photo-action-btn {
+            width: 30px;
+            height: 30px;
+            border: none;
+            border-radius: 50%;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.8rem;
+            transition: all 0.3s ease;
+        }
+        
+        .btn-edit-photo {
+            background: rgba(52, 152, 219, 0.9);
+            color: white;
+        }
+        
+        .btn-delete-photo {
+            background: rgba(231, 76, 60, 0.9);
+            color: white;
+        }
+        
+        .photo-action-btn:hover {
+            transform: scale(1.1);
+        }
+        
+        .form-actions {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 40px;
+            padding-top: 30px;
+            border-top: 1px solid #ecf0f1;
+        }
+        
+        .btn {
+            padding: 12px 30px;
+            border: none;
+            border-radius: 10px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.4);
+        }
+        
+        .btn-secondary {
+            background: #95a5a6;
+            color: white;
+        }
+        
+        .btn-secondary:hover {
+            background: #7f8c8d;
+        }
+        
+        .btn-danger {
+            background: #e74c3c;
+            color: white;
+        }
+        
+        .btn-danger:hover {
+            background: #c0392b;
+        }
+        
+        .loading {
+            display: none;
+            text-align: center;
+            padding: 20px;
+            color: #7f8c8d;
+        }
+        
+        .loading-spinner {
+            display: inline-block;
+            width: 30px;
+            height: 30px;
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #3498db;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .error-message {
+            color: #e74c3c;
+            font-size: 0.9rem;
+            margin-top: 5px;
+        }
+        
+        .success-message {
+            color: #27ae60;
+            font-size: 0.9rem;
+            margin-top: 5px;
+        }
+        
+        .photo-edit-modal {
+            display: none;
+            position: fixed;
+            z-index: 2000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.8);
+            backdrop-filter: blur(5px);
+        }
+        
+        .photo-edit-content {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: white;
+            padding: 30px;
+            border-radius: 20px;
+            width: 90%;
+            max-width: 600px;
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+        
+        .photo-edit-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        
+        .photo-edit-title {
+            font-size: 1.5rem;
+            color: #2c3e50;
+            margin: 0;
+        }
+        
+        .close-btn {
+            color: #aaa;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+        
+        .close-btn:hover {
+            color: #000;
+        }
+        
+        .photo-edit-body {
+            margin-bottom: 30px;
+        }
+        
+        .photo-preview {
+            width: 100%;
+            max-height: 300px;
+            object-fit: contain;
+            border-radius: 10px;
+            margin-bottom: 20px;
+        }
+        
+        .edit-tools {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+        
+        .edit-tool {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 15px;
+            border: 2px solid #ecf0f1;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .edit-tool:hover {
+            border-color: #3498db;
+            background: #f8f9fa;
+        }
+        
+        .edit-tool.active {
+            border-color: #3498db;
+            background: #e3f2fd;
+        }
+        
+        .tool-icon {
+            font-size: 1.5rem;
+            margin-bottom: 8px;
+        }
+        
+        .tool-label {
+            font-size: 0.9rem;
+            color: #2c3e50;
+        }
+        
+        .tool-controls {
+            margin-top: 20px;
+        }
+        
+        .control-group {
+            margin-bottom: 15px;
+        }
+        
+        .control-label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 600;
+            color: #34495e;
+        }
+        
+        .control-input {
+            width: 100%;
+            padding: 8px 12px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+        
+        .photo-edit-footer {
+            display: flex;
+            justify-content: flex-end;
+            gap: 15px;
+        }
+        
+        @media (max-width: 768px) {
+            .edit-container {
+                padding: 10px;
+            }
+            
+            .edit-form {
+                padding: 20px;
+            }
+            
+            .form-actions {
+                flex-direction: column;
+                gap: 15px;
+            }
+            
+            .btn {
+                width: 100%;
+                justify-content: center;
+            }
+            
+            .photo-grid {
+                grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="edit-container">
+        <div class="page-header">
+            <h1 class="page-title">编辑纪念馆</h1>
+            <p class="page-subtitle">完善宠物的详细信息</p>
+        </div>
+        
+        <form class="edit-form" id="editForm">
+            <!-- 基本信息 -->
+            <div class="form-section">
+                <h3 class="section-title">基本信息</h3>
+                
+                <div class="form-group">
+                    <label class="form-label" for="petName">宠物姓名 *</label>
+                    <input type="text" id="petName" name="pet_name" class="form-input" required>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label" for="species">物种 *</label>
+                    <select id="species" name="species" class="form-input form-select" required>
+                        <option value="">请选择物种</option>
+                        <option value="狗">狗</option>
+                        <option value="猫">猫</option>
+                        <option value="鸟">鸟</option>
+                        <option value="鱼">鱼</option>
+                        <option value="兔子">兔子</option>
+                        <option value="仓鼠">仓鼠</option>
+                        <option value="其他">其他</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label" for="breed">品种</label>
+                    <input type="text" id="breed" name="breed" class="form-input" placeholder="如：金毛、波斯猫等">
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label" for="color">毛色</label>
+                    <input type="text" id="color" name="color" class="form-input" placeholder="如：金色、白色等">
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label" for="gender">性别</label>
+                    <select id="gender" name="gender" class="form-input form-select">
+                        <option value="">请选择性别</option>
+                        <option value="公">公</option>
+                        <option value="母">母</option>
+                        <option value="未知">未知</option>
+                    </select>
+                </div>
+            </div>
+            
+            <!-- 时间信息 -->
+            <div class="form-section">
+                <h3 class="section-title">时间信息</h3>
+                
+                <div class="form-group">
+                    <label class="form-label" for="birthDate">出生日期</label>
+                    <input type="date" id="birthDate" name="birth_date" class="form-input">
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label" for="memorialDate">纪念日期 *</label>
+                    <input type="date" id="memorialDate" name="memorial_date" class="form-input" required>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label" for="weight">体重 (kg)</label>
+                    <input type="number" id="weight" name="weight" class="form-input" step="0.1" min="0">
+                </div>
+            </div>
+            
+            <!-- 照片管理 -->
+            <div class="form-section">
+                <h3 class="section-title">照片管理</h3>
+                
+                <div class="photo-upload-area" id="photoUploadArea">
+                    <div class="upload-icon">📷</div>
+                    <div class="upload-text">点击或拖拽上传照片</div>
+                    <div class="upload-hint">支持 JPG、PNG 格式，单张不超过 10MB</div>
+                    <input type="file" id="photoInput" multiple accept="image/*" style="display: none;">
+                </div>
+                
+                <div class="photo-grid" id="photoGrid">
+                    <!-- 照片将在这里动态添加 -->
+                </div>
+            </div>
+            
+            <!-- 描述信息 -->
+            <div class="form-section">
+                <h3 class="section-title">描述信息</h3>
+                
+                <div class="form-group">
+                    <label class="form-label" for="description">纪念描述</label>
+                    <textarea id="description" name="description" class="form-input form-textarea" placeholder="写下你对宠物的回忆和感受..."></textarea>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label" for="personality">性格特点</label>
+                    <textarea id="personality" name="personality" class="form-input form-textarea" placeholder="描述宠物的性格特点..."></textarea>
+                </div>
+            </div>
+            
+            <!-- 操作按钮 -->
+            <div class="form-actions">
+                <a href="/memorials" class="btn btn-secondary">
+                    ← 返回列表
+                </a>
+                <div>
+                    <button type="button" class="btn btn-danger" onclick="deleteMemorial()">
+                        🗑️ 删除纪念馆
+                    </button>
+                    <button type="submit" class="btn btn-primary">
+                        💾 保存修改
+                    </button>
+                </div>
+            </div>
+        </form>
+        
+        <div class="loading" id="loading">
+            <div class="loading-spinner"></div>
+            <p>保存中...</p>
+        </div>
+    </div>
+    
+    <!-- 照片编辑模态框 -->
+    <div id="photoEditModal" class="photo-edit-modal">
+        <div class="photo-edit-content">
+            <div class="photo-edit-header">
+                <h3 class="photo-edit-title">编辑照片</h3>
+                <span class="close-btn" onclick="closePhotoEdit()">&times;</span>
+            </div>
+            <div class="photo-edit-body">
+                <img id="photoPreview" class="photo-preview" alt="照片预览">
+                
+                <div class="edit-tools">
+                    <div class="edit-tool" data-tool="crop">
+                        <div class="tool-icon">✂️</div>
+                        <div class="tool-label">裁剪</div>
+                    </div>
+                    <div class="edit-tool" data-tool="filter">
+                        <div class="tool-icon">🎨</div>
+                        <div class="tool-label">滤镜</div>
+                    </div>
+                    <div class="edit-tool" data-tool="text">
+                        <div class="tool-icon">📝</div>
+                        <div class="tool-label">文字</div>
+                    </div>
+                    <div class="edit-tool" data-tool="rotate">
+                        <div class="tool-icon">🔄</div>
+                        <div class="tool-label">旋转</div>
+                    </div>
+                </div>
+                
+                <div class="tool-controls" id="toolControls">
+                    <!-- 工具控制面板将在这里动态添加 -->
+                </div>
+            </div>
+            <div class="photo-edit-footer">
+                <button class="btn btn-secondary" onclick="closePhotoEdit()">取消</button>
+                <button class="btn btn-primary" onclick="applyPhotoEdit()">应用</button>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        let memorialId = null;
+        let currentPhotos = [];
+        let currentEditPhoto = null;
+        let currentEditTool = null;
+        
+        // 页面加载时获取纪念馆信息
+        document.addEventListener('DOMContentLoaded', function() {
+            memorialId = getMemorialIdFromUrl();
+            if (memorialId) {
+                loadMemorialData();
+            } else {
+                showError('纪念馆ID无效');
+            }
+        });
+        
+        // 从URL获取纪念馆ID
+        function getMemorialIdFromUrl() {
+            const path = window.location.pathname;
+            const match = path.match(/\/memorial\/edit\/(.+)/);
+            return match ? match[1] : null;
+        }
+        
+        // 获取会话令牌
+        function getSessionToken() {
+            const urlParams = new URLSearchParams(window.location.search);
+            return urlParams.get('session_token') || localStorage.getItem('session_token');
+        }
+        
+        // 加载纪念馆数据
+        async function loadMemorialData() {
+            try {
+                const sessionToken = getSessionToken();
+                const response = await fetch(`/api/memorial/get/${memorialId}`, {
+                    headers: {
+                        'X-Session-Token': sessionToken
+                    }
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    fillForm(data.memorial);
+                    currentPhotos = data.memorial.photos || [];
+                    renderPhotos();
+                } else {
+                    showError('加载纪念馆数据失败: ' + data.message);
+                }
+            } catch (error) {
+                console.error('加载纪念馆数据失败:', error);
+                showError('网络错误，请稍后重试');
+            }
+        }
+        
+        // 填充表单数据
+        function fillForm(memorial) {
+            document.getElementById('petName').value = memorial.pet_name || '';
+            document.getElementById('species').value = memorial.species || '';
+            document.getElementById('breed').value = memorial.breed || '';
+            document.getElementById('color').value = memorial.color || '';
+            document.getElementById('gender').value = memorial.gender || '';
+            document.getElementById('birthDate').value = memorial.birth_date || '';
+            document.getElementById('memorialDate').value = memorial.memorial_date || '';
+            document.getElementById('weight').value = memorial.weight || '';
+            document.getElementById('description').value = memorial.description || '';
+            document.getElementById('personality').value = memorial.personality || '';
+        }
+        
+        // 渲染照片
+        function renderPhotos() {
+            const photoGrid = document.getElementById('photoGrid');
+            photoGrid.innerHTML = '';
+            
+            currentPhotos.forEach((photo, index) => {
+                const photoItem = document.createElement('div');
+                photoItem.className = 'photo-item';
+                photoItem.innerHTML = `
+                    <img src="${photo}" alt="照片">
+                    <div class="photo-actions">
+                        <button class="photo-action-btn btn-edit-photo" onclick="editPhoto(${index})" title="编辑照片">
+                            ✏️
+                        </button>
+                        <button class="photo-action-btn btn-delete-photo" onclick="deletePhoto(${index})" title="删除照片">
+                            🗑️
+                        </button>
+                    </div>
+                `;
+                photoGrid.appendChild(photoItem);
+            });
+        }
+        
+        // 照片上传处理
+        document.getElementById('photoUploadArea').addEventListener('click', function() {
+            document.getElementById('photoInput').click();
+        });
+        
+        document.getElementById('photoUploadArea').addEventListener('dragover', function(e) {
+            e.preventDefault();
+            this.classList.add('dragover');
+        });
+        
+        document.getElementById('photoUploadArea').addEventListener('dragleave', function(e) {
+            e.preventDefault();
+            this.classList.remove('dragover');
+        });
+        
+        document.getElementById('photoUploadArea').addEventListener('drop', function(e) {
+            e.preventDefault();
+            this.classList.remove('dragover');
+            const files = e.dataTransfer.files;
+            handlePhotoUpload(files);
+        });
+        
+        document.getElementById('photoInput').addEventListener('change', function(e) {
+            handlePhotoUpload(e.target.files);
+        });
+        
+        // 处理照片上传
+        async function handlePhotoUpload(files) {
+            const sessionToken = getSessionToken();
+            const formData = new FormData();
+            
+            for (let file of files) {
+                if (file.type.startsWith('image/')) {
+                    formData.append('photos', file);
+                }
+            }
+            
+            try {
+                const response = await fetch(`/api/memorial/upload-photos/${memorialId}`, {
+                    method: 'POST',
+                    headers: {
+                        'X-Session-Token': sessionToken
+                    },
+                    body: formData
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    currentPhotos = data.photos || currentPhotos;
+                    renderPhotos();
+                    showSuccess('照片上传成功');
+                } else {
+                    showError('照片上传失败: ' + data.message);
+                }
+            } catch (error) {
+                console.error('照片上传失败:', error);
+                showError('网络错误，请稍后重试');
+            }
+        }
+        
+        // 编辑照片
+        function editPhoto(index) {
+            currentEditPhoto = index;
+            const photoUrl = currentPhotos[index];
+            document.getElementById('photoPreview').src = photoUrl;
+            document.getElementById('photoEditModal').style.display = 'block';
+        }
+        
+        // 删除照片
+        async function deletePhoto(index) {
+            if (confirm('确定要删除这张照片吗？')) {
+                try {
+                    const sessionToken = getSessionToken();
+                    const response = await fetch(`/api/memorial/delete-photo/${memorialId}`, {
+                        method: 'DELETE',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-Session-Token': sessionToken
+                        },
+                        body: JSON.stringify({ photo_index: index })
+                    });
+                    
+                    const data = await response.json();
+                    
+                    if (data.success) {
+                        currentPhotos.splice(index, 1);
+                        renderPhotos();
+                        showSuccess('照片删除成功');
+                    } else {
+                        showError('照片删除失败: ' + data.message);
+                    }
+                } catch (error) {
+                    console.error('照片删除失败:', error);
+                    showError('网络错误，请稍后重试');
+                }
+            }
+        }
+        
+        // 关闭照片编辑
+        function closePhotoEdit() {
+            document.getElementById('photoEditModal').style.display = 'none';
+            currentEditPhoto = null;
+            currentEditTool = null;
+        }
+        
+        // 应用照片编辑
+        function applyPhotoEdit() {
+            // 这里可以实现照片编辑逻辑
+            showSuccess('照片编辑功能开发中...');
+            closePhotoEdit();
+        }
+        
+        // 表单提交
+        document.getElementById('editForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const formData = new FormData(this);
+            const data = Object.fromEntries(formData.entries());
+            
+            try {
+                showLoading(true);
+                
+                const sessionToken = getSessionToken();
+                const response = await fetch(`/api/memorial/update/${memorialId}`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-Session-Token': sessionToken
+                    },
+                    body: JSON.stringify(data)
+                });
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    showSuccess('纪念馆更新成功');
+                    setTimeout(() => {
+                        window.location.href = '/memorials?session_token=' + sessionToken;
+                    }, 1500);
+                } else {
+                    showError('更新失败: ' + result.message);
+                }
+            } catch (error) {
+                console.error('更新纪念馆失败:', error);
+                showError('网络错误，请稍后重试');
+            } finally {
+                showLoading(false);
+            }
+        });
+        
+        // 删除纪念馆
+        async function deleteMemorial() {
+            if (confirm('确定要删除这个纪念馆吗？删除后将无法恢复。')) {
+                try {
+                    const sessionToken = getSessionToken();
+                    const response = await fetch(`/api/memorial/delete/${memorialId}`, {
+                        method: 'DELETE',
+                        headers: {
+                            'X-Session-Token': sessionToken
+                        }
+                    });
+                    
+                    const data = await response.json();
+                    
+                    if (data.success) {
+                        showSuccess('纪念馆删除成功');
+                        setTimeout(() => {
+                            window.location.href = '/memorials?session_token=' + sessionToken;
+                        }, 1500);
+                    } else {
+                        showError('删除失败: ' + data.message);
+                    }
+                } catch (error) {
+                    console.error('删除纪念馆失败:', error);
+                    showError('网络错误，请稍后重试');
+                }
+            }
+        }
+        
+        // 显示加载状态
+        function showLoading(show) {
+            document.getElementById('loading').style.display = show ? 'block' : 'none';
+        }
+        
+        // 显示成功消息
+        function showSuccess(message) {
+            // 这里可以实现消息提示组件
+            alert(message);
+        }
+        
+        // 显示错误消息
+        function showError(message) {
+            // 这里可以实现消息提示组件
+            alert(message);
+        }
+    </script>
+</body>
+</html>

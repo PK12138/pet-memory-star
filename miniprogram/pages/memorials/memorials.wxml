@@ -1,0 +1,101 @@
+<!--pages/memorials/memorials.wxml-->
+<view class="container">
+  <!-- 页面标题 -->
+  <view class="page-header">
+    <text class="page-title">我的纪念馆</text>
+    <text class="page-subtitle">记录每一个珍贵的回忆</text>
+  </view>
+  
+  <!-- 加载状态 -->
+  <view wx:if="{{loading}}" class="loading">
+    <view class="loading-spinner"></view>
+    <text>加载中...</text>
+  </view>
+  
+  <!-- 空状态 -->
+  <view wx:elif="{{memorials.length === 0}}" class="empty-state">
+    <view class="empty-icon">🐾</view>
+    <text class="empty-title">还没有纪念馆</text>
+    <text class="empty-description">创建你的第一个纪念馆，记录珍贵的回忆</text>
+    <button class="btn btn-primary" bindtap="goToCreateMemorial">创建纪念馆</button>
+  </view>
+  
+  <!-- 纪念馆列表 -->
+  <view wx:else class="memorials-grid">
+    <view 
+      wx:for="{{memorials}}" 
+      wx:key="id" 
+      class="memorial-card"
+      bindtap="goToMemorialDetail"
+      data-memorial-id="{{item.id}}"
+    >
+      <view class="memorial-header">
+        <text class="memorial-title">{{item.pet_name || '未命名'}}</text>
+        <view class="memorial-actions" catchtap="stopPropagation">
+          <button class="action-btn edit-btn" bindtap="editMemorial" data-id="{{item.id}}">✏️</button>
+          <button class="action-btn share-btn" bindtap="shareMemorial" data-id="{{item.id}}">🔗</button>
+          <button class="action-btn delete-btn" bindtap="deleteMemorial" data-id="{{item.id}}">🗑️</button>
+        </view>
+      </view>
+      
+      <view class="memorial-info">
+        <view class="info-item">
+          <text class="info-label">品种:</text>
+          <text class="info-value">{{item.species || '未知'}} {{item.breed || ''}}</text>
+        </view>
+        <view class="info-item">
+          <text class="info-label">性别:</text>
+          <text class="info-value">{{item.gender || '未知'}}</text>
+        </view>
+        <view class="info-item">
+          <text class="info-label">生日:</text>
+          <text class="info-value">{{item.birth_date || '未知'}}</text>
+        </view>
+        <view class="info-item">
+          <text class="info-label">纪念日:</text>
+          <text class="info-value">{{item.memorial_date || '未知'}}</text>
+        </view>
+      </view>
+      
+      <view class="memorial-photos">
+        <image 
+          wx:for="{{item.photos}}" 
+          wx:for-item="photo" 
+          wx:key="*this"
+          wx:for-index="photoIndex"
+          src="{{photo}}" 
+          class="photo-thumb"
+          bindtap="viewPhoto"
+          data-photo="{{photo}}"
+        />
+        <view wx:if="{{item.photos.length > 5}}" class="photo-more">
+          +{{item.photos.length - 5}}
+        </view>
+      </view>
+      
+      <view class="memorial-description">
+        {{item.description || '暂无描述'}}
+      </view>
+      
+      <view class="memorial-stats">
+        <view class="stat-item">
+          <text class="stat-number">{{item.photos.length}}</text>
+          <text class="stat-label">照片</text>
+        </view>
+        <view class="stat-item">
+          <text class="stat-number">{{item.views || 0}}</text>
+          <text class="stat-label">访问</text>
+        </view>
+        <view class="stat-item">
+          <text class="stat-number">{{item.likes || 0}}</text>
+          <text class="stat-label">点赞</text>
+        </view>
+      </view>
+    </view>
+  </view>
+  
+  <!-- 创建按钮 -->
+  <view class="create-btn" bindtap="goToCreateMemorial">
+    <text class="create-icon">+</text>
+  </view>
+</view>

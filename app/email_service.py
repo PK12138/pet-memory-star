@@ -17,7 +17,7 @@ class EmailService:
         """发送邮箱验证邮件"""
         try:
             # 创建邮件内容
-            subject = "宠忆星·邮箱验证"
+            subject = " 爪迹星·邮箱验证"
             
             # HTML邮件内容
             html_content = f"""
@@ -93,12 +93,12 @@ class EmailService:
             <body>
                 <div class="container">
                     <div class="header">
-                        <div class="logo">🐾 宠忆星</div>
+                        <div class="logo">🐾  爪迹星</div>
                         <div class="title">邮箱验证</div>
                     </div>
                     
                     <div class="content">
-                        <p>您好！感谢您注册宠忆星·云纪念馆。</p>
+                        <p>您好！感谢您注册 爪迹星·云纪念馆。</p>
                         <p>为了确保您的账户安全，请点击下面的按钮验证您的邮箱地址：</p>
                         
                         <div style="text-align: center;">
@@ -119,13 +119,13 @@ class EmailService:
                             • 如果这不是您的操作，请忽略此邮件
                         </div>
                         
-                        <p>验证成功后，您就可以使用宠忆星的所有功能了！</p>
+                        <p>验证成功后，您就可以使用 爪迹星的所有功能了！</p>
                     </div>
                     
                     <div class="footer">
                         <p>此邮件由系统自动发送，请勿回复</p>
                         <p>如有问题，请联系客服</p>
-                        <p>© 2024 宠忆星·云纪念馆</p>
+                        <p>© 2024  爪迹星·云纪念馆</p>
                     </div>
                 </div>
             </body>
@@ -134,19 +134,19 @@ class EmailService:
             
             # 纯文本内容（备用）
             text_content = f"""
-            宠忆星·邮箱验证
+             爪迹星·邮箱验证
             
-            您好！感谢您注册宠忆星·云纪念馆。
+            您好！感谢您注册 爪迹星·云纪念馆。
             
             为了确保您的账户安全，请访问以下链接验证您的邮箱地址：
             {self.base_url}/verify-email?token={verification_token}
             
             此链接24小时内有效。
             
-            验证成功后，您就可以使用宠忆星的所有功能了！
+            验证成功后，您就可以使用 爪迹星的所有功能了！
             
             此邮件由系统自动发送，请勿回复。
-            © 2024 宠忆星·云纪念馆
+            © 2024  爪迹星·云纪念馆
             """
             
             return self._send_email(to_email, subject, html_content, text_content)
@@ -157,7 +157,7 @@ class EmailService:
     def send_password_reset(self, to_email: str, reset_token: str) -> Dict[str, Any]:
         """发送密码重置邮件"""
         try:
-            subject = "宠忆星·密码重置"
+            subject = " 爪迹星·密码重置"
             
             # HTML邮件内容
             html_content = f"""
@@ -241,7 +241,7 @@ class EmailService:
             <body>
                 <div class="container">
                     <div class="header">
-                        <div class="logo">🐾 宠忆星</div>
+                        <div class="logo">🐾  爪迹星</div>
                         <div class="title">密码重置</div>
                     </div>
                     
@@ -276,7 +276,7 @@ class EmailService:
                     <div class="footer">
                         <p>此邮件由系统自动发送，请勿回复</p>
                         <p>如有问题，请联系客服</p>
-                        <p>© 2024 宠忆星·云纪念馆</p>
+                        <p>© 2024  爪迹星·云纪念馆</p>
                     </div>
                 </div>
             </body>
@@ -285,7 +285,7 @@ class EmailService:
             
             # 纯文本内容（备用）
             text_content = f"""
-            宠忆星·密码重置
+             爪迹星·密码重置
             
             您好！我们收到了您的密码重置请求。
             
@@ -297,7 +297,7 @@ class EmailService:
             如果您没有请求密码重置，请忽略此邮件。
             
             此邮件由系统自动发送，请勿回复。
-            © 2024 宠忆星·云纪念馆
+            © 2024  爪迹星·云纪念馆
             """
             
             return self._send_email(to_email, subject, html_content, text_content)
@@ -308,7 +308,7 @@ class EmailService:
     def send_verification_code(self, to_email: str, verification_code: str) -> bool:
         """发送验证码邮件"""
         try:
-            subject = "宠忆星·密码重置验证码"
+            subject = " 爪迹星·密码重置验证码"
             
             # HTML邮件内容
             html_content = f"""
@@ -374,12 +374,12 @@ class EmailService:
             <body>
                 <div class="container">
                     <div class="header">
-                        <div class="logo">🔑 宠忆星·云纪念馆</div>
+                        <div class="logo">🔑  爪迹星·云纪念馆</div>
                         <h1>密码重置验证码</h1>
                     </div>
                     
                     <p>您好，</p>
-                    <p>您正在重置宠忆星·云纪念馆账户的密码，请使用以下验证码完成重置：</p>
+                    <p>您正在重置 爪迹星·云纪念馆账户的密码，请使用以下验证码完成重置：</p>
                     
                     <div class="verification-code">
                         {verification_code}
@@ -398,7 +398,7 @@ class EmailService:
                     
                     <div class="footer">
                         <p>此邮件由系统自动发送，请勿回复</p>
-                        <p>© 2024 宠忆星·云纪念馆</p>
+                        <p>© 2024  爪迹星·云纪念馆</p>
                     </div>
                 </div>
             </body>
@@ -407,11 +407,11 @@ class EmailService:
             
             # 纯文本内容
             text_content = f"""
-            宠忆星·云纪念馆 - 密码重置验证码
+             爪迹星·云纪念馆 - 密码重置验证码
             
             您好，
             
-            您正在重置宠忆星·云纪念馆账户的密码，请使用以下验证码完成重置：
+            您正在重置 爪迹星·云纪念馆账户的密码，请使用以下验证码完成重置：
             
             验证码：{verification_code}
             
@@ -423,7 +423,7 @@ class EmailService:
             如果您没有请求重置密码，请忽略此邮件。
             
             此邮件由系统自动发送，请勿回复
-            © 2024 宠忆星·云纪念馆
+            © 2024  爪迹星·云纪念馆
             """
             
             result = self._send_email(to_email, subject, html_content, text_content)

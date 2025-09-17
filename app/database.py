@@ -77,6 +77,81 @@ class Database:
         )
         ''')
         
+        # 充值订单表
+        cursor.execute('''
+        CREATE TABLE IF NOT EXISTS payment_orders (
+            id TEXT PRIMARY KEY,
+            user_id INTEGER NOT NULL,
+            order_type TEXT NOT NULL,  -- 'upgrade_monthly', 'upgrade_yearly', 'custom'
+            amount REAL NOT NULL,
+            currency TEXT DEFAULT 'CNY',
+            payment_method TEXT,  -- 'wechat', 'alipay', 'bank'
+            payment_status TEXT DEFAULT 'pending',  -- 'pending', 'paid', 'failed', 'cancelled', 'refunded'
+            payment_platform TEXT,  -- 支付平台返回的交易号
+            payment_time TIMESTAMP,
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            expires_at TIMESTAMP,
+            description TEXT,
+            FOREIGN KEY (user_id) REFERENCES users(id)
+        )
+        ''')
+        
+        # 用户余额表
+        cursor.execute('''
+        CREATE TABLE IF NOT EXISTS user_balance (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            user_id INTEGER UNIQUE NOT NULL,
+            balance REAL DEFAULT 0.0,
+            frozen_balance REAL DEFAULT 0.0,
+            total_recharged REAL DEFAULT 0.0,
+            total_consumed REAL DEFAULT 0.0,
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            FOREIGN KEY (user_id) REFERENCES users(id)
+        )
+        ''')
+        
+        # 充值记录表
+        cursor.execute('''
+        CREATE TABLE IF NOT EXISTS recharge_records (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            user_id INTEGER NOT NULL,
+            order_id TEXT NOT NULL,
+            amount REAL NOT NULL,
+            balance_before REAL NOT NULL,
+            balance_after REAL NOT NULL,
+            recharge_type TEXT NOT NULL,  -- 'upgrade', 'balance', 'gift'
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            FOREIGN KEY (user_id) REFERENCES users(id),
+            FOREIGN KEY (order_id) REFERENCES payment_orders(id)
+        )
+        ''')
+        
+        # 纪念馆照片表
+        cursor.execute('''
+        CREATE TABLE IF NOT EXISTS memorial_photos (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            memorial_id TEXT NOT NULL,
+            photo_url TEXT NOT NULL,
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            FOREIGN KEY (memorial_id) REFERENCES memorials (id)
+        )
+        ''')
+        
+        # 纪念馆统计表
+        cursor.execute('''
+        CREATE TABLE IF NOT EXISTS memorial_stats (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            memorial_id TEXT NOT NULL,
+            views INTEGER DEFAULT 0,
+            likes INTEGER DEFAULT 0,
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            FOREIGN KEY (memorial_id) REFERENCES memorials (id)
+        )
+        ''')
+        
         # 用户权限表
         cursor.execute('''
         CREATE TABLE IF NOT EXISTS user_permissions (
@@ -132,8 +207,21 @@ class Database:
             ai_letter TEXT,
             theme_template TEXT DEFAULT 'default',
             is_public BOOLEAN DEFAULT 1,
+            user_id INTEGER,
+            pet_name TEXT,
+            species TEXT,
+            breed TEXT,
+            color TEXT,
+            gender TEXT,
+            birth_date TEXT,
+            memorial_date TEXT,
+            weight REAL,
+            description TEXT,
+            personality TEXT,
             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-            FOREIGN KEY (pet_id) REFERENCES pets(id)
+            updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            FOREIGN KEY (pet_id) REFERENCES pets(id),
+            FOREIGN KEY (user_id) REFERENCES users(id)
         )
         ''')
         
@@ -945,6 +1033,409 @@ class Database:
         cursor = self.conn.cursor()
         cursor.execute('SELECT id FROM users WHERE email = ?', (email,))
         return cursor.fetchone() is not None
+    
+    # 充值相关方法
+    def create_payment_order(self, user_id: int, order_type: str, amount: float, 
+                           payment_method: str = None, description: str = None) -> str:
+        """创建支付订单"""
+        cursor = self.conn.cursor()
+        
+        # 生成订单ID
+        import uuid
+        order_id = str(uuid.uuid4())
+        
+        # 设置过期时间（30分钟）
+        expires_at = datetime.now() + timedelta(minutes=30)
+        
+        try:
+            cursor.execute('''
+            INSERT INTO payment_orders (id, user_id, order_type, amount, payment_method, expires_at, description)
+            VALUES (?, ?, ?, ?, ?, ?, ?)
+            ''', (order_id, user_id, order_type, amount, payment_method, expires_at, description))
+            
+            self.conn.commit()
+            return order_id
+        except Exception as e:
+            print(f"创建支付订单失败: {e}")
+            return None
+    
+    def get_payment_order(self, order_id: str):
+        """获取支付订单信息"""
+        cursor = self.conn.cursor()
+        cursor.execute('''
+        SELECT id, user_id, order_type, amount, currency, payment_method, 
+               payment_status, payment_platform, payment_time, created_at, 
+               expires_at, description
+        FROM payment_orders WHERE id = ?
+        ''', (order_id,))
+        
+        result = cursor.fetchone()
+        if result:
+            return {
+                'id': result[0],
+                'user_id': result[1],
+                'order_type': result[2],
+                'amount': result[3],
+                'currency': result[4],
+                'payment_method': result[5],
+                'payment_status': result[6],
+                'payment_platform': result[7],
+                'payment_time': result[8],
+                'created_at': result[9],
+                'expires_at': result[10],
+                'description': result[11]
+            }
+        return None
+    
+    def update_payment_status(self, order_id: str, status: str, payment_platform: str = None):
+        """更新支付状态"""
+        cursor = self.conn.cursor()
+        
+        try:
+            if status == 'paid':
+                cursor.execute('''
+                UPDATE payment_orders 
+                SET payment_status = ?, payment_platform = ?, payment_time = CURRENT_TIMESTAMP
+                WHERE id = ?
+                ''', (status, payment_platform, order_id))
+            else:
+                cursor.execute('''
+                UPDATE payment_orders 
+                SET payment_status = ?, payment_platform = ?
+                WHERE id = ?
+                ''', (status, payment_platform, order_id))
+            
+            self.conn.commit()
+            return True
+        except Exception as e:
+            print(f"更新支付状态失败: {e}")
+            return False
+    
+    def get_user_balance(self, user_id: int):
+        """获取用户余额"""
+        cursor = self.conn.cursor()
+        cursor.execute('''
+        SELECT balance, frozen_balance, total_recharged, total_consumed
+        FROM user_balance WHERE user_id = ?
+        ''', (user_id,))
+        
+        result = cursor.fetchone()
+        if result:
+            return {
+                'balance': result[0],
+                'frozen_balance': result[1],
+                'total_recharged': result[2],
+                'total_consumed': result[3]
+            }
+        return None
+    
+    def init_user_balance(self, user_id: int):
+        """初始化用户余额"""
+        cursor = self.conn.cursor()
+        
+        try:
+            cursor.execute('''
+            INSERT OR IGNORE INTO user_balance (user_id, balance, frozen_balance, total_recharged, total_consumed)
+            VALUES (?, 0.0, 0.0, 0.0, 0.0)
+            ''', (user_id,))
+            
+            self.conn.commit()
+            return True
+        except Exception as e:
+            print(f"初始化用户余额失败: {e}")
+            return False
+    
+    def add_user_balance(self, user_id: int, amount: float, order_id: str, recharge_type: str = 'upgrade'):
+        """增加用户余额"""
+        cursor = self.conn.cursor()
+        
+        try:
+            # 获取当前余额
+            balance_info = self.get_user_balance(user_id)
+            if not balance_info:
+                self.init_user_balance(user_id)
+                balance_info = self.get_user_balance(user_id)
+            
+            balance_before = balance_info['balance']
+            balance_after = balance_before + amount
+            
+            # 更新余额
+            cursor.execute('''
+            UPDATE user_balance 
+            SET balance = ?, total_recharged = total_recharged + ?, updated_at = CURRENT_TIMESTAMP
+            WHERE user_id = ?
+            ''', (balance_after, amount, user_id))
+            
+            # 记录充值记录
+            cursor.execute('''
+            INSERT INTO recharge_records (user_id, order_id, amount, balance_before, balance_after, recharge_type)
+            VALUES (?, ?, ?, ?, ?, ?)
+            ''', (user_id, order_id, amount, balance_before, balance_after, recharge_type))
+            
+            self.conn.commit()
+            return True
+        except Exception as e:
+            print(f"增加用户余额失败: {e}")
+            return False
+    
+    def upgrade_user_level(self, user_id: int, new_level: int, order_id: str = None):
+        """升级用户等级"""
+        cursor = self.conn.cursor()
+        
+        try:
+            cursor.execute('''
+            UPDATE users 
+            SET user_level = ?, updated_at = CURRENT_TIMESTAMP
+            WHERE id = ?
+            ''', (new_level, user_id))
+            
+            # 如果有订单ID，记录升级记录
+            if order_id:
+                cursor.execute('''
+                INSERT INTO recharge_records (user_id, order_id, amount, balance_before, balance_after, recharge_type)
+                VALUES (?, ?, 0, 0, 0, 'upgrade')
+                ''', (user_id, order_id))
+            
+            self.conn.commit()
+            return True
+        except Exception as e:
+            print(f"升级用户等级失败: {e}")
+            return False
+    
+    def get_user_payment_orders(self, user_id: int, limit: int = 20):
+        """获取用户支付订单列表"""
+        cursor = self.conn.cursor()
+        cursor.execute('''
+        SELECT id, order_type, amount, payment_method, payment_status, 
+               payment_time, created_at, description
+        FROM payment_orders 
+        WHERE user_id = ?
+        ORDER BY created_at DESC
+        LIMIT ?
+        ''', (user_id, limit))
+        
+        results = cursor.fetchall()
+        orders = []
+        for row in results:
+            orders.append({
+                'id': row[0],
+                'order_type': row[1],
+                'amount': row[2],
+                'payment_method': row[3],
+                'payment_status': row[4],
+                'payment_time': row[5],
+                'created_at': row[6],
+                'description': row[7]
+            })
+        return orders
+    
+    def get_memorial_by_id(self, memorial_id: str):
+        """根据ID获取纪念馆详情"""
+        cursor = self.conn.cursor()
+        cursor.execute('''
+        SELECT id, pet_id, memorial_url, ai_letter, theme_template, is_public, 
+               user_id, pet_name, species, breed, color, gender, birth_date, 
+               memorial_date, weight, description, personality, created_at, updated_at
+        FROM memorials 
+        WHERE id = ?
+        ''', (memorial_id,))
+        
+        result = cursor.fetchone()
+        if result:
+            return {
+                'id': result[0],
+                'pet_id': result[1],
+                'memorial_url': result[2],
+                'ai_letter': result[3],
+                'theme_template': result[4],
+                'is_public': result[5],
+                'user_id': result[6],
+                'pet_name': result[7],
+                'species': result[8],
+                'breed': result[9],
+                'color': result[10],
+                'gender': result[11],
+                'birth_date': result[12],
+                'memorial_date': result[13],
+                'weight': result[14],
+                'description': result[15],
+                'personality': result[16],
+                'created_at': result[17],
+                'updated_at': result[18]
+            }
+        return None
+    
+    def update_memorial(self, memorial_id: str, **kwargs):
+        """更新纪念馆信息"""
+        cursor = self.conn.cursor()
+        
+        # 构建更新字段
+        update_fields = []
+        values = []
+        
+        for key, value in kwargs.items():
+            if value is not None:
+                update_fields.append(f"{key} = ?")
+                values.append(value)
+        
+        if not update_fields:
+            return True
+        
+        values.append(memorial_id)
+        
+        try:
+            cursor.execute(f'''
+            UPDATE memorials 
+            SET {', '.join(update_fields)}
+            WHERE id = ?
+            ''', values)
+            
+            self.conn.commit()
+            return True
+        except Exception as e:
+            print(f"更新纪念馆失败: {e}")
+            return False
+    
+    def delete_memorial(self, memorial_id: str):
+        """删除纪念馆"""
+        cursor = self.conn.cursor()
+        
+        try:
+            # 删除纪念馆记录
+            cursor.execute('DELETE FROM memorials WHERE id = ?', (memorial_id,))
+            
+            # 删除关联的宠物记录
+            cursor.execute('''
+            DELETE FROM pets 
+            WHERE id IN (
+                SELECT pet_id FROM memorials WHERE id = ?
+            )
+            ''', (memorial_id,))
+            
+            # 删除纪念馆照片
+            cursor.execute('DELETE FROM memorial_photos WHERE memorial_id = ?', (memorial_id,))
+            
+            self.conn.commit()
+            return True
+        except Exception as e:
+            print(f"删除纪念馆失败: {e}")
+            return False
+    
+    def get_memorial_photos(self, memorial_id: str):
+        """获取纪念馆照片列表"""
+        cursor = self.conn.cursor()
+        cursor.execute('''
+        SELECT photo_url FROM memorial_photos 
+        WHERE memorial_id = ? 
+        ORDER BY created_at ASC
+        ''', (memorial_id,))
+        
+        results = cursor.fetchall()
+        return [result[0] for result in results]
+    
+    def add_memorial_photo(self, memorial_id: str, photo_url: str):
+        """添加纪念馆照片"""
+        cursor = self.conn.cursor()
+        
+        try:
+            cursor.execute('''
+            INSERT INTO memorial_photos (memorial_id, photo_url, created_at)
+            VALUES (?, ?, CURRENT_TIMESTAMP)
+            ''', (memorial_id, photo_url))
+            
+            self.conn.commit()
+            return True
+        except Exception as e:
+            print(f"添加纪念馆照片失败: {e}")
+            return False
+    
+    def delete_memorial_photo(self, memorial_id: str, photo_url: str):
+        """删除纪念馆照片"""
+        cursor = self.conn.cursor()
+        
+        try:
+            cursor.execute('''
+            DELETE FROM memorial_photos 
+            WHERE memorial_id = ? AND photo_url = ?
+            ''', (memorial_id, photo_url))
+            
+            self.conn.commit()
+            return True
+        except Exception as e:
+            print(f"删除纪念馆照片失败: {e}")
+            return False
+    
+    def get_memorial_views(self, memorial_id: str):
+        """获取纪念馆访问次数"""
+        cursor = self.conn.cursor()
+        cursor.execute('''
+        SELECT views FROM memorial_stats 
+        WHERE memorial_id = ?
+        ''', (memorial_id,))
+        
+        result = cursor.fetchone()
+        return result[0] if result else 0
+    
+    def get_memorial_likes(self, memorial_id: str):
+        """获取纪念馆点赞次数"""
+        cursor = self.conn.cursor()
+        cursor.execute('''
+        SELECT likes FROM memorial_stats 
+        WHERE memorial_id = ?
+        ''', (memorial_id,))
+        
+        result = cursor.fetchone()
+        return result[0] if result else 0
+    
+    def increment_memorial_views(self, memorial_id: str):
+        """增加纪念馆访问次数"""
+        cursor = self.conn.cursor()
+        
+        try:
+            # 尝试更新现有记录
+            cursor.execute('''
+            UPDATE memorial_stats 
+            SET views = views + 1 
+            WHERE memorial_id = ?
+            ''', (memorial_id,))
+            
+            # 如果没有记录，则插入新记录
+            if cursor.rowcount == 0:
+                cursor.execute('''
+                INSERT INTO memorial_stats (memorial_id, views, likes, created_at)
+                VALUES (?, 1, 0, CURRENT_TIMESTAMP)
+                ''', (memorial_id,))
+            
+            self.conn.commit()
+            return True
+        except Exception as e:
+            print(f"增加访问次数失败: {e}")
+            return False
+    
+    def increment_memorial_likes(self, memorial_id: str):
+        """增加纪念馆点赞次数"""
+        cursor = self.conn.cursor()
+        
+        try:
+            # 尝试更新现有记录
+            cursor.execute('''
+            UPDATE memorial_stats 
+            SET likes = likes + 1 
+            WHERE memorial_id = ?
+            ''', (memorial_id,))
+            
+            # 如果没有记录，则插入新记录
+            if cursor.rowcount == 0:
+                cursor.execute('''
+                INSERT INTO memorial_stats (memorial_id, views, likes, created_at)
+                VALUES (?, 0, 1, CURRENT_TIMESTAMP)
+                ''', (memorial_id,))
+            
+            self.conn.commit()
+            return True
+        except Exception as e:
+            print(f"增加点赞次数失败: {e}")
+            return False
     
     def close(self):
         self.conn.close()

@@ -1,0 +1,90 @@
+<!--pages/index/index.wxml-->
+<view class="container">
+  <!-- 主标题卡片 -->
+  <view class="main-card fade-in">
+    <view class="title-section">
+      <text class="main-title">⭐ 爪迹星·云纪念馆</text>
+      <text class="subtitle">每一颗星星，都留下了爱的爪迹</text>
+    </view>
+    
+    <!-- 认证按钮区域 -->
+    <view wx:if="{{!userInfo}}" class="auth-section">
+      <button class="btn btn-primary" bindtap="goToLogin">登录</button>
+      <button class="btn btn-secondary" bindtap="goToRegister">注册</button>
+    </view>
+    
+    <!-- 用户欢迎区域 -->
+    <view wx:if="{{userInfo}}" class="user-welcome">
+      <view class="welcome-text">
+        <text class="welcome-title">欢迎回来</text>
+        <text class="user-email">{{userInfo.email}}</text>
+      </view>
+      <view class="user-actions">
+        <button class="btn btn-primary" bindtap="goToMemorials">我的纪念馆</button>
+        <button class="btn btn-secondary" bindtap="goToUserCenter">个人中心</button>
+        <button class="btn btn-secondary" bindtap="logout">退出登录</button>
+      </view>
+    </view>
+  </view>
+  
+  <!-- 功能特色 -->
+  <view class="features-section">
+    <view class="section-title">功能特色</view>
+    <view class="features-grid">
+      <view class="feature-item" bindtap="goToPersonalityTest">
+        <view class="feature-icon">🏛️</view>
+        <view class="feature-title">创建纪念馆</view>
+        <view class="feature-desc">为爱宠建立专属纪念馆</view>
+      </view>
+      
+      <view class="feature-item" bindtap="goToPhotoManager">
+        <view class="feature-icon">📷</view>
+        <view class="feature-title">照片管理</view>
+        <view class="feature-desc">珍藏每一张珍贵照片</view>
+      </view>
+      
+      <view class="feature-item" bindtap="goToMemorials">
+        <view class="feature-icon">📚</view>
+        <view class="feature-title">纪念馆</view>
+        <view class="feature-desc">管理所有纪念馆</view>
+      </view>
+      
+      <view class="feature-item" bindtap="goToPayment">
+        <view class="feature-icon">💎</view>
+        <view class="feature-title">升级会员</view>
+        <view class="feature-desc">解锁更多功能</view>
+      </view>
+    </view>
+  </view>
+  
+  <!-- 用户等级信息 -->
+  <view wx:if="{{userInfo}}" class="level-card">
+    <view class="level-info">
+      <view class="level-title">当前等级</view>
+      <view class="level-name">{{levelInfo.name}}</view>
+      <view class="level-desc">{{levelInfo.description}}</view>
+    </view>
+    <view wx:if="{{userLevel === 0}}" class="upgrade-section">
+      <button class="btn btn-primary" bindtap="goToPayment">立即升级</button>
+    </view>
+  </view>
+  
+  <!-- 统计信息 -->
+  <view wx:if="{{userInfo}}" class="stats-section">
+    <view class="section-title">我的统计</view>
+    <view class="stats-grid">
+      <view class="stat-item">
+        <view class="stat-number">{{stats.memorialCount || 0}}</view>
+        <view class="stat-label">纪念馆</view>
+      </view>
+      <view class="stat-item">
+        <view class="stat-number">{{stats.photoCount || 0}}</view>
+        <view class="stat-label">照片</view>
+      </view>
+      <view class="stat-item">
+        <view class="stat-number">{{stats.totalViews || 0}}</view>
+        <view class="stat-label">访问量</view>
+      </view>
+    </view>
+  </view>
+</view>

@@ -1,0 +1,60 @@
+{
+  "pages": [
+    "pages/index/index",
+    "pages/login/login",
+    "pages/register/register",
+    "pages/user-center/user-center",
+    "pages/memorials/memorials",
+    "pages/memorial-edit/memorial-edit",
+    "pages/memorial-detail/memorial-detail",
+    "pages/photo-manager/photo-manager",
+    "pages/payment/payment",
+    "pages/orders/orders",
+    "pages/personality-test/personality-test"
+  ],
+  "window": {
+    "backgroundTextStyle": "light",
+    "navigationBarBackgroundColor": "#667eea",
+    "navigationBarTitleText": "爪迹星·云纪念馆",
+    "navigationBarTextStyle": "white",
+    "backgroundColor": "#f8f9fa"
+  },
+  "tabBar": {
+    "color": "#7f8c8d",
+    "selectedColor": "#667eea",
+    "backgroundColor": "#ffffff",
+    "borderStyle": "white",
+    "list": [
+      {
+        "pagePath": "pages/index/index",
+        "text": "首页",
+        "iconPath": "images/home.png",
+        "selectedIconPath": "images/home-active.png"
+      },
+      {
+        "pagePath": "pages/memorials/memorials",
+        "text": "纪念馆",
+        "iconPath": "images/memorial.png",
+        "selectedIconPath": "images/memorial-active.png"
+      },
+      {
+        "pagePath": "pages/photo-manager/photo-manager",
+        "text": "照片",
+        "iconPath": "images/photo.png",
+        "selectedIconPath": "images/photo-active.png"
+      },
+      {
+        "pagePath": "pages/user-center/user-center",
+        "text": "我的",
+        "iconPath": "images/user.png",
+        "selectedIconPath": "images/user-active.png"
+      }
+    ]
+  },
+  "networkTimeout": {
+    "request": 10000,
+    "downloadFile": 10000
+  },
+  "debug": true,
+  "sitemapLocation": "sitemap.json"
+}

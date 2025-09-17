@@ -1,0 +1,129 @@
+<!--pages/personality-test/personality-test.wxml-->
+<view class="container">
+  <!-- 页面标题 -->
+  <view class="page-header">
+    <text class="page-title">宠物性格测试</text>
+    <text class="page-subtitle">了解您的宠物，创建专属纪念馆</text>
+  </view>
+  
+  <!-- 测试步骤 -->
+  <view class="test-steps">
+    <view class="step-item {{currentStep >= 1 ? 'active' : ''}}">
+      <view class="step-number">1</view>
+      <text class="step-text">基本信息</text>
+    </view>
+    <view class="step-item {{currentStep >= 2 ? 'active' : ''}}">
+      <view class="step-number">2</view>
+      <text class="step-text">性格测试</text>
+    </view>
+    <view class="step-item {{currentStep >= 3 ? 'active' : ''}}">
+      <view class="step-number">3</view>
+      <text class="step-text">创建纪念馆</text>
+    </view>
+  </view>
+  
+  <!-- 测试内容 -->
+  <view class="test-content">
+    <!-- 基本信息 -->
+    <view wx:if="{{currentStep === 1}}" class="step-content">
+      <view class="input-group">
+        <text class="input-label">宠物姓名</text>
+        <input 
+          class="input" 
+          type="text" 
+          placeholder="请输入宠物姓名"
+          value="{{petInfo.name}}"
+          bindinput="onPetNameInput"
+        />
+      </view>
+      
+      <view class="input-group">
+        <text class="input-label">宠物品种</text>
+        <input 
+          class="input" 
+          type="text" 
+          placeholder="请输入宠物品种"
+          value="{{petInfo.breed}}"
+          bindinput="onPetBreedInput"
+        />
+      </view>
+      
+      <view class="input-group">
+        <text class="input-label">宠物年龄</text>
+        <input 
+          class="input" 
+          type="number" 
+          placeholder="请输入宠物年龄"
+          value="{{petInfo.age}}"
+          bindinput="onPetAgeInput"
+        />
+      </view>
+    </view>
+    
+    <!-- 性格测试 -->
+    <view wx:elif="{{currentStep === 2}}" class="step-content">
+      <view class="question-item" wx:for="{{questions}}" wx:key="id">
+        <text class="question-text">{{item.question}}</text>
+        <view class="options">
+          <view 
+            wx:for="{{item.options}}" 
+            wx:for-item="option" 
+            wx:key="*this"
+            class="option-item {{answers[item.id] === option ? 'selected' : ''}}"
+            bindtap="selectAnswer"
+            data-question-id="{{item.id}}"
+            data-option="{{option}}"
+          >
+            {{option}}
+          </view>
+        </view>
+      </view>
+    </view>
+    
+    <!-- 创建纪念馆 -->
+    <view wx:elif="{{currentStep === 3}}" class="step-content">
+      <view class="result-section">
+        <text class="result-title">测试结果</text>
+        <text class="result-text">{{personalityResult}}</text>
+      </view>
+      
+      <view class="input-group">
+        <text class="input-label">纪念馆描述</text>
+        <textarea 
+          class="textarea" 
+          placeholder="请输入纪念馆描述"
+          value="{{memorialInfo.description}}"
+          bindinput="onDescriptionInput"
+        ></textarea>
+      </view>
+    </view>
+  </view>
+  
+  <!-- 操作按钮 -->
+  <view class="action-buttons">
+    <button 
+      wx:if="{{currentStep > 1}}" 
+      class="btn btn-secondary" 
+      bindtap="prevStep"
+    >
+      上一步
+    </button>
+    
+    <button 
+      wx:if="{{currentStep < 3}}" 
+      class="btn btn-primary" 
+      bindtap="nextStep"
+    >
+      下一步
+    </button>
+    
+    <button 
+      wx:if="{{currentStep === 3}}" 
+      class="btn btn-primary" 
+      bindtap="createMemorial"
+      disabled="{{loading}}"
+    >
+      {{loading ? '创建中...' : '创建纪念馆'}}
+    </button>
+  </view>
+</view>

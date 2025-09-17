@@ -1,0 +1,46 @@
+<!--pages/orders/orders.wxml-->
+<view class="container">
+  <!-- 页面标题 -->
+  <view class="page-header">
+    <text class="page-title">订单管理</text>
+    <text class="page-subtitle">查看您的订单记录</text>
+  </view>
+  
+  <!-- 加载状态 -->
+  <view wx:if="{{loading}}" class="loading">
+    <view class="loading-spinner"></view>
+    <text>加载中...</text>
+  </view>
+  
+  <!-- 空状态 -->
+  <view wx:elif="{{orders.length === 0}}" class="empty-state">
+    <view class="empty-icon">📋</view>
+    <text class="empty-title">还没有订单</text>
+    <text class="empty-description">去充值中心购买套餐</text>
+    <button class="btn btn-primary" bindtap="goToPayment">去充值</button>
+  </view>
+  
+  <!-- 订单列表 -->
+  <view wx:else class="orders-list">
+    <view 
+      wx:for="{{orders}}" 
+      wx:key="id" 
+      class="order-card"
+    >
+      <view class="order-header">
+        <text class="order-id">订单号: {{item.order_no}}</text>
+        <view class="order-status {{item.status}}">{{item.status_text}}</view>
+      </view>
+      
+      <view class="order-info">
+        <text class="order-name">{{item.plan_name}}</text>
+        <text class="order-price">¥{{item.amount}}</text>
+      </view>
+      
+      <view class="order-details">
+        <text class="order-time">创建时间: {{item.created_at}}</text>
+        <text class="order-method">支付方式: {{item.payment_method}}</text>
+      </view>
+    </view>
+  </view>
+</view>

@@ -1,0 +1,208 @@
+/* pages/personality-test/personality-test.wxss */
+
+.container {
+  padding: 20rpx;
+  min-height: 100vh;
+  background: #f8f9fa;
+}
+
+.page-header {
+  text-align: center;
+  margin-bottom: 40rpx;
+  padding: 40rpx 20rpx;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  border-radius: 20rpx;
+  color: white;
+}
+
+.page-title {
+  display: block;
+  font-size: 48rpx;
+  font-weight: 700;
+  margin-bottom: 15rpx;
+}
+
+.page-subtitle {
+  display: block;
+  font-size: 28rpx;
+  opacity: 0.9;
+}
+
+.test-steps {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 40rpx;
+  padding: 0 20rpx;
+}
+
+.step-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  flex: 1;
+  position: relative;
+}
+
+.step-item:not(:last-child)::after {
+  content: '';
+  position: absolute;
+  top: 20rpx;
+  right: -50%;
+  width: 100%;
+  height: 2rpx;
+  background: #ecf0f1;
+  z-index: 1;
+}
+
+.step-item.active:not(:last-child)::after {
+  background: #667eea;
+}
+
+.step-number {
+  width: 40rpx;
+  height: 40rpx;
+  border-radius: 50%;
+  background: #ecf0f1;
+  color: #7f8c8d;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 24rpx;
+  font-weight: 600;
+  margin-bottom: 10rpx;
+  position: relative;
+  z-index: 2;
+}
+
+.step-item.active .step-number {
+  background: #667eea;
+  color: white;
+}
+
+.step-text {
+  font-size: 24rpx;
+  color: #7f8c8d;
+}
+
+.step-item.active .step-text {
+  color: #667eea;
+  font-weight: 600;
+}
+
+.test-content {
+  background: white;
+  border-radius: 20rpx;
+  padding: 40rpx;
+  margin-bottom: 40rpx;
+  box-shadow: 0 8rpx 32rpx rgba(0, 0, 0, 0.1);
+}
+
+.input-group {
+  margin-bottom: 30rpx;
+}
+
+.input-label {
+  display: block;
+  font-size: 28rpx;
+  font-weight: 600;
+  color: #2c3e50;
+  margin-bottom: 15rpx;
+}
+
+.input {
+  width: 100%;
+  padding: 25rpx 30rpx;
+  border: 2rpx solid #ecf0f1;
+  border-radius: 20rpx;
+  font-size: 28rpx;
+  background: white;
+  transition: all 0.3s ease;
+}
+
+.input:focus {
+  border-color: #667eea;
+  box-shadow: 0 0 0 6rpx rgba(102, 126, 234, 0.1);
+}
+
+.textarea {
+  width: 100%;
+  padding: 25rpx 30rpx;
+  border: 2rpx solid #ecf0f1;
+  border-radius: 20rpx;
+  font-size: 28rpx;
+  background: white;
+  min-height: 200rpx;
+  resize: none;
+}
+
+.question-item {
+  margin-bottom: 40rpx;
+}
+
+.question-text {
+  display: block;
+  font-size: 32rpx;
+  font-weight: 600;
+  color: #2c3e50;
+  margin-bottom: 20rpx;
+  line-height: 1.5;
+}
+
+.options {
+  display: flex;
+  flex-direction: column;
+  gap: 15rpx;
+}
+
+.option-item {
+  padding: 25rpx 30rpx;
+  border: 2rpx solid #ecf0f1;
+  border-radius: 15rpx;
+  font-size: 28rpx;
+  color: #2c3e50;
+  background: white;
+  transition: all 0.3s ease;
+}
+
+.option-item.selected {
+  border-color: #667eea;
+  background: rgba(102, 126, 234, 0.1);
+  color: #667eea;
+}
+
+.option-item:active {
+  transform: scale(0.98);
+}
+
+.result-section {
+  text-align: center;
+  margin-bottom: 40rpx;
+  padding: 40rpx;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  border-radius: 20rpx;
+  color: white;
+}
+
+.result-title {
+  display: block;
+  font-size: 36rpx;
+  font-weight: 700;
+  margin-bottom: 20rpx;
+}
+
+.result-text {
+  display: block;
+  font-size: 28rpx;
+  line-height: 1.6;
+}
+
+.action-buttons {
+  display: flex;
+  gap: 20rpx;
+  justify-content: center;
+}
+
+.action-buttons .btn {
+  flex: 1;
+  max-width: 200rpx;
+}

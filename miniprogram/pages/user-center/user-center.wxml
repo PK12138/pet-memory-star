@@ -1,0 +1,51 @@
+<!--pages/user-center/user-center.wxml-->
+<view class="container">
+  <!-- 页面标题 -->
+  <view class="page-header">
+    <text class="page-title">个人中心</text>
+    <text class="page-subtitle">管理您的账户和设置</text>
+  </view>
+  
+  <!-- 用户信息卡片 -->
+  <view class="user-info-card">
+    <view class="user-avatar">
+      <text class="avatar-text">{{userInfo.email ? userInfo.email[0].toUpperCase() : 'U'}}</text>
+    </view>
+    <view class="user-details">
+      <text class="user-name">{{userInfo.email || '用户'}}</text>
+      <text class="user-level">{{levelInfo.name || '免费用户'}}</text>
+    </view>
+  </view>
+  
+  <!-- 功能菜单 -->
+  <view class="menu-section">
+    <view class="menu-item" bindtap="goToMemorials">
+      <view class="menu-icon">🏛️</view>
+      <text class="menu-title">我的纪念馆</text>
+      <text class="menu-arrow">></text>
+    </view>
+    
+    <view class="menu-item" bindtap="goToPhotoManager">
+      <view class="menu-icon">📷</view>
+      <text class="menu-title">照片管理</text>
+      <text class="menu-arrow">></text>
+    </view>
+    
+    <view class="menu-item" bindtap="goToPayment">
+      <view class="menu-icon">💎</view>
+      <text class="menu-title">充值升级</text>
+      <text class="menu-arrow">></text>
+    </view>
+    
+    <view class="menu-item" bindtap="goToOrders">
+      <view class="menu-icon">📋</view>
+      <text class="menu-title">订单管理</text>
+      <text class="menu-arrow">></text>
+    </view>
+  </view>
+  
+  <!-- 退出登录 -->
+  <view class="logout-section">
+    <button class="logout-btn" bindtap="logout">退出登录</button>
+  </view>
+</view>

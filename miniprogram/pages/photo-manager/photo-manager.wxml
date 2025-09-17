@@ -1,0 +1,43 @@
+<!--pages/photo-manager/photo-manager.wxml-->
+<view class="container">
+  <!-- 页面标题 -->
+  <view class="page-header">
+    <text class="page-title">照片管理</text>
+    <text class="page-subtitle">管理您的珍贵照片</text>
+  </view>
+  
+  <!-- 加载状态 -->
+  <view wx:if="{{loading}}" class="loading">
+    <view class="loading-spinner"></view>
+    <text>加载中...</text>
+  </view>
+  
+  <!-- 空状态 -->
+  <view wx:elif="{{photos.length === 0}}" class="empty-state">
+    <view class="empty-icon">📷</view>
+    <text class="empty-title">还没有照片</text>
+    <text class="empty-description">上传您的第一张照片</text>
+    <button class="btn btn-primary" bindtap="uploadPhotos">上传照片</button>
+  </view>
+  
+  <!-- 照片网格 -->
+  <view wx:else class="photos-grid">
+    <view 
+      wx:for="{{photos}}" 
+      wx:key="id" 
+      class="photo-item"
+      bindtap="viewPhoto"
+      data-photo="{{item}}"
+    >
+      <image src="{{item.url}}" class="photo-image" />
+      <view class="photo-actions">
+        <button class="action-btn delete-btn" bindtap="deletePhoto" data-id="{{item.id}}" catchtap="stopPropagation">🗑️</button>
+      </view>
+    </view>
+  </view>
+  
+  <!-- 上传按钮 -->
+  <view class="upload-btn" bindtap="uploadPhotos">
+    <text class="upload-icon">+</text>
+  </view>
+</view>

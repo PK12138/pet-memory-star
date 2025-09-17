@@ -19,38 +19,6 @@
     "navigationBarTextStyle": "white",
     "backgroundColor": "#f8f9fa"
   },
-  "tabBar": {
-    "color": "#7f8c8d",
-    "selectedColor": "#667eea",
-    "backgroundColor": "#ffffff",
-    "borderStyle": "white",
-    "list": [
-      {
-        "pagePath": "pages/index/index",
-        "text": "首页",
-        "iconPath": "images/home.png",
-        "selectedIconPath": "images/home-active.png"
-      },
-      {
-        "pagePath": "pages/memorials/memorials",
-        "text": "纪念馆",
-        "iconPath": "images/memorial.png",
-        "selectedIconPath": "images/memorial-active.png"
-      },
-      {
-        "pagePath": "pages/photo-manager/photo-manager",
-        "text": "照片",
-        "iconPath": "images/photo.png",
-        "selectedIconPath": "images/photo-active.png"
-      },
-      {
-        "pagePath": "pages/user-center/user-center",
-        "text": "我的",
-        "iconPath": "images/user.png",
-        "selectedIconPath": "images/user-active.png"
-      }
-    ]
-  },
   "networkTimeout": {
     "request": 10000,
     "downloadFile": 10000

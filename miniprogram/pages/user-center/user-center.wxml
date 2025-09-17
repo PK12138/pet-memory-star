@@ -1,9 +1,8 @@
 <!--pages/user-center/user-center.wxml-->
 <view class="container">
-  <!-- 页面标题 -->
-  <view class="page-header">
-    <text class="page-title">个人中心</text>
-    <text class="page-subtitle">管理您的账户和设置</text>
+  <view class="header">
+    <text class="logo">⭐ 爪迹星</text>
+    <text class="subtitle">个人中心</text>
   </view>
   
   <!-- 用户信息卡片 -->
@@ -12,40 +11,74 @@
       <text class="avatar-text">{{userInfo.email ? userInfo.email[0].toUpperCase() : 'U'}}</text>
     </view>
     <view class="user-details">
-      <text class="user-name">{{userInfo.email || '用户'}}</text>
+      <text class="user-email">{{userInfo.email}}</text>
       <text class="user-level">{{levelInfo.name || '免费用户'}}</text>
     </view>
   </view>
   
-  <!-- 功能菜单 -->
-  <view class="menu-section">
-    <view class="menu-item" bindtap="goToMemorials">
-      <view class="menu-icon">🏛️</view>
-      <text class="menu-title">我的纪念馆</text>
-      <text class="menu-arrow">></text>
+  <!-- 统计信息 -->
+  <view class="stats-section">
+    <view class="stat-card">
+      <text class="stat-number">{{stats.memorialCount || 0}}</text>
+      <text class="stat-label">纪念馆</text>
     </view>
-    
-    <view class="menu-item" bindtap="goToPhotoManager">
-      <view class="menu-icon">📷</view>
-      <text class="menu-title">照片管理</text>
-      <text class="menu-arrow">></text>
+    <view class="stat-card">
+      <text class="stat-number">{{stats.photoCount || 0}}</text>
+      <text class="stat-label">照片</text>
     </view>
-    
-    <view class="menu-item" bindtap="goToPayment">
-      <view class="menu-icon">💎</view>
-      <text class="menu-title">充值升级</text>
-      <text class="menu-arrow">></text>
+    <view class="stat-card">
+      <text class="stat-number">{{stats.totalViews || 0}}</text>
+      <text class="stat-label">访问量</text>
     </view>
-    
-    <view class="menu-item" bindtap="goToOrders">
-      <view class="menu-icon">📋</view>
-      <text class="menu-title">订单管理</text>
-      <text class="menu-arrow">></text>
+    <view class="stat-card">
+      <text class="stat-number">{{stats.aiUsage || 0}}</text>
+      <text class="stat-label">AI使用</text>
     </view>
   </view>
   
-  <!-- 退出登录 -->
-  <view class="logout-section">
-    <button class="logout-btn" bindtap="logout">退出登录</button>
+  <!-- 功能权限 -->
+  <view class="permissions-section">
+    <text class="section-title">功能权限</text>
+    <view class="permission-list">
+      <view class="permission-item">
+        <text class="permission-name">纪念馆创建</text>
+        <text class="permission-status {{permissions.canCreateMemorial ? 'enabled' : 'disabled'}}">
+          {{permissions.canCreateMemorial ? '✓ 已启用' : '✗ 已限制'}}
+        </text>
+      </view>
+      <view class="permission-item">
+        <text class="permission-name">照片上传</text>
+        <text class="permission-status {{permissions.canUploadPhoto ? 'enabled' : 'disabled'}}">
+          {{permissions.canUploadPhoto ? '✓ 已启用' : '✗ 已限制'}}
+        </text>
+      </view>
+      <view class="permission-item">
+        <text class="permission-name">AI功能</text>
+        <text class="permission-status {{permissions.canUseAI ? 'enabled' : 'disabled'}}">
+          {{permissions.canUseAI ? '✓ 已启用' : '✗ 已限制'}}
+        </text>
+      </view>
+      <view class="permission-item">
+        <text class="permission-name">数据导出</text>
+        <text class="permission-status {{permissions.canExportData ? 'enabled' : 'disabled'}}">
+          {{permissions.canExportData ? '✓ 已启用' : '✗ 已限制'}}
+        </text>
+      </view>
+    </view>
+  </view>
+  
+  <!-- 升级区域 -->
+  <view wx:if="{{userLevel === 0}}" class="upgrade-section">
+    <text class="upgrade-title">升级到高级会员</text>
+    <text class="upgrade-desc">解锁更多功能，享受更好的体验</text>
+    <button class="upgrade-btn" bindtap="goToPayment">立即升级</button>
+  </view>
+  
+  <!-- 操作按钮 -->
+  <view class="action-buttons">
+    <button class="btn btn-primary" bindtap="goToMemorials">我的纪念馆</button>
+    <button class="btn btn-secondary" bindtap="goToPhotoManager">照片管理</button>
+    <button class="btn btn-secondary" bindtap="goToOrders">订单管理</button>
+    <button class="btn btn-secondary" bindtap="logout">退出登录</button>
   </view>
 </view>

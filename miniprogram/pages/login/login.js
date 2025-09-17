@@ -5,7 +5,11 @@ Page({
   data: {
     email: '',
     password: '',
-    loading: false
+    loading: false,
+    successMessage: '',
+    errorMessage: '',
+    emailError: '',
+    passwordError: ''
   },
 
   onLoad() {
@@ -15,14 +19,55 @@ Page({
   // 邮箱输入
   onEmailInput(e) {
     this.setData({
-      email: e.detail.value
+      email: e.detail.value,
+      emailError: ''
     })
   },
 
   // 密码输入
   onPasswordInput(e) {
     this.setData({
-      password: e.detail.value
+      password: e.detail.value,
+      passwordError: ''
+    })
+  },
+
+  // 清除错误信息
+  clearErrors() {
+    this.setData({
+      emailError: '',
+      passwordError: '',
+      errorMessage: '',
+      successMessage: ''
+    })
+  },
+
+  // 显示错误信息
+  showError(field, message) {
+    const errorField = field + 'Error'
+    this.setData({
+      [errorField]: message
+    })
+  },
+
+  // 显示全局错误信息
+  showGlobalError(message) {
+    this.setData({
+      errorMessage: message
+    })
+  },
+
+  // 显示成功信息
+  showSuccess(message) {
+    this.setData({
+      successMessage: message
+    })
+  },
+
+  // 设置加载状态
+  setLoading(isLoading) {
+    this.setData({
+      loading: isLoading
     })
   },
 
@@ -30,24 +75,31 @@ Page({
   async login() {
     const { email, password } = this.data
     
+    // 清除之前的错误信息
+    this.clearErrors()
+    
     // 验证输入
     if (!email) {
-      app.showError('请输入邮箱地址')
-      return
-    }
-    
-    if (!password) {
-      app.showError('请输入密码')
+      this.showError('email', '请输入邮箱地址')
       return
     }
     
     if (!this.validateEmail(email)) {
-      app.showError('请输入有效的邮箱地址')
+      this.showError('email', '请输入有效的邮箱地址')
       return
     }
     
-    this.setData({ loading: true })
-    app.showLoading('登录中...')
+    if (!password) {
+      this.showError('password', '请输入密码')
+      return
+    }
+    
+    if (password.length < 6) {
+      this.showError('password', '密码长度不能少于6位')
+      return
+    }
+    
+    this.setLoading(true)
     
     try {
       const res = await app.request({
@@ -61,27 +113,27 @@ Page({
       
       if (res.success) {
         // 登录成功
-        app.login(res.session_token, res.user_info)
+        this.showSuccess('登录成功！')
         
-        app.hideLoading()
-        app.showSuccess('登录成功')
+        // 保存用户信息到全局
+        app.globalData.userInfo = res.user
+        app.globalData.sessionToken = res.session_token
+        app.globalData.userLevel = res.user_level || 0
         
-        // 跳转到首页
+        // 延迟跳转
         setTimeout(() => {
           wx.switchTab({
             url: '/pages/index/index'
           })
         }, 1500)
       } else {
-        app.hideLoading()
-        app.showError(res.message || '登录失败')
+        this.setLoading(false)
+        this.showGlobalError(res.message || '登录失败，请检查邮箱和密码')
       }
     } catch (error) {
       console.error('登录失败:', error)
-      app.hideLoading()
-      app.showError('网络错误，请稍后重试')
-    } finally {
-      this.setData({ loading: false })
+      this.setLoading(false)
+      this.showGlobalError('网络错误，请稍后重试')
     }
   },
 
@@ -102,6 +154,13 @@ Page({
   goToForgotPassword() {
     wx.navigateTo({
       url: '/pages/forgot-password/forgot-password'
+    })
+  },
+
+  // 返回首页
+  goToHome() {
+    wx.switchTab({
+      url: '/pages/index/index'
     })
   }
 })

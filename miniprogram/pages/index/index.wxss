@@ -1,214 +1,282 @@
 /* pages/index/index.wxss */
 
 .container {
+  max-width: 1200rpx;
+  margin: 0 auto;
   padding: 20rpx;
-  min-height: 100vh;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  position: relative;
+  z-index: 1;
 }
 
-/* 主卡片 */
-.main-card {
-  background: rgba(255, 255, 255, 0.9);
-  border-radius: 30rpx;
+/* Glassmorphism 卡片样式 */
+.glass-card {
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(20rpx);
+  -webkit-backdrop-filter: blur(20rpx);
+  border: 1rpx solid rgba(255, 255, 255, 0.2);
+  border-radius: 24rpx;
+  box-shadow: 
+    0 8rpx 32rpx rgba(0, 0, 0, 0.1),
+    inset 0 1rpx 0 rgba(255, 255, 255, 0.2);
   padding: 40rpx;
   margin-bottom: 30rpx;
-  box-shadow: 0 20rpx 60rpx rgba(0, 0, 0, 0.1);
-  backdrop-filter: blur(20rpx);
-  border: 1rpx solid rgba(255, 255, 255, 0.2);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+  overflow: hidden;
 }
 
-.title-section {
+.glass-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+  transition: left 0.5s;
+}
+
+.glass-card:active::before {
+  left: 100%;
+}
+
+/* 主标题区域 */
+.main-title {
   text-align: center;
   margin-bottom: 40rpx;
 }
 
-.main-title {
-  display: block;
-  font-size: 48rpx;
-  font-weight: 700;
-  color: #2c3e50;
+.logo-icon {
+  font-size: 80rpx;
   margin-bottom: 20rpx;
+  display: block;
+  animation: float 3s ease-in-out infinite;
 }
 
-.subtitle {
+@keyframes float {
+  0%, 100% { transform: translateY(0px) rotate(0deg); }
+  33% { transform: translateY(-10rpx) rotate(1deg); }
+  66% { transform: translateY(5rpx) rotate(-1deg); }
+}
+
+.logo-title {
+  font-size: 48rpx;
+  font-weight: 700;
+  color: white;
+  margin-bottom: 15rpx;
   display: block;
+  text-shadow: 0 2rpx 4rpx rgba(0, 0, 0, 0.1);
+}
+
+.logo-subtitle {
   font-size: 28rpx;
-  color: #7f8c8d;
+  color: rgba(255, 255, 255, 0.9);
+  display: block;
   line-height: 1.5;
 }
 
-/* 认证区域 */
-.auth-section {
+/* 认证按钮区域 */
+.auth-buttons {
   display: flex;
   gap: 20rpx;
   justify-content: center;
+  margin-bottom: 40rpx;
 }
 
+.auth-btn {
+  padding: 20rpx 40rpx;
+  background: rgba(255, 255, 255, 0.2);
+  backdrop-filter: blur(20rpx);
+  -webkit-backdrop-filter: blur(20rpx);
+  border: 1rpx solid rgba(255, 255, 255, 0.3);
+  border-radius: 50rpx;
+  color: white;
+  font-size: 28rpx;
+  font-weight: 600;
+  text-align: center;
+  transition: all 0.3s ease;
+  min-width: 120rpx;
+}
+
+.auth-btn:active {
+  background: rgba(255, 255, 255, 0.3);
+  transform: scale(0.98);
+}
+
+/* 用户欢迎区域 */
 .user-welcome {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 30rpx;
+  text-align: center;
+  margin-bottom: 40rpx;
+  padding: 30rpx;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 20rpx;
+  border: 1rpx solid rgba(255, 255, 255, 0.2);
 }
 
 .welcome-text {
-  text-align: center;
-}
-
-.welcome-title {
-  display: block;
-  font-size: 36rpx;
+  font-size: 32rpx;
   font-weight: 600;
-  color: #2c3e50;
+  color: white;
   margin-bottom: 10rpx;
+  display: block;
 }
 
 .user-email {
+  font-size: 26rpx;
+  color: rgba(255, 255, 255, 0.8);
   display: block;
-  font-size: 28rpx;
-  color: #7f8c8d;
 }
 
-.user-actions {
+/* 主要操作按钮 */
+.primary-action {
+  text-align: center;
+}
+
+.primary-btn {
+  padding: 25rpx 50rpx;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%);
+  border: none;
+  border-radius: 50rpx;
+  color: white;
+  font-size: 32rpx;
+  font-weight: 600;
+  box-shadow: 0 8rpx 25rpx rgba(102, 126, 234, 0.4);
+  transition: all 0.3s ease;
   display: flex;
-  gap: 15rpx;
-  flex-wrap: wrap;
+  align-items: center;
   justify-content: center;
+  gap: 10rpx;
+  margin: 0 auto;
 }
 
-/* 功能特色 */
-.features-section {
-  margin-bottom: 30rpx;
+.primary-btn:active {
+  transform: scale(0.98);
+  box-shadow: 0 4rpx 15rpx rgba(102, 126, 234, 0.6);
+}
+
+.btn-icon {
+  font-size: 32rpx;
+}
+
+.btn-text {
+  font-size: 28rpx;
+  font-weight: 600;
+}
+
+/* 功能特色区域 */
+.feature-description {
+  text-align: center;
+}
+
+.feature-title {
+  font-size: 36rpx;
+  font-weight: 700;
+  color: white;
+  margin-bottom: 40rpx;
+  display: block;
+  text-shadow: 0 2rpx 4rpx rgba(0, 0, 0, 0.1);
+}
+
+.feature-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300rpx, 1fr));
+  gap: 30rpx;
+  text-align: left;
+}
+
+.feature-item {
+  padding: 30rpx;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 20rpx;
+  border: 1rpx solid rgba(255, 255, 255, 0.2);
+  transition: all 0.3s ease;
+}
+
+.feature-item:active {
+  background: rgba(255, 255, 255, 0.15);
+  transform: translateY(-2rpx);
+}
+
+.feature-name {
+  font-size: 28rpx;
+  font-weight: 600;
+  color: white;
+  margin-bottom: 15rpx;
+  display: block;
+}
+
+.feature-desc {
+  font-size: 24rpx;
+  color: rgba(255, 255, 255, 0.8);
+  line-height: 1.5;
+  display: block;
+}
+
+/* 用户操作区域 */
+.user-actions-section {
+  margin-top: 40rpx;
 }
 
 .section-title {
   font-size: 32rpx;
   font-weight: 600;
   color: white;
-  margin-bottom: 20rpx;
+  margin-bottom: 30rpx;
+  display: block;
   text-align: center;
+  text-shadow: 0 2rpx 4rpx rgba(0, 0, 0, 0.1);
 }
 
-.features-grid {
+.action-grid {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
   gap: 20rpx;
 }
 
-.feature-item {
-  background: rgba(255, 255, 255, 0.9);
-  border-radius: 20rpx;
-  padding: 30rpx 20rpx;
-  text-align: center;
-  box-shadow: 0 8rpx 32rpx rgba(0, 0, 0, 0.1);
-  backdrop-filter: blur(10rpx);
+.action-btn {
+  padding: 25rpx 20rpx;
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(20rpx);
+  -webkit-backdrop-filter: blur(20rpx);
   border: 1rpx solid rgba(255, 255, 255, 0.2);
+  border-radius: 20rpx;
+  color: white;
+  font-size: 24rpx;
+  font-weight: 500;
+  text-align: center;
   transition: all 0.3s ease;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 10rpx;
+  min-height: 120rpx;
 }
 
-.feature-item:active {
+.action-btn:active {
+  background: rgba(255, 255, 255, 0.2);
   transform: scale(0.98);
 }
 
-.feature-icon {
-  font-size: 48rpx;
-  margin-bottom: 15rpx;
-}
-
-.feature-title {
-  display: block;
-  font-size: 28rpx;
-  font-weight: 600;
-  color: #2c3e50;
-  margin-bottom: 8rpx;
-}
-
-.feature-desc {
-  display: block;
-  font-size: 24rpx;
-  color: #7f8c8d;
-  line-height: 1.4;
-}
-
-/* 等级卡片 */
-.level-card {
-  background: rgba(255, 255, 255, 0.9);
-  border-radius: 20rpx;
-  padding: 30rpx;
-  margin-bottom: 30rpx;
-  box-shadow: 0 8rpx 32rpx rgba(0, 0, 0, 0.1);
-  backdrop-filter: blur(10rpx);
-  border: 1rpx solid rgba(255, 255, 255, 0.2);
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-
-.level-info {
-  flex: 1;
-}
-
-.level-title {
-  font-size: 24rpx;
-  color: #7f8c8d;
-  margin-bottom: 8rpx;
-}
-
-.level-name {
+.action-btn .btn-icon {
   font-size: 32rpx;
-  font-weight: 600;
-  color: #2c3e50;
-  margin-bottom: 8rpx;
 }
 
-.level-desc {
+.action-btn .btn-text {
   font-size: 24rpx;
-  color: #7f8c8d;
-}
-
-.upgrade-section {
-  margin-left: 20rpx;
-}
-
-/* 统计信息 */
-.stats-section {
-  margin-bottom: 30rpx;
-}
-
-.stats-grid {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 20rpx;
-}
-
-.stat-item {
-  background: rgba(255, 255, 255, 0.9);
-  border-radius: 20rpx;
-  padding: 30rpx 20rpx;
-  text-align: center;
-  box-shadow: 0 8rpx 32rpx rgba(0, 0, 0, 0.1);
-  backdrop-filter: blur(10rpx);
-  border: 1rpx solid rgba(255, 255, 255, 0.2);
-}
-
-.stat-number {
-  font-size: 36rpx;
-  font-weight: 700;
-  color: #2c3e50;
-  margin-bottom: 8rpx;
-}
-
-.stat-label {
-  font-size: 24rpx;
-  color: #7f8c8d;
+  font-weight: 500;
 }
 
 /* 动画效果 */
-.fade-in {
-  animation: fadeIn 0.6s ease-out;
+.fadeInUp {
+  animation: fadeInUp 0.8s ease-out;
 }
 
-@keyframes fadeIn {
+.slideInLeft {
+  animation: slideInLeft 0.8s ease-out;
+}
+
+@keyframes fadeInUp {
   from {
     opacity: 0;
     transform: translateY(30rpx);
@@ -219,24 +287,39 @@
   }
 }
 
-/* 响应式 */
+@keyframes slideInLeft {
+  from {
+    opacity: 0;
+    transform: translateX(-30rpx);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+/* 响应式设计 */
 @media (max-width: 750rpx) {
-  .features-grid {
+  .container {
+    max-width: 100%;
+    padding: 16rpx;
+    margin: 0;
+  }
+  
+  .feature-grid {
     grid-template-columns: 1fr;
   }
   
-  .user-actions {
-    flex-direction: column;
-    align-items: stretch;
+  .action-grid {
+    grid-template-columns: 1fr;
   }
   
-  .level-card {
+  .auth-buttons {
     flex-direction: column;
-    text-align: center;
+    gap: 15rpx;
   }
   
-  .upgrade-section {
-    margin-left: 0;
-    margin-top: 20rpx;
+  .auth-btn {
+    width: 100%;
   }
 }

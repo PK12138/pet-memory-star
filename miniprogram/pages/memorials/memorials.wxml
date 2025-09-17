@@ -14,10 +14,13 @@
   
   <!-- 空状态 -->
   <view wx:elif="{{memorials.length === 0}}" class="empty-state">
-    <view class="empty-icon">🐾</view>
+    <view class="empty-icon">🏛️</view>
     <text class="empty-title">还没有纪念馆</text>
     <text class="empty-description">创建你的第一个纪念馆，记录珍贵的回忆</text>
-    <button class="btn btn-primary" bindtap="goToCreateMemorial">创建纪念馆</button>
+    <button class="btn btn-primary" bindtap="goToPersonalityTest">
+      <text class="btn-icon">🏛️</text>
+      <text class="btn-text">创建纪念馆</text>
+    </button>
   </view>
   
   <!-- 纪念馆列表 -->
@@ -25,16 +28,22 @@
     <view 
       wx:for="{{memorials}}" 
       wx:key="id" 
-      class="memorial-card"
+      class="memorial-card glass-card"
       bindtap="goToMemorialDetail"
       data-memorial-id="{{item.id}}"
     >
       <view class="memorial-header">
         <text class="memorial-title">{{item.pet_name || '未命名'}}</text>
         <view class="memorial-actions" catchtap="stopPropagation">
-          <button class="action-btn edit-btn" bindtap="editMemorial" data-id="{{item.id}}">✏️</button>
-          <button class="action-btn share-btn" bindtap="shareMemorial" data-id="{{item.id}}">🔗</button>
-          <button class="action-btn delete-btn" bindtap="deleteMemorial" data-id="{{item.id}}">🗑️</button>
+          <button class="action-btn edit-btn" bindtap="editMemorial" data-id="{{item.id}}">
+            <text class="btn-icon">✏️</text>
+          </button>
+          <button class="action-btn share-btn" bindtap="shareMemorial" data-id="{{item.id}}">
+            <text class="btn-icon">🔗</text>
+          </button>
+          <button class="action-btn delete-btn" bindtap="deleteMemorial" data-id="{{item.id}}">
+            <text class="btn-icon">🗑️</text>
+          </button>
         </view>
       </view>
       
@@ -95,7 +104,7 @@
   </view>
   
   <!-- 创建按钮 -->
-  <view class="create-btn" bindtap="goToCreateMemorial">
+  <view class="create-btn" bindtap="goToPersonalityTest">
     <text class="create-icon">+</text>
   </view>
 </view>

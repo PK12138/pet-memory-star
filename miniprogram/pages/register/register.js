@@ -6,7 +6,12 @@ Page({
     email: '',
     password: '',
     confirmPassword: '',
-    loading: false
+    loading: false,
+    successMessage: '',
+    errorMessage: '',
+    emailError: '',
+    passwordError: '',
+    confirmPasswordError: ''
   },
 
   onLoad() {
@@ -16,21 +21,65 @@ Page({
   // 邮箱输入
   onEmailInput(e) {
     this.setData({
-      email: e.detail.value
+      email: e.detail.value,
+      emailError: ''
     })
   },
 
   // 密码输入
   onPasswordInput(e) {
     this.setData({
-      password: e.detail.value
+      password: e.detail.value,
+      passwordError: '',
+      confirmPasswordError: ''
     })
   },
 
   // 确认密码输入
   onConfirmPasswordInput(e) {
     this.setData({
-      confirmPassword: e.detail.value
+      confirmPassword: e.detail.value,
+      confirmPasswordError: ''
+    })
+  },
+
+  // 清除错误信息
+  clearErrors() {
+    this.setData({
+      emailError: '',
+      passwordError: '',
+      confirmPasswordError: '',
+      errorMessage: '',
+      successMessage: ''
+    })
+  },
+
+  // 显示错误信息
+  showError(field, message) {
+    const errorField = field + 'Error'
+    this.setData({
+      [errorField]: message
+    })
+  },
+
+  // 显示全局错误信息
+  showGlobalError(message) {
+    this.setData({
+      errorMessage: message
+    })
+  },
+
+  // 显示成功信息
+  showSuccess(message) {
+    this.setData({
+      successMessage: message
+    })
+  },
+
+  // 设置加载状态
+  setLoading(isLoading) {
+    this.setData({
+      loading: isLoading
     })
   },
 
@@ -38,34 +87,41 @@ Page({
   async register() {
     const { email, password, confirmPassword } = this.data
     
+    // 清除之前的错误信息
+    this.clearErrors()
+    
     // 验证输入
     if (!email) {
-      app.showError('请输入邮箱地址')
-      return
-    }
-    
-    if (!password) {
-      app.showError('请输入密码')
-      return
-    }
-    
-    if (!confirmPassword) {
-      app.showError('请确认密码')
-      return
-    }
-    
-    if (password !== confirmPassword) {
-      app.showError('两次输入的密码不一致')
+      this.showError('email', '请输入邮箱地址')
       return
     }
     
     if (!this.validateEmail(email)) {
-      app.showError('请输入有效的邮箱地址')
+      this.showError('email', '请输入有效的邮箱地址')
       return
     }
     
-    this.setData({ loading: true })
-    app.showLoading('注册中...')
+    if (!password) {
+      this.showError('password', '请输入密码')
+      return
+    }
+    
+    if (password.length < 6) {
+      this.showError('password', '密码长度不能少于6位')
+      return
+    }
+    
+    if (!confirmPassword) {
+      this.showError('confirmPassword', '请确认密码')
+      return
+    }
+    
+    if (password !== confirmPassword) {
+      this.showError('confirmPassword', '两次输入的密码不一致')
+      return
+    }
+    
+    this.setLoading(true)
     
     try {
       const res = await app.request({
@@ -73,32 +129,28 @@ Page({
         method: 'POST',
         data: {
           email: email,
-          password: password,
-          confirm_password: confirmPassword
+          password: password
         }
       })
       
       if (res.success) {
         // 注册成功
-        app.hideLoading()
-        app.showSuccess('注册成功')
+        this.showSuccess('注册成功！请检查邮箱验证邮件')
         
-        // 跳转到登录页
+        // 延迟跳转到登录页
         setTimeout(() => {
           wx.navigateTo({
             url: '/pages/login/login'
           })
-        }, 1500)
+        }, 2000)
       } else {
-        app.hideLoading()
-        app.showError(res.message || '注册失败')
+        this.setLoading(false)
+        this.showGlobalError(res.message || '注册失败，请稍后重试')
       }
     } catch (error) {
       console.error('注册失败:', error)
-      app.hideLoading()
-      app.showError('网络错误，请稍后重试')
-    } finally {
-      this.setData({ loading: false })
+      this.setLoading(false)
+      this.showGlobalError('网络错误，请稍后重试')
     }
   },
 
@@ -112,6 +164,13 @@ Page({
   goToLogin() {
     wx.navigateTo({
       url: '/pages/login/login'
+    })
+  },
+
+  // 返回首页
+  goToHome() {
+    wx.switchTab({
+      url: '/pages/index/index'
     })
   }
 })

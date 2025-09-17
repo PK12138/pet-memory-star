@@ -1,58 +1,73 @@
 <!--pages/register/register.wxml-->
 <view class="container">
-  <view class="register-card">
-    <view class="logo-section">
-      <text class="logo-title">⭐ 爪迹星·云纪念馆</text>
+  <view class="back-home" bindtap="goToHome">← 返回首页</view>
+  
+  <view class="auth-container fadeInUp">
+    <view class="logo">
+      <text class="logo-icon">⭐</text>
+      <text class="logo-title">爪迹星·云纪念馆</text>
       <text class="logo-subtitle">创建您的账户</text>
     </view>
     
-    <view class="form-section">
-      <view class="input-group">
-        <text class="input-label">邮箱地址</text>
+    <view wx:if="{{successMessage}}" class="success-message">{{successMessage}}</view>
+    <view wx:if="{{errorMessage}}" class="error-message-global">{{errorMessage}}</view>
+    
+    <view class="register-form">
+      <view class="form-group">
+        <text class="form-label">邮箱</text>
         <input 
-          class="input" 
+          class="form-input {{emailError ? 'error' : ''}}" 
           type="text" 
-          placeholder="请输入邮箱地址"
+          placeholder="请输入您的邮箱地址"
           value="{{email}}"
           bindinput="onEmailInput"
         />
+        <view wx:if="{{emailError}}" class="error-message">{{emailError}}</view>
       </view>
       
-      <view class="input-group">
-        <text class="input-label">密码</text>
+      <view class="form-group">
+        <text class="form-label">密码</text>
         <input 
-          class="input" 
+          class="form-input {{passwordError ? 'error' : ''}}" 
           type="password" 
-          placeholder="请输入密码"
+          placeholder="请输入您的密码"
           value="{{password}}"
           bindinput="onPasswordInput"
         />
+        <view wx:if="{{passwordError}}" class="error-message">{{passwordError}}</view>
       </view>
       
-      <view class="input-group">
-        <text class="input-label">确认密码</text>
+      <view class="form-group">
+        <text class="form-label">确认密码</text>
         <input 
-          class="input" 
+          class="form-input {{confirmPasswordError ? 'error' : ''}}" 
           type="password" 
           placeholder="请再次输入密码"
           value="{{confirmPassword}}"
           bindinput="onConfirmPasswordInput"
         />
+        <view wx:if="{{confirmPasswordError}}" class="error-message">{{confirmPasswordError}}</view>
       </view>
       
-      <view class="form-actions">
-        <button 
-          class="btn btn-primary register-btn" 
-          bindtap="register"
-          disabled="{{loading}}"
-        >
-          {{loading ? '注册中...' : '注册'}}
-        </button>
-        
-        <view class="link-group">
-          <text class="link-text" bindtap="goToLogin">已有账户？立即登录</text>
-        </view>
-      </view>
+      <button 
+        class="submit-btn" 
+        bindtap="register"
+        disabled="{{loading}}"
+      >
+        {{loading ? '注册中...' : '注册'}}
+      </button>
+    </view>
+    
+    <view wx:if="{{loading}}" class="loading">
+      <view class="loading-spinner"></view>
+    </view>
+    
+    <view class="divider">
+      <text class="divider-text">已有账户？</text>
+    </view>
+    
+    <view class="switch-form">
+      <text class="switch-link" bindtap="goToLogin">立即登录</text>
     </view>
   </view>
 </view>

@@ -3,14 +3,14 @@
 .container {
   padding: 20rpx;
   min-height: 100vh;
-  background: #f8f9fa;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%);
 }
 
 .page-header {
   text-align: center;
   margin-bottom: 40rpx;
   padding: 40rpx 20rpx;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%);
   border-radius: 20rpx;
   color: white;
 }

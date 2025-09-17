@@ -3,39 +3,113 @@ const app = getApp()
 
 Page({
   data: {
-    currentStep: 1,
+    currentQuestion: 1,
+    totalQuestions: 10,
+    progress: 0,
+    showPetInfo: true,
+    showResult: false,
     petInfo: {
       name: '',
       breed: '',
-      age: ''
+      age: '',
+      gender: '',
+      genderIndex: 0
     },
-    questions: [
-      {
-        id: 1,
-        question: '您的宠物最喜欢什么活动？',
-        options: ['睡觉', '玩耍', '散步', '吃东西']
-      },
-      {
-        id: 2,
-        question: '您的宠物性格如何？',
-        options: ['活泼好动', '安静温顺', '独立自主', '粘人撒娇']
-      },
-      {
-        id: 3,
-        question: '您的宠物最喜欢什么食物？',
-        options: ['肉类', '蔬菜', '零食', '什么都吃']
-      }
-    ],
+    genderOptions: ['公', '母'],
+    questions: {},
+    currentQuestionData: null,
+    currentQuestionOptions: [],
     answers: {},
     personalityResult: '',
     memorialInfo: {
       description: ''
     },
-    loading: false
+    loading: false,
+    canProceed: false
   },
 
   onLoad() {
     console.log('性格测试页加载')
+    this.loadQuestions()
+  },
+
+  // 加载问题数据
+  async loadQuestions() {
+    try {
+      const res = await app.request({
+        url: '/api/personality-questions'
+      })
+      
+      if (res.success) {
+        this.setData({
+          questions: res.questions,
+          totalQuestions: Object.keys(res.questions).length
+        })
+        this.updateProgress()
+      }
+    } catch (error) {
+      console.error('加载问题失败:', error)
+      wx.showToast({
+        title: '加载失败',
+        icon: 'none'
+      })
+    }
+  },
+
+  // 加载问题选项
+  async loadQuestionOptions(questionId) {
+    try {
+      const res = await app.request({
+        url: `/api/personality-options/${questionId}`
+      })
+      
+      if (res.success) {
+        this.setData({
+          currentQuestionData: this.data.questions[questionId],
+          currentQuestionOptions: res.options
+        })
+        this.updateProgress()
+        this.checkCanProceed()
+      }
+    } catch (error) {
+      console.error('加载选项失败:', error)
+      wx.showToast({
+        title: '加载失败',
+        icon: 'none'
+      })
+    }
+  },
+
+  // 更新进度
+  updateProgress() {
+    const { currentQuestion, totalQuestions, showPetInfo } = this.data
+    let progress = 0
+    
+    if (showPetInfo) {
+      progress = 10
+    } else {
+      progress = 10 + (currentQuestion / totalQuestions) * 90
+    }
+    
+    this.setData({
+      progress: Math.round(progress)
+    })
+  },
+
+  // 检查是否可以继续
+  checkCanProceed() {
+    const { showPetInfo, petInfo, currentQuestion, answers } = this.data
+    let canProceed = false
+    
+    if (showPetInfo) {
+      canProceed = petInfo.name && petInfo.breed && petInfo.age && petInfo.gender
+    } else {
+      canProceed = answers[currentQuestion] !== undefined
+    }
+    
+    this.setData({
+      canProceed
+    })
   },
 
   // 宠物姓名输入
@@ -43,6 +117,7 @@ Page({
     this.setData({
       'petInfo.name': e.detail.value
     })
+    this.checkCanProceed()
   },
 
   // 宠物品种输入
@@ -50,6 +125,7 @@ Page({
     this.setData({
       'petInfo.breed': e.detail.value
     })
+    this.checkCanProceed()
   },
 
   // 宠物年龄输入
@@ -57,98 +133,118 @@ Page({
     this.setData({
       'petInfo.age': e.detail.value
     })
+    this.checkCanProceed()
+  },
+
+  // 性别选择
+  onGenderChange(e) {
+    const index = e.detail.value
+    this.setData({
+      'petInfo.gender': this.data.genderOptions[index],
+      'petInfo.genderIndex': index
+    })
+    this.checkCanProceed()
   },
 
   // 选择答案
   selectAnswer(e) {
-    const questionId = e.currentTarget.dataset.questionId
     const option = e.currentTarget.dataset.option
+    const { currentQuestion } = this.data
     
     this.setData({
-      [`answers.${questionId}`]: option
+      [`answers.${currentQuestion}`]: option
     })
-  },
-
-  // 描述输入
-  onDescriptionInput(e) {
-    this.setData({
-      'memorialInfo.description': e.detail.value
-    })
+    
+    this.checkCanProceed()
   },
 
   // 下一步
   nextStep() {
-    const { currentStep, petInfo, answers } = this.data
+    const { showPetInfo, currentQuestion, totalQuestions } = this.data
     
-    if (currentStep === 1) {
-      // 验证基本信息
-      if (!petInfo.name) {
-        app.showError('请输入宠物姓名')
-        return
-      }
-      if (!petInfo.breed) {
-        app.showError('请输入宠物品种')
-        return
-      }
-      if (!petInfo.age) {
-        app.showError('请输入宠物年龄')
-        return
-      }
-    } else if (currentStep === 2) {
-      // 验证性格测试
-      const questionCount = this.data.questions.length
-      const answerCount = Object.keys(answers).length
-      if (answerCount < questionCount) {
-        app.showError('请完成所有性格测试题目')
-        return
-      }
-      
-      // 计算性格结果
-      this.calculatePersonality()
+    if (showPetInfo) {
+      // 从宠物信息进入问题测试
+      this.setData({
+        showPetInfo: false
+      })
+      this.loadQuestionOptions(1)
+    } else if (currentQuestion < totalQuestions) {
+      // 进入下一题
+      const nextQuestion = currentQuestion + 1
+      this.setData({
+        currentQuestion: nextQuestion
+      })
+      this.loadQuestionOptions(nextQuestion)
+    } else {
+      // 完成测试，显示结果
+      this.generateResult()
     }
-    
-    this.setData({
-      currentStep: currentStep + 1
-    })
   },
 
   // 上一步
   prevStep() {
-    this.setData({
-      currentStep: this.data.currentStep - 1
-    })
+    const { showPetInfo, currentQuestion } = this.data
+    
+    if (showPetInfo) {
+      // 返回首页
+      wx.navigateBack()
+    } else if (currentQuestion > 1) {
+      // 返回上一题
+      const prevQuestion = currentQuestion - 1
+      this.setData({
+        currentQuestion: prevQuestion
+      })
+      this.loadQuestionOptions(prevQuestion)
+    } else {
+      // 返回宠物信息
+      this.setData({
+        showPetInfo: true
+      })
+      this.updateProgress()
+      this.checkCanProceed()
+    }
   },
 
-  // 计算性格结果
-  calculatePersonality() {
-    const { answers } = this.data
-    const results = []
+  // 生成测试结果
+  generateResult() {
+    const { answers, petInfo } = this.data
     
     // 简单的性格分析逻辑
-    Object.values(answers).forEach(answer => {
-      if (answer.includes('活泼') || answer.includes('玩耍')) {
-        results.push('活泼开朗')
-      } else if (answer.includes('安静') || answer.includes('睡觉')) {
-        results.push('安静温顺')
-      } else if (answer.includes('独立')) {
-        results.push('独立自主')
-      } else if (answer.includes('粘人')) {
-        results.push('粘人可爱')
-      }
-    })
+    let personality = '温和'
+    let description = ''
     
-    // 统计最常见的性格特征
-    const personalityCount = {}
-    results.forEach(personality => {
-      personalityCount[personality] = (personalityCount[personality] || 0) + 1
-    })
+    // 根据答案分析性格
+    const answerValues = Object.values(answers)
+    const activeCount = answerValues.filter(answer => 
+      answer.includes('活泼') || answer.includes('玩耍') || answer.includes('好动')
+    ).length
     
-    const mostCommon = Object.keys(personalityCount).reduce((a, b) => 
-      personalityCount[a] > personalityCount[b] ? a : b
-    )
+    const calmCount = answerValues.filter(answer => 
+      answer.includes('安静') || answer.includes('睡觉') || answer.includes('温顺')
+    ).length
+    
+    if (activeCount > calmCount) {
+      personality = '活泼好动'
+      description = `${petInfo.name}是一只活泼好动的${petInfo.breed}，喜欢玩耍和运动，充满活力。`
+    } else if (calmCount > activeCount) {
+      personality = '安静温顺'
+      description = `${petInfo.name}是一只安静温顺的${petInfo.breed}，性格温和，喜欢安静的环境。`
+    } else {
+      personality = '平衡型'
+      description = `${petInfo.name}是一只性格平衡的${petInfo.breed}，既有活泼的一面，也有安静的时候。`
+    }
     
     this.setData({
-      personalityResult: `根据测试结果，您的宠物${this.data.petInfo.name}是一个${mostCommon}的小可爱！`
+      showResult: true,
+      personalityResult: description
+    })
+    this.updateProgress()
+  },
+
+  // 纪念馆描述输入
+  onDescriptionInput(e) {
+    this.setData({
+      'memorialInfo.description': e.detail.value
     })
   },
 
@@ -156,13 +252,17 @@ Page({
   async createMemorial() {
     const { petInfo, memorialInfo, personalityResult } = this.data
     
-    if (!memorialInfo.description) {
-      app.showError('请输入纪念馆描述')
+    if (!memorialInfo.description.trim()) {
+      wx.showToast({
+        title: '请输入纪念馆描述',
+        icon: 'none'
+      })
       return
     }
     
-    this.setData({ loading: true })
-    app.showLoading('创建纪念馆中...')
+    this.setData({
+      loading: true
+    })
     
     try {
       const res = await app.request({
@@ -171,31 +271,41 @@ Page({
         data: {
           pet_name: petInfo.name,
           species: petInfo.breed,
+          breed: petInfo.breed,
+          age: petInfo.age,
+          gender: petInfo.gender,
           description: memorialInfo.description,
           personality: personalityResult
         }
       })
       
       if (res.success) {
-        app.hideLoading()
-        app.showSuccess('纪念馆创建成功')
+        wx.showToast({
+          title: '纪念馆创建成功',
+          icon: 'success'
+        })
         
-        // 跳转到纪念馆列表
         setTimeout(() => {
-          wx.switchTab({
+          wx.navigateTo({
             url: '/pages/memorials/memorials'
           })
         }, 1500)
       } else {
-        app.hideLoading()
-        app.showError(res.message || '创建纪念馆失败')
+        wx.showToast({
+          title: res.message || '创建失败',
+          icon: 'none'
+        })
       }
     } catch (error) {
       console.error('创建纪念馆失败:', error)
-      app.hideLoading()
-      app.showError('网络错误，请稍后重试')
+      wx.showToast({
+        title: '创建失败',
+        icon: 'none'
+      })
     } finally {
-      this.setData({ loading: false })
+      this.setData({
+        loading: false
+      })
     }
   }
 })

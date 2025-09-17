@@ -15,29 +15,31 @@ Page({
 
   onLoad() {
     console.log('首页加载')
-    this.loadUserData()
+    this.checkAuthStatus()
   },
 
   onShow() {
     console.log('首页显示')
-    this.loadUserData()
+    this.checkAuthStatus()
   },
 
   onPullDownRefresh() {
     console.log('下拉刷新')
-    this.loadUserData().then(() => {
+    this.checkAuthStatus().then(() => {
       wx.stopPullDownRefresh()
     })
   },
 
-  // 加载用户数据
-  async loadUserData() {
+  // 检查用户登录状态
+  async checkAuthStatus() {
     try {
       const userInfo = app.globalData.userInfo
-      if (userInfo) {
+      const sessionToken = app.globalData.sessionToken
+      
+      if (userInfo && sessionToken) {
         this.setData({
           userInfo: userInfo,
-          userLevel: app.globalData.userLevel
+          userLevel: app.globalData.userLevel || 0
         })
         
         // 加载用户等级信息
@@ -45,9 +47,20 @@ Page({
         
         // 加载统计数据
         await this.loadStats()
+      } else {
+        this.setData({
+          userInfo: null,
+          userLevel: 0,
+          levelInfo: {},
+          stats: {
+            memorialCount: 0,
+            photoCount: 0,
+            totalViews: 0
+          }
+        })
       }
     } catch (error) {
-      console.error('加载用户数据失败:', error)
+      console.error('检查登录状态失败:', error)
     }
   },
 
@@ -89,6 +102,24 @@ Page({
     }
   },
 
+  // 开始创建纪念馆
+  startCreateMemorial() {
+    const sessionToken = app.globalData.sessionToken
+    
+    if (!sessionToken) {
+      // 未登录，跳转到登录页面
+      wx.navigateTo({
+        url: '/pages/login/login'
+      })
+      return
+    }
+    
+    // 已登录，跳转到性格测试页面
+    wx.navigateTo({
+      url: '/pages/personality-test/personality-test'
+    })
+  },
+
   // 跳转到登录页
   goToLogin() {
     wx.navigateTo({
@@ -105,21 +136,21 @@ Page({
 
   // 跳转到纪念馆列表
   goToMemorials() {
-    wx.switchTab({
+    wx.navigateTo({
       url: '/pages/memorials/memorials'
     })
   },
 
   // 跳转到个人中心
   goToUserCenter() {
-    wx.switchTab({
+    wx.navigateTo({
       url: '/pages/user-center/user-center'
     })
   },
 
   // 跳转到照片管理
   goToPhotoManager() {
-    wx.switchTab({
+    wx.navigateTo({
       url: '/pages/photo-manager/photo-manager'
     })
   },
@@ -143,20 +174,30 @@ Page({
     wx.showModal({
       title: '确认退出',
       content: '确定要退出登录吗？',
-      success: (res) => {
+      success: async (res) => {
         if (res.confirm) {
-          app.logout()
-          this.setData({
-            userInfo: null,
-            userLevel: 0,
-            levelInfo: {},
-            stats: {
-              memorialCount: 0,
-              photoCount: 0,
-              totalViews: 0
-            }
-          })
-          app.showSuccess('已退出登录')
+          try {
+            await app.request({
+              url: '/api/auth/logout',
+              method: 'POST'
+            })
+          } catch (error) {
+            console.error('退出登录请求失败:', error)
+          } finally {
+            // 清除本地存储
+            app.logout()
+            this.setData({
+              userInfo: null,
+              userLevel: 0,
+              levelInfo: {},
+              stats: {
+                memorialCount: 0,
+                photoCount: 0,
+                totalViews: 0
+              }
+            })
+            app.showSuccess('已退出登录')
+          }
         }
       }
     })

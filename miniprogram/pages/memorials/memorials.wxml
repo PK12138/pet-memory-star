@@ -3,108 +3,103 @@
   <!-- 页面标题 -->
   <view class="page-header">
     <text class="page-title">我的纪念馆</text>
-    <text class="page-subtitle">记录每一个珍贵的回忆</text>
+    <text class="page-subtitle">管理您创建的所有纪念馆</text>
   </view>
   
-  <!-- 加载状态 -->
-  <view wx:if="{{loading}}" class="loading">
-    <view class="loading-spinner"></view>
-    <text>加载中...</text>
-  </view>
-  
-  <!-- 空状态 -->
-  <view wx:elif="{{memorials.length === 0}}" class="empty-state">
-    <view class="empty-icon">🏛️</view>
-    <text class="empty-title">还没有纪念馆</text>
-    <text class="empty-description">创建你的第一个纪念馆，记录珍贵的回忆</text>
-    <button class="btn btn-primary" bindtap="goToPersonalityTest">
-      <text class="btn-icon">🏛️</text>
-      <text class="btn-text">创建纪念馆</text>
+  <!-- 创建按钮 -->
+  <view class="create-section">
+    <button class="create-btn" bindtap="goToCreateMemorial">
+      <text class="btn-icon">➕</text>
+      <text class="btn-text">创建新纪念馆</text>
     </button>
   </view>
   
   <!-- 纪念馆列表 -->
-  <view wx:else class="memorials-grid">
+  <view wx:if="{{memorials.length > 0}}" class="memorials-grid">
     <view 
       wx:for="{{memorials}}" 
       wx:key="id" 
-      class="memorial-card glass-card"
+      class="memorial-card"
       bindtap="goToMemorialDetail"
-      data-memorial-id="{{item.id}}"
+      data-id="{{item.id}}"
     >
+      <!-- 纪念馆头部 -->
       <view class="memorial-header">
-        <text class="memorial-title">{{item.pet_name || '未命名'}}</text>
+        <view class="memorial-info">
+          <text class="memorial-title">{{item.pet_name}}</text>
+          <text class="memorial-species">{{item.species}} · {{item.breed}}</text>
+        </view>
         <view class="memorial-actions" catchtap="stopPropagation">
-          <button class="action-btn edit-btn" bindtap="editMemorial" data-id="{{item.id}}">
+          <button 
+            class="action-btn btn-edit" 
+            bindtap="editMemorial" 
+            data-id="{{item.id}}"
+          >
             <text class="btn-icon">✏️</text>
           </button>
-          <button class="action-btn share-btn" bindtap="shareMemorial" data-id="{{item.id}}">
-            <text class="btn-icon">🔗</text>
-          </button>
-          <button class="action-btn delete-btn" bindtap="deleteMemorial" data-id="{{item.id}}">
+          <button 
+            class="action-btn btn-delete" 
+            bindtap="deleteMemorial" 
+            data-id="{{item.id}}"
+          >
             <text class="btn-icon">🗑️</text>
           </button>
         </view>
       </view>
       
-      <view class="memorial-info">
-        <view class="info-item">
-          <text class="info-label">品种:</text>
-          <text class="info-value">{{item.species || '未知'}} {{item.breed || ''}}</text>
-        </view>
-        <view class="info-item">
-          <text class="info-label">性别:</text>
-          <text class="info-value">{{item.gender || '未知'}}</text>
-        </view>
-        <view class="info-item">
-          <text class="info-label">生日:</text>
-          <text class="info-value">{{item.birth_date || '未知'}}</text>
-        </view>
-        <view class="info-item">
-          <text class="info-label">纪念日:</text>
-          <text class="info-value">{{item.memorial_date || '未知'}}</text>
-        </view>
-      </view>
-      
-      <view class="memorial-photos">
+      <!-- 纪念馆照片 -->
+      <view wx:if="{{item.photos && item.photos.length > 0}}" class="memorial-photos">
         <image 
           wx:for="{{item.photos}}" 
           wx:for-item="photo" 
           wx:key="*this"
-          wx:for-index="photoIndex"
+          class="photo-item" 
           src="{{photo}}" 
-          class="photo-thumb"
-          bindtap="viewPhoto"
-          data-photo="{{photo}}"
+          mode="aspectFill"
         />
-        <view wx:if="{{item.photos.length > 5}}" class="photo-more">
-          +{{item.photos.length - 5}}
-        </view>
       </view>
       
-      <view class="memorial-description">
-        {{item.description || '暂无描述'}}
+      <!-- 纪念馆描述 -->
+      <view wx:if="{{item.description}}" class="memorial-description">
+        <text class="description-text">{{item.description}}</text>
       </view>
       
+      <!-- 纪念馆统计 -->
       <view class="memorial-stats">
         <view class="stat-item">
-          <text class="stat-number">{{item.photos.length}}</text>
-          <text class="stat-label">照片</text>
+          <text class="stat-icon">📸</text>
+          <text class="stat-text">{{item.photo_count || 0}} 张照片</text>
         </view>
         <view class="stat-item">
-          <text class="stat-number">{{item.views || 0}}</text>
-          <text class="stat-label">访问</text>
+          <text class="stat-icon">👁️</text>
+          <text class="stat-text">{{item.view_count || 0}} 次浏览</text>
         </view>
         <view class="stat-item">
-          <text class="stat-number">{{item.likes || 0}}</text>
-          <text class="stat-label">点赞</text>
+          <text class="stat-icon">❤️</text>
+          <text class="stat-text">{{item.like_count || 0}} 个赞</text>
         </view>
+      </view>
+      
+      <!-- 创建时间 -->
+      <view class="memorial-meta">
+        <text class="meta-text">创建于 {{item.created_at}}</text>
       </view>
     </view>
   </view>
   
-  <!-- 创建按钮 -->
-  <view class="create-btn" bindtap="goToPersonalityTest">
-    <text class="create-icon">+</text>
+  <!-- 空状态 -->
+  <view wx:else class="empty-state">
+    <text class="empty-icon">🏛️</text>
+    <text class="empty-title">还没有纪念馆</text>
+    <text class="empty-desc">创建您的第一个纪念馆，记录珍贵的回忆</text>
+    <button class="empty-btn" bindtap="goToCreateMemorial">
+      立即创建
+    </button>
+  </view>
+  
+  <!-- 加载状态 -->
+  <view wx:if="{{loading}}" class="loading-state">
+    <view class="loading-spinner"></view>
+    <text class="loading-text">加载中...</text>
   </view>
 </view>

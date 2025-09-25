@@ -1,0 +1,71 @@
+<!--pages/network-test/network-test.wxml-->
+<view class="container">
+  <view class="header">
+    <text class="title">网络诊断</text>
+    <text class="subtitle">检查网络连接和服务器状态</text>
+  </view>
+
+  <view class="test-section">
+    <button class="test-btn" bindtap="runDiagnostic">
+      <text class="btn-icon">🔍</text>
+      <text class="btn-text">开始诊断</text>
+    </button>
+  </view>
+
+  <view wx:if="{{diagnosticResult}}" class="result-section">
+    <text class="section-title">诊断结果</text>
+    
+    <view class="result-item">
+      <text class="result-label">网络连接：</text>
+      <text class="result-value {{diagnosticResult.connection.connected ? 'success' : 'error'}}">
+        {{diagnosticResult.connection.connected ? '已连接' : '未连接'}}
+      </text>
+    </view>
+    
+    <view class="result-item">
+      <text class="result-label">网络类型：</text>
+      <text class="result-value">{{diagnosticResult.connection.networkType}}</text>
+    </view>
+    
+    <view class="result-item">
+      <text class="result-label">API状态：</text>
+      <text class="result-value {{diagnosticResult.apiTest.success ? 'success' : 'error'}}">
+        {{diagnosticResult.apiTest.success ? '正常' : '异常'}}
+      </text>
+    </view>
+    
+    <view wx:if="{{diagnosticResult.apiTest.success}}" class="result-item">
+      <text class="result-label">响应时间：</text>
+      <text class="result-value">{{diagnosticResult.apiTest.responseTime}}ms</text>
+    </view>
+    
+    <view wx:if="{{!diagnosticResult.apiTest.success}}" class="result-item">
+      <text class="result-label">错误信息：</text>
+      <text class="result-value error">{{diagnosticResult.apiTest.error}}</text>
+    </view>
+    
+    <view class="result-item">
+      <text class="result-label">服务器地址：</text>
+      <text class="result-value">{{diagnosticResult.baseUrl}}</text>
+    </view>
+  </view>
+
+  <view wx:if="{{recommendations.length > 0}}" class="recommendations">
+    <text class="section-title">修复建议</text>
+    <view wx:for="{{recommendations}}" wx:key="*this" class="recommendation-item">
+      <text class="recommendation-text">• {{item}}</text>
+    </view>
+  </view>
+
+  <view class="test-urls">
+    <text class="section-title">测试URL</text>
+    <view class="url-item">
+      <text class="url-label">健康检查：</text>
+      <text class="url-value">{{baseUrl}}/api/health</text>
+    </view>
+    <view class="url-item">
+      <text class="url-label">注册接口：</text>
+      <text class="url-value">{{baseUrl}}/api/auth/register</text>
+    </view>
+  </view>
+</view>

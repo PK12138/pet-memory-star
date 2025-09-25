@@ -1,2 +1,107 @@
 <!--pages/memorial-detail/memorial-detail.wxml-->
-<text>pages/memorial-detail/memorial-detail.wxml</text>
+<view class="container">
+  <!-- 纪念馆头部 -->
+  <view class="memorial-header">
+    <view class="header-content">
+      <text class="pet-name">{{memorialInfo.pet_name}}</text>
+      <text class="pet-species">{{memorialInfo.species}} · {{memorialInfo.breed}}</text>
+      <text class="pet-dates">{{memorialInfo.birth_date}} - {{memorialInfo.memorial_date}}</text>
+    </view>
+    
+    <view class="header-actions">
+      <button class="action-btn btn-edit" bindtap="editMemorial">
+        <text class="btn-icon">✏️</text>
+      </button>
+      <button class="action-btn btn-share" bindtap="shareMemorial">
+        <text class="btn-icon">📤</text>
+      </button>
+    </view>
+  </view>
+  
+  <!-- 纪念馆照片 -->
+  <view wx:if="{{memorialInfo.photos && memorialInfo.photos.length > 0}}" class="photo-section">
+    <text class="section-title">珍贵回忆</text>
+    <view class="photo-grid">
+      <image 
+        wx:for="{{memorialInfo.photos}}" 
+        wx:key="*this"
+        class="photo-item" 
+        src="{{item}}" 
+        mode="aspectFill"
+        bindtap="previewPhoto"
+        data-url="{{item}}"
+      />
+    </view>
+  </view>
+  
+  <!-- 纪念馆信息 -->
+  <view class="info-section">
+    <text class="section-title">详细信息</text>
+    
+    <view class="info-grid">
+      <view wx:if="{{memorialInfo.age}}" class="info-item">
+        <text class="info-label">年龄</text>
+        <text class="info-value">{{memorialInfo.age}} 岁</text>
+      </view>
+      
+      <view wx:if="{{memorialInfo.gender}}" class="info-item">
+        <text class="info-label">性别</text>
+        <text class="info-value">{{memorialInfo.gender}}</text>
+      </view>
+      
+      <view wx:if="{{memorialInfo.color}}" class="info-item">
+        <text class="info-label">毛色</text>
+        <text class="info-value">{{memorialInfo.color}}</text>
+      </view>
+      
+      <view wx:if="{{memorialInfo.weight}}" class="info-item">
+        <text class="info-label">体重</text>
+        <text class="info-value">{{memorialInfo.weight}} kg</text>
+      </view>
+    </view>
+  </view>
+  
+  <!-- 纪念馆描述 -->
+  <view wx:if="{{memorialInfo.description}}" class="description-section">
+    <text class="section-title">纪念馆描述</text>
+    <view class="description-content">
+      <text class="description-text">{{memorialInfo.description}}</text>
+    </view>
+  </view>
+  
+  <!-- 性格特点 -->
+  <view wx:if="{{memorialInfo.personality}}" class="personality-section">
+    <text class="section-title">性格特点</text>
+    <view class="personality-content">
+      <text class="personality-text">{{memorialInfo.personality}}</text>
+    </view>
+  </view>
+  
+  <!-- 纪念馆统计 -->
+  <view class="stats-section">
+    <text class="section-title">纪念馆统计</text>
+    <view class="stats-grid">
+      <view class="stat-item">
+        <text class="stat-icon">📸</text>
+        <text class="stat-number">{{memorialInfo.photo_count || 0}}</text>
+        <text class="stat-label">张照片</text>
+      </view>
+      <view class="stat-item">
+        <text class="stat-icon">👁️</text>
+        <text class="stat-number">{{memorialInfo.view_count || 0}}</text>
+        <text class="stat-label">次浏览</text>
+      </view>
+      <view class="stat-item">
+        <text class="stat-icon">❤️</text>
+        <text class="stat-number">{{memorialInfo.like_count || 0}}</text>
+        <text class="stat-label">个赞</text>
+      </view>
+    </view>
+  </view>
+  
+  <!-- 创建信息 -->
+  <view class="meta-section">
+    <text class="meta-text">创建于 {{memorialInfo.created_at}}</text>
+    <text wx:if="{{memorialInfo.updated_at}}" class="meta-text">最后更新 {{memorialInfo.updated_at}}</text>
+  </view>
+</view>

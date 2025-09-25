@@ -15,6 +15,16 @@ from typing import Optional
 
 app = FastAPI(title="爪迹星·云纪念馆")
 
+# 健康检查接口
+@app.get("/api/health")
+async def health_check():
+    """健康检查接口"""
+    return {
+        "status": "healthy",
+        "message": "服务器运行正常",
+        "timestamp": "2025-09-18T13:36:23Z"
+    }
+
 # 添加session_token中间件
 @app.middleware("http")
 async def add_session_token_to_header(request: Request, call_next):

@@ -1,2 +1,193 @@
 <!--pages/memorial-edit/memorial-edit.wxml-->
-<text>pages/memorial-edit/memorial-edit.wxml</text>
+<view class="container">
+  <!-- 页面标题 -->
+  <view class="page-header">
+    <text class="page-title">编辑纪念馆</text>
+    <text class="page-subtitle">修改宠物信息和纪念馆内容</text>
+  </view>
+  
+  <!-- 编辑表单 -->
+  <view class="edit-form">
+    <!-- 基本信息 -->
+    <view class="form-section">
+      <text class="section-title">基本信息</text>
+      
+      <view class="form-group">
+        <text class="form-label">宠物姓名 *</text>
+        <input 
+          class="form-input" 
+          type="text" 
+          placeholder="请输入宠物姓名"
+          value="{{memorialInfo.pet_name}}"
+          bindinput="onPetNameInput"
+        />
+      </view>
+      
+      <view class="form-group">
+        <text class="form-label">宠物品种 *</text>
+        <input 
+          class="form-input" 
+          type="text" 
+          placeholder="请输入宠物品种"
+          value="{{memorialInfo.breed}}"
+          bindinput="onBreedInput"
+        />
+      </view>
+      
+      <view class="form-row">
+        <view class="form-group">
+          <text class="form-label">年龄</text>
+          <input 
+            class="form-input" 
+            type="number" 
+            placeholder="年龄"
+            value="{{memorialInfo.age}}"
+            bindinput="onAgeInput"
+          />
+        </view>
+        
+        <view class="form-group">
+          <text class="form-label">性别</text>
+          <picker 
+            class="form-picker" 
+            mode="selector" 
+            range="{{genderOptions}}"
+            value="{{memorialInfo.genderIndex}}"
+            bindchange="onGenderChange"
+          >
+            <view class="picker-text">{{memorialInfo.gender || '请选择性别'}}</view>
+          </picker>
+        </view>
+      </view>
+      
+      <view class="form-group">
+        <text class="form-label">毛色</text>
+        <input 
+          class="form-input" 
+          type="text" 
+          placeholder="请输入毛色"
+          value="{{memorialInfo.color}}"
+          bindinput="onColorInput"
+        />
+      </view>
+    </view>
+    
+    <!-- 纪念信息 -->
+    <view class="form-section">
+      <text class="section-title">纪念信息</text>
+      
+      <view class="form-group">
+        <text class="form-label">出生日期</text>
+        <picker 
+          class="form-picker" 
+          mode="date" 
+          value="{{memorialInfo.birth_date}}"
+          bindchange="onBirthDateChange"
+        >
+          <view class="picker-text">{{memorialInfo.birth_date || '请选择出生日期'}}</view>
+        </picker>
+      </view>
+      
+      <view class="form-group">
+        <text class="form-label">纪念日期</text>
+        <picker 
+          class="form-picker" 
+          mode="date" 
+          value="{{memorialInfo.memorial_date}}"
+          bindchange="onMemorialDateChange"
+        >
+          <view class="picker-text">{{memorialInfo.memorial_date || '请选择纪念日期'}}</view>
+        </picker>
+      </view>
+      
+      <view class="form-group">
+        <text class="form-label">体重 (kg)</text>
+        <input 
+          class="form-input" 
+          type="digit" 
+          placeholder="请输入体重"
+          value="{{memorialInfo.weight}}"
+          bindinput="onWeightInput"
+        />
+      </view>
+    </view>
+    
+    <!-- 描述信息 -->
+    <view class="form-section">
+      <text class="section-title">描述信息</text>
+      
+      <view class="form-group">
+        <text class="form-label">纪念馆描述</text>
+        <textarea 
+          class="form-textarea" 
+          placeholder="请输入纪念馆描述"
+          value="{{memorialInfo.description}}"
+          bindinput="onDescriptionInput"
+        ></textarea>
+      </view>
+      
+      <view class="form-group">
+        <text class="form-label">性格特点</text>
+        <textarea 
+          class="form-textarea" 
+          placeholder="请输入性格特点"
+          value="{{memorialInfo.personality}}"
+          bindinput="onPersonalityInput"
+        ></textarea>
+      </view>
+    </view>
+    
+    <!-- 照片管理 -->
+    <view class="form-section">
+      <text class="section-title">照片管理</text>
+      
+      <view class="photo-upload">
+        <button class="upload-btn" bindtap="choosePhotos">
+          <text class="btn-icon">📷</text>
+          <text class="btn-text">添加照片</text>
+        </button>
+      </view>
+      
+      <view wx:if="{{memorialInfo.photos && memorialInfo.photos.length > 0}}" class="photo-list">
+        <view 
+          wx:for="{{memorialInfo.photos}}" 
+          wx:key="*this" 
+          class="photo-item"
+        >
+          <image 
+            class="photo-image" 
+            src="{{item}}" 
+            mode="aspectFill"
+            bindtap="previewPhoto"
+            data-url="{{item}}"
+          />
+          <button 
+            class="photo-delete" 
+            bindtap="deletePhoto" 
+            data-index="{{index}}"
+          >
+            <text class="delete-icon">✕</text>
+          </button>
+        </view>
+      </view>
+    </view>
+  </view>
+  
+  <!-- 操作按钮 -->
+  <view class="action-buttons">
+    <button 
+      class="btn btn-secondary" 
+      bindtap="goBack"
+    >
+      取消
+    </button>
+    
+    <button 
+      class="btn btn-primary" 
+      bindtap="saveMemorial"
+      disabled="{{loading}}"
+    >
+      {{loading ? '保存中...' : '保存修改'}}
+    </button>
+  </view>
+</view>

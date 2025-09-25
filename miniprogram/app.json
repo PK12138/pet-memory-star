@@ -10,7 +10,8 @@
     "pages/photo-manager/photo-manager",
     "pages/payment/payment",
     "pages/orders/orders",
-    "pages/personality-test/personality-test"
+    "pages/personality-test/personality-test",
+    "pages/network-test/network-test"
   ],
   "window": {
     "backgroundTextStyle": "light",

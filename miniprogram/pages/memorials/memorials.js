@@ -4,7 +4,7 @@ const app = getApp()
 Page({
   data: {
     memorials: [],
-    loading: true
+    loading: false
   },
 
   onLoad() {
@@ -26,149 +26,114 @@ Page({
 
   // 加载纪念馆列表
   async loadMemorials() {
+    this.setData({
+      loading: true
+    })
+
     try {
-      this.setData({ loading: true })
-      
       const res = await app.request({
         url: '/api/user/memorials'
       })
-      
+
       if (res.success) {
         this.setData({
           memorials: res.memorials || []
         })
       } else {
-        app.showError(res.message || '加载纪念馆列表失败')
+        wx.showToast({
+          title: res.message || '加载失败',
+          icon: 'none'
+        })
       }
     } catch (error) {
       console.error('加载纪念馆列表失败:', error)
-      app.showError('网络错误，请稍后重试')
+      wx.showToast({
+        title: '网络错误',
+        icon: 'none'
+      })
     } finally {
-      this.setData({ loading: false })
+      this.setData({
+        loading: false
+      })
     }
   },
 
   // 跳转到纪念馆详情
   goToMemorialDetail(e) {
-    const memorialId = e.currentTarget.dataset.memorialId
+    const id = e.currentTarget.dataset.id
     wx.navigateTo({
-      url: `/pages/memorial-detail/memorial-detail?id=${memorialId}`
+      url: `/pages/memorial-detail/memorial-detail?id=${id}`
     })
   },
 
   // 编辑纪念馆
   editMemorial(e) {
     e.stopPropagation()
-    const memorialId = e.currentTarget.dataset.id
+    const id = e.currentTarget.dataset.id
     wx.navigateTo({
-      url: `/pages/memorial-edit/memorial-edit?id=${memorialId}`
-    })
-  },
-
-  // 分享纪念馆
-  shareMemorial(e) {
-    e.stopPropagation()
-    const memorialId = e.currentTarget.dataset.id
-    
-    wx.showActionSheet({
-      itemList: ['分享到微信', '分享到朋友圈', '复制链接'],
-      success: (res) => {
-        switch (res.tapIndex) {
-          case 0:
-            this.shareToWeChat(memorialId)
-            break
-          case 1:
-            this.shareToMoments(memorialId)
-            break
-          case 2:
-            this.copyLink(memorialId)
-            break
-        }
-      }
-    })
-  },
-
-  // 分享到微信
-  shareToWeChat(memorialId) {
-    const shareUrl = `${app.globalData.baseUrl}/memorial/${memorialId}`
-    wx.setClipboardData({
-      data: shareUrl,
-      success: () => {
-        app.showSuccess('链接已复制，可以分享给好友')
-      }
-    })
-  },
-
-  // 分享到朋友圈
-  shareToMoments(memorialId) {
-    const shareUrl = `${app.globalData.baseUrl}/memorial/${memorialId}`
-    wx.setClipboardData({
-      data: shareUrl,
-      success: () => {
-        app.showSuccess('链接已复制，可以分享到朋友圈')
-      }
-    })
-  },
-
-  // 复制链接
-  copyLink(memorialId) {
-    const shareUrl = `${app.globalData.baseUrl}/memorial/${memorialId}`
-    wx.setClipboardData({
-      data: shareUrl,
-      success: () => {
-        app.showSuccess('链接已复制到剪贴板')
-      }
+      url: `/pages/memorial-edit/memorial-edit?id=${id}`
     })
   },
 
   // 删除纪念馆
   deleteMemorial(e) {
     e.stopPropagation()
-    const memorialId = e.currentTarget.dataset.id
+    const id = e.currentTarget.dataset.id
+    const memorial = this.data.memorials.find(m => m.id === id)
     
+    if (!memorial) return
+
     wx.showModal({
       title: '确认删除',
-      content: '确定要删除这个纪念馆吗？删除后将无法恢复。',
+      content: `确定要删除"${memorial.pet_name}"的纪念馆吗？此操作不可恢复。`,
+      confirmText: '删除',
+      confirmColor: '#e74c3c',
       success: async (res) => {
         if (res.confirm) {
-          await this.confirmDelete(memorialId)
+          await this.performDelete(id)
         }
       }
     })
   },
 
-  // 确认删除
-  async confirmDelete(memorialId) {
+  // 执行删除操作
+  async performDelete(id) {
+    wx.showLoading({
+      title: '删除中...'
+    })
+
     try {
-      app.showLoading('删除中...')
-      
       const res = await app.request({
-        url: `/api/memorial/delete/${memorialId}`,
+        url: `/api/memorial/delete/${id}`,
         method: 'DELETE'
       })
-      
+
       if (res.success) {
-        app.hideLoading()
-        app.showSuccess('纪念馆删除成功')
-        this.loadMemorials() // 重新加载列表
+        wx.showToast({
+          title: '删除成功',
+          icon: 'success'
+        })
+        
+        // 从列表中移除
+        const memorials = this.data.memorials.filter(m => m.id !== id)
+        this.setData({
+          memorials
+        })
       } else {
-        app.hideLoading()
-        app.showError(res.message || '删除失败')
+        wx.showToast({
+          title: res.message || '删除失败',
+          icon: 'none'
+        })
       }
     } catch (error) {
       console.error('删除纪念馆失败:', error)
-      app.hideLoading()
-      app.showError('网络错误，请稍后重试')
+      wx.showToast({
+        title: '删除失败',
+        icon: 'none'
+      })
+    } finally {
+      wx.hideLoading()
     }
-  },
-
-  // 查看照片
-  viewPhoto(e) {
-    const photo = e.currentTarget.dataset.photo
-    wx.previewImage({
-      urls: [photo],
-      current: photo
-    })
   },
 
   // 跳转到创建纪念馆

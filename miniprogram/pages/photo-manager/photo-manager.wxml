@@ -3,41 +3,145 @@
   <!-- 页面标题 -->
   <view class="page-header">
     <text class="page-title">照片管理</text>
-    <text class="page-subtitle">管理您的珍贵照片</text>
+    <text class="page-subtitle">管理您的珍贵回忆</text>
   </view>
   
-  <!-- 加载状态 -->
-  <view wx:if="{{loading}}" class="loading">
-    <view class="loading-spinner"></view>
-    <text>加载中...</text>
+  <!-- 筛选标签 -->
+  <view class="filter-tabs">
+    <button 
+      class="filter-tab {{currentFilter === 'all' ? 'active' : ''}}" 
+      bindtap="switchFilter" 
+      data-filter="all"
+    >
+      全部照片
+    </button>
+    <button 
+      class="filter-tab {{currentFilter === 'memorial' ? 'active' : ''}}" 
+      bindtap="switchFilter" 
+      data-filter="memorial"
+    >
+      纪念馆照片
+    </button>
+    <button 
+      class="filter-tab {{currentFilter === 'recent' ? 'active' : ''}}" 
+      bindtap="switchFilter" 
+      data-filter="recent"
+    >
+      最近上传
+    </button>
   </view>
   
-  <!-- 空状态 -->
-  <view wx:elif="{{photos.length === 0}}" class="empty-state">
-    <view class="empty-icon">📷</view>
-    <text class="empty-title">还没有照片</text>
-    <text class="empty-description">上传您的第一张照片</text>
-    <button class="btn btn-primary" bindtap="uploadPhotos">上传照片</button>
+  <!-- 上传区域 -->
+  <view class="upload-section">
+    <button class="upload-btn" bindtap="choosePhotos">
+      <text class="btn-icon">📷</text>
+      <text class="btn-text">上传照片</text>
+    </button>
+    <text class="upload-hint">支持多选，最多9张</text>
+  </view>
+  
+  <!-- 照片统计 -->
+  <view class="stats-section">
+    <view class="stat-item">
+      <text class="stat-number">{{totalPhotos}}</text>
+      <text class="stat-label">总照片数</text>
+    </view>
+    <view class="stat-item">
+      <text class="stat-number">{{memorialPhotos}}</text>
+      <text class="stat-label">纪念馆照片</text>
+    </view>
+    <view class="stat-item">
+      <text class="stat-number">{{recentPhotos}}</text>
+      <text class="stat-label">最近上传</text>
+    </view>
   </view>
   
   <!-- 照片网格 -->
-  <view wx:else class="photos-grid">
+  <view wx:if="{{photos.length > 0}}" class="photo-grid">
     <view 
       wx:for="{{photos}}" 
       wx:key="id" 
       class="photo-item"
-      bindtap="viewPhoto"
-      data-photo="{{item}}"
+      bindtap="previewPhoto"
+      data-index="{{index}}"
     >
-      <image src="{{item.url}}" class="photo-image" />
-      <view class="photo-actions">
-        <button class="action-btn delete-btn" bindtap="deletePhoto" data-id="{{item.id}}" catchtap="stopPropagation">🗑️</button>
+      <image 
+        class="photo-image" 
+        src="{{item.url}}" 
+        mode="aspectFill"
+      />
+      
+      <!-- 照片信息 -->
+      <view class="photo-info">
+        <text class="photo-name">{{item.name || '未命名'}}</text>
+        <text class="photo-date">{{item.upload_date}}</text>
+        <text wx:if="{{item.memorial_name}}" class="photo-memorial">{{item.memorial_name}}</text>
+      </view>
+      
+      <!-- 操作按钮 -->
+      <view class="photo-actions" catchtap="stopPropagation">
+        <button 
+          class="action-btn btn-edit" 
+          bindtap="editPhoto" 
+          data-id="{{item.id}}"
+        >
+          <text class="btn-icon">✏️</text>
+        </button>
+        <button 
+          class="action-btn btn-delete" 
+          bindtap="deletePhoto" 
+          data-id="{{item.id}}"
+        >
+          <text class="btn-icon">🗑️</text>
+        </button>
+      </view>
+      
+      <!-- 选择框 -->
+      <view wx:if="{{selectMode}}" class="photo-select">
+        <checkbox 
+          class="select-checkbox" 
+          checked="{{item.selected}}"
+          bindtap="toggleSelect"
+          data-id="{{item.id}}"
+        />
       </view>
     </view>
   </view>
   
-  <!-- 上传按钮 -->
-  <view class="upload-btn" bindtap="uploadPhotos">
-    <text class="upload-icon">+</text>
+  <!-- 空状态 -->
+  <view wx:else class="empty-state">
+    <text class="empty-icon">📸</text>
+    <text class="empty-title">还没有照片</text>
+    <text class="empty-desc">上传您的第一张照片，记录珍贵的回忆</text>
+    <button class="empty-btn" bindtap="choosePhotos">
+      立即上传
+    </button>
+  </view>
+  
+  <!-- 批量操作栏 -->
+  <view wx:if="{{selectMode}}" class="batch-actions">
+    <button class="batch-btn" bindtap="selectAll">
+      {{allSelected ? '取消全选' : '全选'}}
+    </button>
+    <button class="batch-btn btn-delete" bindtap="batchDelete">
+      删除选中 ({{selectedCount}})
+    </button>
+    <button class="batch-btn btn-cancel" bindtap="exitSelectMode">
+      取消
+    </button>
+  </view>
+  
+  <!-- 底部操作栏 -->
+  <view wx:if="{{!selectMode && photos.length > 0}}" class="bottom-actions">
+    <button class="action-btn-large" bindtap="enterSelectMode">
+      <text class="btn-icon">☑️</text>
+      <text class="btn-text">批量管理</text>
+    </button>
+  </view>
+  
+  <!-- 加载状态 -->
+  <view wx:if="{{loading}}" class="loading-state">
+    <view class="loading-spinner"></view>
+    <text class="loading-text">加载中...</text>
   </view>
 </view>

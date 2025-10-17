@@ -1,7 +1,12 @@
 // utils/api.js
 // API请求工具类
 
-const config = require('../config/config')
+// 强制使用生产环境配置
+// 可以使用域名或IP地址（不带端口号，通过Nginx反向代理到8000端口）
+const config = {
+  baseUrl: 'http://42.193.230.145'  // 使用IP地址
+  // baseUrl: 'http://pettrailstar.cn'  // 使用域名
+}
 
 class ApiService {
   constructor() {

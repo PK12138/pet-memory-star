@@ -7,7 +7,9 @@ module.exports = {
   appSecret: 'c4b410be644231ff5635ec960dde38c1',
   
   // 后端API地址
-  baseUrl: 'https://pettrailstar.cn', // 你的域名
+  // 测试结果：http://pettrailstar.cn 可以正常访问
+  // 注意：直接访问IP会超时，请使用域名
+  baseUrl: 'http://pettrailstar.cn', // 服务器域名（已测试可用）
   
   // 微信API地址
   wechatApiUrl: 'https://api.weixin.qq.com',

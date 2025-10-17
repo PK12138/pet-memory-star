@@ -53,7 +53,7 @@
     "disableSWC": true
   },
   "compileType": "miniprogram",
-  "libVersion": "2.19.4",
+  "libVersion": "3.10.0",
   "appid": "wx9572f66945407446",
   "projectname": "爪迹星·云纪念馆",
   "isGameTourist": false,

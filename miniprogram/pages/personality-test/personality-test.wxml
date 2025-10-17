@@ -111,12 +111,12 @@
     </button>
     
     <button 
-      wx:if="{{!showResult && (showPetInfo || currentQuestion < totalQuestions)}}" 
+      wx:if="{{!showResult && (showPetInfo || currentQuestion <= totalQuestions)}}" 
       class="btn btn-primary" 
       bindtap="nextStep"
       disabled="{{!canProceed}}"
     >
-      下一步
+      {{currentQuestion === totalQuestions ? '完成测试' : '下一步'}}
     </button>
     
     <button 

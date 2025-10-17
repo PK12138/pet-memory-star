@@ -15,11 +15,13 @@ Page({
 
   onLoad() {
     console.log('首页加载')
+    console.log('首页 onLoad() 被调用')
     this.checkAuthStatus()
   },
 
   onShow() {
     console.log('首页显示')
+    console.log('首页 onShow() 被调用')
     this.checkAuthStatus()
   },
 
@@ -35,6 +37,13 @@ Page({
     try {
       const userInfo = app.globalData.userInfo
       const sessionToken = app.globalData.sessionToken
+      
+      console.log('首页检查登录状态:', {
+        hasUserInfo: !!userInfo,
+        hasSessionToken: !!sessionToken,
+        userInfo: userInfo,
+        sessionToken: sessionToken
+      })
       
       if (userInfo && sessionToken) {
         this.setData({

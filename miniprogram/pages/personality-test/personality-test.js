@@ -35,48 +35,86 @@ Page({
 
   // 加载问题数据
   async loadQuestions() {
-    try {
-      const res = await app.request({
-        url: '/api/personality-questions'
-      })
-      
-      if (res.success) {
-        this.setData({
-          questions: res.questions,
-          totalQuestions: Object.keys(res.questions).length
-        })
-        this.updateProgress()
+    console.log('开始加载问题')
+    
+    // 使用本地题目数据（避免API问题）
+    const localQuestions = {
+      1: {
+        id: 1,
+        question: "你的宠物喜欢什么样的活动？",
+        options: ["安静地待着", "适度运动", "非常活跃"]
+      },
+      2: {
+        id: 2,
+        question: "你的宠物对陌生人的态度如何？",
+        options: ["非常警惕", "保持距离", "友好热情"]
+      },
+      3: {
+        id: 3,
+        question: "你的宠物喜欢什么样的环境？",
+        options: ["安静独处", "适度社交", "热闹环境"]
+      },
+      4: {
+        id: 4,
+        question: "你的宠物的食欲如何？",
+        options: ["挑食", "正常", "胃口很好"]
+      },
+      5: {
+        id: 5,
+        question: "你的宠物对声音的反应如何？",
+        options: ["非常敏感", "一般", "不太在意"]
+      },
+      6: {
+        id: 6,
+        question: "你的宠物喜欢玩玩具吗？",
+        options: ["不太感兴趣", "偶尔玩玩", "非常喜欢"]
+      },
+      7: {
+        id: 7,
+        question: "你的宠物睡眠时间如何？",
+        options: ["很长", "正常", "较短"]
+      },
+      8: {
+        id: 8,
+        question: "你的宠物对其他宠物的态度如何？",
+        options: ["回避", "中立", "友好"]
+      },
+      9: {
+        id: 9,
+        question: "你的宠物在家里的表现如何？",
+        options: ["安静乖巧", "活泼好动", "非常调皮"]
+      },
+      10: {
+        id: 10,
+        question: "你的宠物学习新技能的速度如何？",
+        options: ["较慢", "一般", "很快"]
       }
-    } catch (error) {
-      console.error('加载问题失败:', error)
-      wx.showToast({
-        title: '加载失败',
-        icon: 'none'
-      })
     }
+    
+    this.setData({
+      questions: localQuestions,
+      totalQuestions: Object.keys(localQuestions).length
+    })
+    
+    console.log('问题加载完成:', localQuestions)
+    this.updateProgress()
   },
 
   // 加载问题选项
-  async loadQuestionOptions(questionId) {
-    try {
-      const res = await app.request({
-        url: `/api/personality-options/${questionId}`
+  loadQuestionOptions(questionId) {
+    console.log('加载第', questionId, '题')
+    
+    const questionData = this.data.questions[questionId]
+    if (questionData) {
+      this.setData({
+        currentQuestionData: questionData,
+        currentQuestionOptions: questionData.options
       })
-      
-      if (res.success) {
-        this.setData({
-          currentQuestionData: this.data.questions[questionId],
-          currentQuestionOptions: res.options
-        })
-        this.updateProgress()
-        this.checkCanProceed()
-      }
-    } catch (error) {
-      console.error('加载选项失败:', error)
-      wx.showToast({
-        title: '加载失败',
-        icon: 'none'
-      })
+      console.log('当前题目:', questionData)
+      this.updateProgress()
+      this.checkCanProceed()
+    } else {
+      console.error('找不到题目:', questionId)
     }
   },
 

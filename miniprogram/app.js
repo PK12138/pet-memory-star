@@ -1,6 +1,40 @@
 // app.js
-const config = require('./config/config')
+// 强制使用生产环境配置，避免缓存问题
+const config = {
+  // 小程序信息
+  appId: 'wx9572f66945407446',
+  appSecret: 'c4b410be644231ff5635ec960dde38c1',
+  
+  // 后端API地址 - 强制设置为服务器地址
+  baseUrl: 'http://pettrailstar.cn',
+  
+  // 微信API地址
+  wechatApiUrl: 'https://api.weixin.qq.com',
+  
+  // 其他配置
+  upload: {
+    maxFileSize: 10 * 1024 * 1024,
+    allowedImageTypes: ['jpg', 'jpeg', 'png', 'gif', 'webp'],
+    allowedVideoTypes: ['mp4', 'mov', 'avi']
+  },
+  pagination: {
+    defaultPageSize: 20,
+    maxPageSize: 100
+  },
+  cache: {
+    userInfoExpire: 24 * 60 * 60 * 1000,
+    memorialsExpire: 5 * 60 * 1000,
+    photosExpire: 10 * 60 * 1000
+  }
+}
+
 const apiService = require('./utils/api')
+
+// 强制输出配置信息用于调试
+console.log('=== 小程序配置信息 ===')
+console.log('baseUrl:', config.baseUrl)
+console.log('appId:', config.appId)
+console.log('========================')
 
 App({
   globalData: {
@@ -52,9 +86,13 @@ App({
   // 获取用户信息
   async getUserInfo() {
     if (!this.globalData.sessionToken) return
+    
+    console.log('getUserInfo() 被调用，sessionToken:', this.globalData.sessionToken)
 
     try {
       const res = await apiService.getUserInfo()
+      console.log('getUserInfo() 响应:', res)
+      
       if (res.success) {
         this.globalData.userInfo = res.user
         this.globalData.userLevel = res.user.user_level || 0
@@ -71,6 +109,12 @@ App({
 
   // 登录
   login(sessionToken, userInfo) {
+    console.log('app.login() 被调用:', {
+      hasSessionToken: !!sessionToken,
+      hasUserInfo: !!userInfo,
+      userInfo: userInfo
+    })
+    
     this.globalData.sessionToken = sessionToken
     this.globalData.userInfo = userInfo
     wx.setStorageSync('sessionToken', sessionToken)

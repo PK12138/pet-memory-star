@@ -280,6 +280,86 @@ async def get_personality_options(question_id: int):
     options = memorial_service.get_personality_answer_options(question_id)
     return {"options": options}
 
+@app.post("/api/memorial/create")
+async def create_memorial_json(
+    request: Request,
+    current_user: dict = Depends(get_current_user)
+):
+    """创建纪念馆API（JSON格式，适用于小程序）"""
+    try:
+        data = await request.json()
+        
+        # 获取用户信息
+        user_id = current_user["id"]
+        user_email = current_user["email"]
+        
+        # 检查用户权限
+        permission_check = auth_service.can_create_memorial(user_id)
+        if not permission_check["can_create"]:
+            return JSONResponse(
+                content={
+                    "success": False,
+                    "message": permission_check["message"]
+                },
+                status_code=403
+            )
+        
+        # 获取提交的数据
+        pet_name = data.get("pet_name", "")
+        breed = data.get("breed", "")
+        species = breed  # 使用breed作为species
+        age = data.get("age", "")
+        gender = data.get("gender", "")
+        description = data.get("description", "")
+        personality = data.get("personality", "")
+        
+        # 构建宠物信息
+        import datetime
+        pet_info = {
+            "name": pet_name,
+            "species": species,
+            "breed": breed,
+            "gender": gender,
+            "birth_date": "",
+            "memorial_date": datetime.datetime.now().strftime("%Y-%m-%d"),
+            "weight": 0.0,
+            "status": "alive"
+        }
+        
+        # 创建纪念馆（暂时不上传照片）
+        memorial_url, personality_type, ai_letter = memorial_service.create_memorial_advanced(
+            email=user_email,
+            pet_info=pet_info,
+            photos=[],  # 小程序可以稍后上传照片
+            personality_answers={},
+            user_id=user_id
+        )
+        
+        # 返回成功结果
+        return JSONResponse(
+            content={
+                "success": True,
+                "message": "纪念馆创建成功",
+                "memorial_url": memorial_url,
+                "memorial_id": memorial_url.split("/")[-1] if memorial_url else "",
+                "personality_type": personality_type,
+                "ai_letter": ai_letter
+            }
+        )
+    
+    except Exception as e:
+        print(f"❌ 创建纪念馆失败: {str(e)}")
+        import traceback
+        traceback.print_exc()
+        return JSONResponse(
+            content={
+                "success": False,
+                "message": f"创建失败：{str(e)}"
+            },
+            status_code=500
+        )
+
+
 @app.post("/create-memorial-advanced")
 async def create_memorial_advanced(
     request: Request,
@@ -297,7 +377,7 @@ async def create_memorial_advanced(
     photos: list[UploadFile] = File(...),
     personality_answers: str = Form("{}")
 ):
-    """创建纪念馆完整流程（包含性格测试和AI信件）"""
+    """创建纪念馆完整流程（包含性格测试和AI信件）- 网页版"""
     try:
         # 检查用户权限
         user_id = current_user["id"]

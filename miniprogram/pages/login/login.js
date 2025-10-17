@@ -101,6 +101,8 @@ Page({
     
     this.setLoading(true)
     
+    console.log('开始登录请求:', { email: email })
+    
     try {
       const res = await app.request({
         url: '/api/auth/login',
@@ -111,19 +113,31 @@ Page({
         }
       })
       
+      console.log('登录请求响应:', res)
+      
       if (res.success) {
         // 登录成功
         this.showSuccess('登录成功！')
         
-        // 保存用户信息到全局
-        app.globalData.userInfo = res.user
-        app.globalData.sessionToken = res.session_token
-        app.globalData.userLevel = res.user_level || 0
+        // 调试输出
+        console.log('登录成功响应:', JSON.stringify(res))
+        
+        // 保存用户信息到全局 - 使用 app.login() 方法确保完整流程
+        app.login(res.session_token, res.user)
         
         // 延迟跳转
+        console.log('准备跳转到首页，延迟1.5秒')
         setTimeout(() => {
-          wx.switchTab({
-            url: '/pages/index/index'
+          console.log('执行跳转到首页')
+          // 使用 reLaunch 而不是 switchTab（因为 app.json 中没有配置 tabBar）
+          wx.reLaunch({
+            url: '/pages/index/index',
+            success: () => {
+              console.log('跳转成功')
+            },
+            fail: (err) => {
+              console.error('跳转失败:', err)
+            }
           })
         }, 1500)
       } else {

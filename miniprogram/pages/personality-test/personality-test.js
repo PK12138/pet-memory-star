@@ -10,12 +10,23 @@ Page({
     showResult: false,
     petInfo: {
       name: '',
+      species: '',
+      speciesIndex: -1,
       breed: '',
-      age: '',
+      color: '',
       gender: '',
-      genderIndex: 0
+      genderIndex: -1,
+      weight: '',
+      birthDate: '',
+      memorialDate: '',
+      status: '',
+      statusIndex: -1,
+      address: '',
+      photos: []
     },
+    speciesOptions: ['狗', '猫', '兔子', '仓鼠', '鸟', '其他'],
     genderOptions: ['公', '母'],
+    statusOptions: ['健在', '离世', 'AI生成', '其他'],
     questions: {},
     currentQuestionData: null,
     currentQuestionOptions: [],
@@ -140,7 +151,13 @@ Page({
     let canProceed = false
     
     if (showPetInfo) {
-      canProceed = petInfo.name && petInfo.breed && petInfo.age && petInfo.gender
+      // 必填项：宠物姓名、种类、纪念日期、状态、地址、照片
+      canProceed = petInfo.name && 
+                   petInfo.species && 
+                   petInfo.memorialDate && 
+                   petInfo.status && 
+                   petInfo.address &&
+                   petInfo.photos.length > 0
     } else {
       canProceed = answers[currentQuestion] !== undefined
     }
@@ -158,6 +175,16 @@ Page({
     this.checkCanProceed()
   },
 
+  // 宠物种类选择
+  onSpeciesChange(e) {
+    const index = e.detail.value
+    this.setData({
+      'petInfo.species': this.data.speciesOptions[index],
+      'petInfo.speciesIndex': index
+    })
+    this.checkCanProceed()
+  },
+
   // 宠物品种输入
   onPetBreedInput(e) {
     this.setData({
@@ -166,10 +193,10 @@ Page({
     this.checkCanProceed()
   },
 
-  // 宠物年龄输入
-  onPetAgeInput(e) {
+  // 毛色输入
+  onPetColorInput(e) {
     this.setData({
-      'petInfo.age': e.detail.value
+      'petInfo.color': e.detail.value
     })
     this.checkCanProceed()
   },
@@ -180,6 +207,83 @@ Page({
     this.setData({
       'petInfo.gender': this.data.genderOptions[index],
       'petInfo.genderIndex': index
+    })
+    this.checkCanProceed()
+  },
+
+  // 体重输入
+  onPetWeightInput(e) {
+    this.setData({
+      'petInfo.weight': e.detail.value
+    })
+    this.checkCanProceed()
+  },
+
+  // 出生日期选择
+  onBirthDateChange(e) {
+    this.setData({
+      'petInfo.birthDate': e.detail.value
+    })
+    this.checkCanProceed()
+  },
+
+  // 纪念日期选择
+  onMemorialDateChange(e) {
+    this.setData({
+      'petInfo.memorialDate': e.detail.value
+    })
+    this.checkCanProceed()
+  },
+
+  // 状态选择
+  onStatusChange(e) {
+    const index = e.detail.value
+    this.setData({
+      'petInfo.status': this.data.statusOptions[index],
+      'petInfo.statusIndex': index
+    })
+    this.checkCanProceed()
+  },
+
+  // 地址输入
+  onPetAddressInput(e) {
+    this.setData({
+      'petInfo.address': e.detail.value
+    })
+    this.checkCanProceed()
+  },
+
+  // 选择图片
+  chooseImage(e) {
+    // 阻止事件冒泡
+    if (e.currentTarget.dataset.index !== undefined) {
+      return
+    }
+    
+    const maxCount = 9 - this.data.petInfo.photos.length
+    
+    wx.chooseImage({
+      count: maxCount,
+      sizeType: ['compressed'],
+      sourceType: ['album', 'camera'],
+      success: (res) => {
+        const tempFilePaths = res.tempFilePaths
+        const photos = this.data.petInfo.photos.concat(tempFilePaths)
+        this.setData({
+          'petInfo.photos': photos
+        })
+        this.checkCanProceed()
+      }
+    })
+  },
+
+  // 删除图片
+  deleteImage(e) {
+    const index = e.currentTarget.dataset.index
+    const photos = this.data.petInfo.photos
+    photos.splice(index, 1)
+    this.setData({
+      'petInfo.photos': photos
     })
     this.checkCanProceed()
   },

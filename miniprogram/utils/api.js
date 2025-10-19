@@ -2,10 +2,10 @@
 // API请求工具类
 
 // 强制使用生产环境配置
-// 使用域名（最稳定，所有接口测试通过）
+// 使用IP地址（避免域名备案问题）
 const config = {
-  baseUrl: 'http://pettrailstar.cn'  // ✅ 推荐：域名访问（3/3测试通过）
-  // baseUrl: 'http://42.193.230.145'  // IP地址80端口（2/3测试通过）
+  baseUrl: 'http://42.193.230.145'  // ✅ IP地址80端口（避免域名返回备案HTML）
+  // baseUrl: 'http://pettrailstar.cn'  // 域名（备案未完成，返回HTML）
   // baseUrl: 'http://42.193.230.145:8000'  // 8000端口（云安全组未生效）
 }
 

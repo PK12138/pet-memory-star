@@ -5,8 +5,8 @@ const config = {
   appId: 'wx9572f66945407446',
   appSecret: 'c4b410be644231ff5635ec960dde38c1',
   
-  // 后端API地址 - 使用域名（最稳定，所有接口测试通过）
-  baseUrl: 'http://pettrailstar.cn',
+  // 后端API地址 - 使用IP地址（避免域名备案问题）
+  baseUrl: 'http://42.193.230.145',
   
   // 微信API地址
   wechatApiUrl: 'https://api.weixin.qq.com',
@@ -93,17 +93,23 @@ App({
       const res = await apiService.getUserInfo()
       console.log('getUserInfo() 响应:', res)
       
-      if (res.success) {
-        this.globalData.userInfo = res.user
-        this.globalData.userLevel = res.user.user_level || 0
-        this.globalData.permissions = res.permissions || {}
-        wx.setStorageSync('userInfo', res.user)
-      } else {
-        this.logout()
+      // 检查响应是否为有效的JSON对象
+      if (typeof res === 'object' && res !== null) {
+        if (res.success) {
+          this.globalData.userInfo = res.user
+          this.globalData.userLevel = res.user.user_level || 0
+          this.globalData.permissions = res.permissions || {}
+          wx.setStorageSync('userInfo', res.user)
+        } else if (res.success === false) {
+          // 只有明确返回 success: false 时才登出
+          this.logout()
+        }
+        // 如果返回的不是预期的JSON格式（如HTML），则忽略，不清除登录状态
       }
     } catch (error) {
       console.error('获取用户信息失败:', error)
-      this.logout()
+      // 网络错误时不清除登录状态，保持用户已登录
+      console.log('保持登录状态')
     }
   },
 
@@ -117,9 +123,11 @@ App({
     
     this.globalData.sessionToken = sessionToken
     this.globalData.userInfo = userInfo
+    this.globalData.userLevel = userInfo?.user_level || 0
     wx.setStorageSync('sessionToken', sessionToken)
     wx.setStorageSync('userInfo', userInfo)
-    this.getUserInfo()
+    // 暂时不调用 getUserInfo()，因为域名备案问题导致返回HTML
+    // this.getUserInfo()
   },
 
   // 登出

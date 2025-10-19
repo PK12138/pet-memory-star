@@ -79,12 +79,20 @@
 
 .section-title {
   display: block;
-  font-size: 32rpx;
+  font-size: 36rpx;
   font-weight: 700;
-  color: white;
-  margin-bottom: 30rpx;
+  color: #ffffff;
+  margin-bottom: 35rpx;
   text-align: center;
-  text-shadow: 0 2rpx 4rpx rgba(0, 0, 0, 0.1);
+  text-shadow: 0 3rpx 10rpx rgba(0, 0, 0, 0.3);
+  letter-spacing: 2rpx;
+}
+
+/* 单列表单布局 */
+.form-list {
+  display: flex;
+  flex-direction: column;
+  gap: 25rpx;
 }
 
 .form-grid {
@@ -98,54 +106,65 @@
   flex-direction: column;
 }
 
+/* 全宽表单组 */
+.form-group-full {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+}
+
 .form-label {
   display: block;
-  font-size: 26rpx;
-  font-weight: 600;
-  color: white;
-  margin-bottom: 15rpx;
-  text-shadow: 0 2rpx 4rpx rgba(0, 0, 0, 0.1);
+  font-size: 28rpx;
+  font-weight: 700;
+  color: #ffffff;
+  margin-bottom: 12rpx;
+  text-shadow: 0 2rpx 8rpx rgba(0, 0, 0, 0.3);
+  letter-spacing: 1rpx;
 }
 
 .form-input {
   width: 100%;
-  padding: 20rpx;
-  background: rgba(255, 255, 255, 0.1);
+  padding: 24rpx 20rpx;
+  background: rgba(255, 255, 255, 0.25);
   backdrop-filter: blur(20rpx);
   -webkit-backdrop-filter: blur(20rpx);
-  border: 1rpx solid rgba(255, 255, 255, 0.2);
+  border: 2rpx solid rgba(255, 255, 255, 0.4);
   border-radius: 15rpx;
-  font-size: 26rpx;
-  color: white;
+  font-size: 28rpx;
+  color: #ffffff;
   transition: all 0.3s ease;
   font-weight: 500;
+  box-shadow: 0 4rpx 12rpx rgba(0, 0, 0, 0.1);
 }
 
 .form-input::placeholder {
-  color: rgba(255, 255, 255, 0.6);
+  color: rgba(255, 255, 255, 0.7);
+  font-weight: 400;
 }
 
 .form-input:focus {
-  border-color: rgba(255, 255, 255, 0.5);
-  box-shadow: 0 0 0 6rpx rgba(255, 255, 255, 0.1);
-  background: rgba(255, 255, 255, 0.15);
+  border-color: rgba(255, 255, 255, 0.6);
+  box-shadow: 0 0 0 8rpx rgba(255, 255, 255, 0.15);
+  background: rgba(255, 255, 255, 0.35);
 }
 
 .form-picker {
   width: 100%;
-  padding: 20rpx;
-  background: rgba(255, 255, 255, 0.1);
+  padding: 24rpx 20rpx;
+  background: rgba(255, 255, 255, 0.25);
   backdrop-filter: blur(20rpx);
   -webkit-backdrop-filter: blur(20rpx);
-  border: 1rpx solid rgba(255, 255, 255, 0.2);
+  border: 2rpx solid rgba(255, 255, 255, 0.4);
   border-radius: 15rpx;
-  font-size: 26rpx;
+  font-size: 28rpx;
   color: white;
   transition: all 0.3s ease;
+  box-shadow: 0 4rpx 12rpx rgba(0, 0, 0, 0.1);
 }
 
 .picker-text {
-  color: white;
+  color: #ffffff;
   font-weight: 500;
 }
 

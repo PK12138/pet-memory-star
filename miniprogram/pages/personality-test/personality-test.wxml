@@ -6,8 +6,8 @@
     <text class="page-subtitle">了解您的宠物，创建专属纪念馆</text>
   </view>
   
-  <!-- 进度条 -->
-  <view class="progress-section">
+  <!-- 进度条 - 只在非基本信息页显示 -->
+  <view wx:if="{{!showPetInfo}}" class="progress-section">
     <text class="progress-text">第 {{currentQuestion}} 题 / 共 {{totalQuestions}} 题</text>
     <view class="progress-bar">
       <view class="progress-fill" style="width: {{progress}}%"></view>
@@ -17,41 +17,41 @@
   <!-- 宠物基本信息 -->
   <view wx:if="{{showPetInfo}}" class="pet-info-section">
     <text class="section-title">宠物基本信息</text>
-    <view class="form-grid">
-      <view class="form-group">
+    <view class="form-list">
+      <view class="form-group-full">
         <text class="form-label">宠物姓名</text>
         <input 
           class="form-input" 
           type="text" 
-          placeholder="请输入宠物姓名"
+          placeholder="例如：小白、咪咪"
           value="{{petInfo.name}}"
           bindinput="onPetNameInput"
         />
       </view>
       
-      <view class="form-group">
+      <view class="form-group-full">
         <text class="form-label">宠物品种</text>
         <input 
           class="form-input" 
           type="text" 
-          placeholder="请输入宠物品种"
+          placeholder="例如：金毛、英短、橘猫"
           value="{{petInfo.breed}}"
           bindinput="onPetBreedInput"
         />
       </view>
       
-      <view class="form-group">
+      <view class="form-group-full">
         <text class="form-label">宠物年龄</text>
         <input 
           class="form-input" 
           type="number" 
-          placeholder="请输入宠物年龄"
+          placeholder="例如：3（岁）"
           value="{{petInfo.age}}"
           bindinput="onPetAgeInput"
         />
       </view>
       
-      <view class="form-group">
+      <view class="form-group-full">
         <text class="form-label">宠物性别</text>
         <picker 
           class="form-picker" 

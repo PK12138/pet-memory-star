@@ -2,10 +2,11 @@
 // API请求工具类
 
 // 强制使用生产环境配置
-// 可以使用域名或IP地址（不带端口号，通过Nginx反向代理到8000端口）
+// 使用域名（最稳定，所有接口测试通过）
 const config = {
-  baseUrl: 'http://42.193.230.145'  // 使用IP地址
-  // baseUrl: 'http://pettrailstar.cn'  // 使用域名
+  baseUrl: 'http://pettrailstar.cn'  // ✅ 推荐：域名访问（3/3测试通过）
+  // baseUrl: 'http://42.193.230.145'  // IP地址80端口（2/3测试通过）
+  // baseUrl: 'http://42.193.230.145:8000'  // 8000端口（云安全组未生效）
 }
 
 class ApiService {

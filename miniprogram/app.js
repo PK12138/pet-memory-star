@@ -5,7 +5,7 @@ const config = {
   appId: 'wx9572f66945407446',
   appSecret: 'c4b410be644231ff5635ec960dde38c1',
   
-  // 后端API地址 - 强制设置为服务器地址
+  // 后端API地址 - 使用域名（最稳定，所有接口测试通过）
   baseUrl: 'http://pettrailstar.cn',
   
   // 微信API地址

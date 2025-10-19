@@ -2,11 +2,11 @@
 // API请求工具类
 
 // 强制使用生产环境配置
-// 使用IP地址（避免域名备案问题）
+// 使用HTTPS（小程序正式环境要求）
 const config = {
-  baseUrl: 'http://42.193.230.145'  // ✅ IP地址80端口（避免域名返回备案HTML）
-  // baseUrl: 'http://pettrailstar.cn'  // 域名（备案未完成，返回HTML）
-  // baseUrl: 'http://42.193.230.145:8000'  // 8000端口（云安全组未生效）
+  baseUrl: 'https://42.193.230.145'  // ✅ 使用HTTPS 443端口（小程序要求）
+  // baseUrl: 'http://42.193.230.145'  // HTTP 80端口（小程序不支持）
+  // baseUrl: 'https://pettrailstar.cn'  // 域名HTTPS（备案后使用）
 }
 
 class ApiService {

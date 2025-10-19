@@ -5,8 +5,8 @@ const config = {
   appId: 'wx9572f66945407446',
   appSecret: 'c4b410be644231ff5635ec960dde38c1',
   
-  // 后端API地址 - 使用IP地址（避免域名备案问题）
-  baseUrl: 'http://42.193.230.145',
+  // 后端API地址 - 使用HTTPS（小程序要求）
+  baseUrl: 'https://42.193.230.145',
   
   // 微信API地址
   wechatApiUrl: 'https://api.weixin.qq.com',

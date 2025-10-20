@@ -804,6 +804,71 @@ async def get_visit_stats(memorial_id: str):
 
 
 # 权限管理相关接口
+@app.get("/api/user/info")
+async def get_user_info_api(current_user: dict = Depends(get_current_user)):
+    """获取用户信息API（小程序使用）"""
+    try:
+        user_id = current_user["id"]
+        dashboard_data = auth_service.get_user_dashboard_data(user_id)
+        
+        if not dashboard_data["success"]:
+            return JSONResponse(
+                content=dashboard_data,
+                status_code=500
+            )
+        
+        return JSONResponse(content={
+            "success": True,
+            "user": dashboard_data["user"],
+            "permissions": {
+                "can_create_memorial": auth_service.can_create_memorial(user_id),
+                "can_use_ai": auth_service.can_use_ai_feature(user_id),
+                "can_export": auth_service.can_export_data(user_id)
+            }
+        })
+    except Exception as e:
+        return JSONResponse(
+            content={"success": False, "message": f"获取用户信息失败：{str(e)}"},
+            status_code=500
+        )
+
+
+@app.get("/api/user/dashboard")
+async def get_user_dashboard_api(current_user: dict = Depends(get_current_user)):
+    """获取用户仪表板数据API（小程序使用）"""
+    try:
+        user_id = current_user["id"]
+        dashboard_data = auth_service.get_user_dashboard_data(user_id)
+        
+        if not dashboard_data["success"]:
+            return JSONResponse(
+                content=dashboard_data,
+                status_code=500
+            )
+        
+        # 获取纪念馆列表
+        user_memorials = db.get_user_memorials(user_id)
+        
+        # 计算总访问量
+        total_views = sum(memorial.get("view_count", 0) for memorial in user_memorials)
+        
+        return JSONResponse(content={
+            "success": True,
+            "data": {
+                "memorial_count": dashboard_data["user"]["memorial_count"],
+                "total_photos": dashboard_data["user"]["total_photos"],
+                "total_views": total_views,
+                "user_level": dashboard_data["user"]["user_level"],
+                "level_name": dashboard_data["user"]["level_name"]
+            }
+        })
+    except Exception as e:
+        return JSONResponse(
+            content={"success": False, "message": f"获取仪表板数据失败：{str(e)}"},
+            status_code=500
+        )
+
+
 @app.get("/api/user/permissions")
 async def get_user_permissions(session_token: str = Header(None, alias="x-session-token")):
     """获取用户权限信息"""

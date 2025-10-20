@@ -884,6 +884,35 @@ async def get_user_dashboard_api(current_user: dict = Depends(get_current_user))
         )
 
 
+@app.get("/api/user/level-info")
+async def get_user_level_info(current_user: dict = Depends(get_current_user)):
+    """获取用户等级信息API（小程序使用）"""
+    try:
+        user_id = current_user["id"]
+        dashboard_data = auth_service.get_user_dashboard_data(user_id)
+        
+        if not dashboard_data["success"]:
+            return JSONResponse(
+                content=dashboard_data,
+                status_code=500
+            )
+        
+        return JSONResponse(content={
+            "success": True,
+            "data": {
+                "user_level": dashboard_data["user"]["user_level"],
+                "level_name": dashboard_data["user"]["level_name"],
+                "memorial_count": dashboard_data["user"]["memorial_count"],
+                "total_photos": dashboard_data["user"]["total_photos"]
+            }
+        })
+    except Exception as e:
+        return JSONResponse(
+            content={"success": False, "message": f"获取等级信息失败：{str(e)}"},
+            status_code=500
+        )
+
+
 @app.get("/api/user/permissions")
 async def get_user_permissions(session_token: str = Header(None, alias="x-session-token")):
     """获取用户权限信息"""

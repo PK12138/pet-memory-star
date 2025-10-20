@@ -1,12 +1,13 @@
 // app.js
 // 强制使用生产环境配置，避免缓存问题
+// 配置版本：v2.0 - 更新时间：2024-10-20 23:30
 const config = {
   // 小程序信息
   appId: 'wx9572f66945407446',
   appSecret: 'c4b410be644231ff5635ec960dde38c1',
   
   // 后端API地址 - 临时使用HTTP测试（开发环境）
-  baseUrl: 'http://42.193.230.145',
+  baseUrl: 'http://42.193.230.145:80',
   
   // 微信API地址
   wechatApiUrl: 'https://api.weixin.qq.com',
@@ -31,10 +32,12 @@ const config = {
 const apiService = require('./utils/api')
 
 // 强制输出配置信息用于调试
-console.log('=== 小程序配置信息 ===')
-console.log('baseUrl:', config.baseUrl)
-console.log('appId:', config.appId)
-console.log('========================')
+console.log('========================================')
+console.log('🔧 小程序配置信息 [v2.0]')
+console.log('📡 baseUrl:', config.baseUrl)
+console.log('🆔 appId:', config.appId)
+console.log('⏰ 配置时间: 2024-10-20 23:30')
+console.log('========================================')
 
 App({
   globalData: {

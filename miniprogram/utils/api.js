@@ -1,13 +1,17 @@
 // utils/api.js
 // API请求工具类
+// 配置版本：v2.0 - 更新时间：2024-10-20 23:30
 
 // 强制使用生产环境配置
 // 临时使用HTTP测试（开发环境）
 const config = {
-  baseUrl: 'http://42.193.230.145'  // ✅ HTTP 80端口（临时测试）
+  baseUrl: 'http://42.193.230.145:80'  // ✅ HTTP 80端口（明确指定端口）
   // baseUrl: 'https://42.193.230.145'  // HTTPS 443端口（需要配置SSL证书）
   // baseUrl: 'https://pettrailstar.cn'  // 域名HTTPS（备案后使用）
 }
+
+// 输出配置用于调试
+console.log('🌐 API Service 配置 [v2.0]:', config.baseUrl)
 
 class ApiService {
   constructor() {

@@ -2,10 +2,10 @@
 // API请求工具类
 
 // 强制使用生产环境配置
-// 使用HTTPS（小程序正式环境要求）
+// 临时使用HTTP测试（开发环境）
 const config = {
-  baseUrl: 'https://42.193.230.145'  // ✅ 使用HTTPS 443端口（小程序要求）
-  // baseUrl: 'http://42.193.230.145'  // HTTP 80端口（小程序不支持）
+  baseUrl: 'http://42.193.230.145'  // ✅ HTTP 80端口（临时测试）
+  // baseUrl: 'https://42.193.230.145'  // HTTPS 443端口（需要配置SSL证书）
   // baseUrl: 'https://pettrailstar.cn'  // 域名HTTPS（备案后使用）
 }
 

@@ -392,7 +392,7 @@ Page({
 
   // 创建纪念馆
   async createMemorial() {
-    const { petInfo, memorialInfo, personalityResult } = this.data
+    const { petInfo, memorialInfo, personalityResult, answers } = this.data
     
     if (!memorialInfo.description.trim()) {
       wx.showToast({
@@ -406,20 +406,30 @@ Page({
       loading: true
     })
     
+    console.log('开始创建纪念馆，宠物信息:', petInfo)
+    
     try {
       const res = await app.request({
         url: '/api/memorial/create',
         method: 'POST',
         data: {
           pet_name: petInfo.name,
-          species: petInfo.breed,
-          breed: petInfo.breed,
-          age: petInfo.age,
-          gender: petInfo.gender,
+          species: petInfo.species || petInfo.breed, // 使用新的 species 字段
+          breed: petInfo.breed || '',
+          color: petInfo.color || '',
+          gender: petInfo.gender || '',
+          birth_date: petInfo.birthDate || '',
+          memorial_date: petInfo.memorialDate || '',
+          weight: parseFloat(petInfo.weight) || 0.0,
+          status: petInfo.status || 'alive',
+          address: petInfo.address || '',
           description: memorialInfo.description,
-          personality: personalityResult
+          personality: personalityResult,
+          personality_answers: answers // 传递性格测试答案
         }
       })
+      
+      console.log('创建纪念馆响应:', res)
       
       if (res.success) {
         wx.showToast({
@@ -441,7 +451,7 @@ Page({
     } catch (error) {
       console.error('创建纪念馆失败:', error)
       wx.showToast({
-        title: '创建失败',
+        title: error.message || '创建失败',
         icon: 'none'
       })
     } finally {

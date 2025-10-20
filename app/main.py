@@ -289,6 +289,8 @@ async def create_memorial_json(
     try:
         data = await request.json()
         
+        print(f"📝 收到创建纪念馆请求，数据: {data}")
+        
         # 获取用户信息
         user_id = current_user["id"]
         user_email = current_user["email"]
@@ -304,14 +306,20 @@ async def create_memorial_json(
                 status_code=403
             )
         
-        # 获取提交的数据
+        # 获取提交的数据（支持所有字段）
         pet_name = data.get("pet_name", "")
+        species = data.get("species", data.get("breed", ""))  # 优先使用species字段
         breed = data.get("breed", "")
-        species = breed  # 使用breed作为species
-        age = data.get("age", "")
+        color = data.get("color", "")
         gender = data.get("gender", "")
+        birth_date = data.get("birth_date", "")
+        memorial_date = data.get("memorial_date", "")
+        weight = data.get("weight", 0.0)
+        status = data.get("status", "alive")
+        address = data.get("address", "")
         description = data.get("description", "")
         personality = data.get("personality", "")
+        personality_answers = data.get("personality_answers", {})
         
         # 构建宠物信息
         import datetime
@@ -319,21 +327,28 @@ async def create_memorial_json(
             "name": pet_name,
             "species": species,
             "breed": breed,
+            "color": color,
             "gender": gender,
-            "birth_date": "",
-            "memorial_date": datetime.datetime.now().strftime("%Y-%m-%d"),
-            "weight": 0.0,
-            "status": "alive"
+            "birth_date": birth_date,
+            "memorial_date": memorial_date or datetime.datetime.now().strftime("%Y-%m-%d"),
+            "weight": float(weight) if weight else 0.0,
+            "status": status,
+            "address": address
         }
+        
+        print(f"🐾 宠物信息: {pet_info}")
+        print(f"📋 性格测试答案: {personality_answers}")
         
         # 创建纪念馆（暂时不上传照片）
         memorial_url, personality_type, ai_letter = memorial_service.create_memorial_advanced(
             email=user_email,
             pet_info=pet_info,
             photos=[],  # 小程序可以稍后上传照片
-            personality_answers={},
+            personality_answers=personality_answers,
             user_id=user_id
         )
+        
+        print(f"✅ 纪念馆创建成功: {memorial_url}")
         
         # 返回成功结果
         return JSONResponse(

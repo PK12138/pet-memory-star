@@ -5,7 +5,7 @@
 // 强制使用生产环境配置
 // 临时使用HTTP测试（开发环境）
 const config = {
-  baseUrl: 'http://42.193.230.145:80'  // ✅ HTTP 80端口（明确指定端口）
+  baseUrl: 'http://42.193.230.145'  // ✅ HTTP默认端口80
   // baseUrl: 'https://42.193.230.145'  // HTTPS 443端口（需要配置SSL证书）
   // baseUrl: 'https://pettrailstar.cn'  // 域名HTTPS（备案后使用）
 }

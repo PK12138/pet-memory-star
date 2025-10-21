@@ -853,31 +853,51 @@ async def get_user_dashboard_api(current_user: dict = Depends(get_current_user))
     """获取用户仪表板数据API（小程序使用）"""
     try:
         user_id = current_user["id"]
-        dashboard_data = auth_service.get_user_dashboard_data(user_id)
+        print(f"📊 获取仪表板数据: user_id={user_id}")
         
-        if not dashboard_data["success"]:
+        dashboard_data = auth_service.get_user_dashboard_data(user_id)
+        print(f"📊 仪表板原始数据: {dashboard_data}")
+        
+        if not dashboard_data.get("success"):
+            print(f"❌ 仪表板数据获取失败: {dashboard_data.get('message')}")
             return JSONResponse(
                 content=dashboard_data,
                 status_code=500
             )
         
-        # 获取纪念馆列表
-        user_memorials = db.get_user_memorials(user_id)
+        # 获取纪念馆列表（安全处理）
+        try:
+            user_memorials = db.get_user_memorials(user_id) or []
+            print(f"📊 用户纪念馆列表: {len(user_memorials)} 个")
+        except Exception as e:
+            print(f"❌ 获取纪念馆列表失败: {str(e)}")
+            user_memorials = []
         
-        # 计算总访问量
-        total_views = sum(memorial.get("view_count", 0) for memorial in user_memorials)
+        # 计算总访问量（安全处理）
+        total_views = 0
+        try:
+            total_views = sum(memorial.get("view_count", 0) for memorial in user_memorials if isinstance(memorial, dict))
+        except Exception as e:
+            print(f"❌ 计算访问量失败: {str(e)}")
+            total_views = 0
         
-        return JSONResponse(content={
+        result = {
             "success": True,
             "data": {
-                "memorial_count": dashboard_data["user"]["memorial_count"],
-                "total_photos": dashboard_data["user"]["total_photos"],
+                "memorial_count": dashboard_data["user"].get("memorial_count", 0),
+                "total_photos": dashboard_data["user"].get("total_photos", 0),
                 "total_views": total_views,
-                "user_level": dashboard_data["user"]["user_level"],
-                "level_name": dashboard_data["user"]["level_name"]
+                "user_level": dashboard_data["user"].get("user_level", 0),
+                "level_name": dashboard_data["user"].get("level_name", "普通用户")
             }
-        })
+        }
+        print(f"✅ 仪表板数据返回: {result}")
+        return JSONResponse(content=result)
+        
     except Exception as e:
+        print(f"❌ 获取仪表板数据异常: {str(e)}")
+        import traceback
+        traceback.print_exc()
         return JSONResponse(
             content={"success": False, "message": f"获取仪表板数据失败：{str(e)}"},
             status_code=500

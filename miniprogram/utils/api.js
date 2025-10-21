@@ -25,7 +25,20 @@ class ApiService {
 
   // 通用请求方法
   async request(options, retryCount = 0) {
-    const { url, method = 'GET', data = {}, header = {}, timeout = 10000, maxRetries = 2 } = options
+    // 为不同的API设置不同的超时时间
+    let defaultTimeout = 15000 // 默认15秒
+    if (options.url === '/api/memorial/create') {
+      defaultTimeout = 30000 // 创建纪念馆30秒
+    }
+
+    const { 
+      url, 
+      method = 'GET', 
+      data = {}, 
+      header = {}, 
+      timeout = defaultTimeout, 
+      maxRetries = 3  // 增加到3次重试
+    } = options
     const app = this.getApp()
     
     return new Promise((resolve, reject) => {
@@ -61,11 +74,27 @@ class ApiService {
           
           // 如果是网络错误且还有重试次数，则重试
           if (retryCount < maxRetries && (error.errMsg.includes('timeout') || error.errMsg.includes('fail'))) {
-            console.log(`请求失败，正在重试 (${retryCount + 1}/${maxRetries})`)
+            const delay = Math.min(1000 * Math.pow(2, retryCount), 10000) // 指数退避，最大10秒
+            console.log(`请求失败，${delay/1000}秒后重试 (${retryCount + 1}/${maxRetries})`)
+            
+            // 如果是创建纪念馆，显示加载提示
+            if (options.url === '/api/memorial/create') {
+              wx.showLoading({
+                title: '正在重试...',
+                mask: true
+              })
+            }
+            
             setTimeout(() => {
+              if (options.url === '/api/memorial/create') {
+                wx.hideLoading()
+              }
               this.request(options, retryCount + 1).then(resolve).catch(reject)
-            }, 1000 * (retryCount + 1)) // 递增延迟
+            }, delay)
           } else {
+            if (options.url === '/api/memorial/create') {
+              wx.hideLoading()
+            }
             reject(error)
           }
         }
@@ -153,11 +182,24 @@ class ApiService {
   }
 
   async createMemorial(data) {
-    return this.request({
-      url: '/api/memorial/create',
-      method: 'POST',
-      data: data
+    wx.showLoading({
+      title: '正在创建...',
+      mask: true
     })
+    
+    try {
+      const result = await this.request({
+        url: '/api/memorial/create',
+        method: 'POST',
+        data: data,
+        timeout: 30000  // 30秒超时
+      })
+      wx.hideLoading()
+      return result
+    } catch (error) {
+      wx.hideLoading()
+      throw error
+    }
   }
 
   async updateMemorial(memorialId, data) {

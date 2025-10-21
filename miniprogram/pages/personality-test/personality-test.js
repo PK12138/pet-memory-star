@@ -437,10 +437,18 @@ Page({
           icon: 'success'
         })
         
+        // 等待一段时间后跳转
         setTimeout(() => {
-          wx.navigateTo({
-            url: '/pages/memorials/memorials'
-          })
+          // 确保登录状态存在
+          if (app.globalData.sessionToken) {
+            wx.reLaunch({
+              url: '/pages/memorials/memorials'
+            })
+          } else {
+            wx.reLaunch({
+              url: '/pages/login/login'
+            })
+          }
         }, 1500)
       } else {
         wx.showToast({

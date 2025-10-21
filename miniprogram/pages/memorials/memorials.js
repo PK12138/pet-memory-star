@@ -9,7 +9,6 @@ Page({
 
   onLoad() {
     console.log('纪念馆列表页加载')
-    this.loadMemorials()
   },
 
   onShow() {
@@ -26,31 +25,65 @@ Page({
 
   // 加载纪念馆列表
   async loadMemorials() {
+    // 检查登录状态
+    if (!app.globalData.sessionToken) {
+      console.warn('用户未登录，跳转到登录页')
+      wx.redirectTo({
+        url: '/pages/login/login'
+      })
+      return
+    }
+
     this.setData({
       loading: true
     })
 
     try {
+      console.log('开始加载纪念馆列表，Token:', app.globalData.sessionToken)
       const res = await app.request({
         url: '/api/user/memorials'
       })
 
       if (res.success) {
+        console.log('获取到纪念馆列表:', res.memorials)
         this.setData({
           memorials: res.memorials || []
         })
       } else {
-        wx.showToast({
-          title: res.message || '加载失败',
-          icon: 'none'
-        })
+        console.warn('加载纪念馆列表失败:', res.message)
+        if (res.message && res.message.includes('未登录')) {
+          wx.redirectTo({
+            url: '/pages/login/login'
+          })
+        } else {
+          wx.showModal({
+            title: '加载失败',
+            content: '是否重试？',
+            success: (modalRes) => {
+              if (modalRes.confirm) {
+                this.loadMemorials()
+              }
+            }
+          })
+        }
       }
     } catch (error) {
       console.error('加载纪念馆列表失败:', error)
-      wx.showToast({
-        title: '网络错误',
-        icon: 'none'
-      })
+      if (error.statusCode === 401) {
+        wx.redirectTo({
+          url: '/pages/login/login'
+        })
+      } else {
+        wx.showModal({
+          title: '网络错误',
+          content: '是否重试？',
+          success: (modalRes) => {
+            if (modalRes.confirm) {
+              this.loadMemorials()
+            }
+          }
+        })
+      }
     } finally {
       this.setData({
         loading: false

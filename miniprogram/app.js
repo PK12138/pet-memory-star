@@ -54,8 +54,25 @@ App({
   onLaunch() {
     console.log('爪迹星小程序启动')
     
-    // 检查登录状态
-    this.checkLoginStatus()
+    // 从本地存储恢复登录状态
+    try {
+      const sessionToken = wx.getStorageSync('sessionToken')
+      const userInfo = wx.getStorageSync('userInfo')
+      
+      console.log('从本地存储恢复登录状态:', {
+        hasSessionToken: !!sessionToken,
+        hasUserInfo: !!userInfo
+      })
+      
+      if (sessionToken && userInfo) {
+        this.globalData.sessionToken = sessionToken
+        this.globalData.userInfo = userInfo
+        this.globalData.userLevel = userInfo.user_level || 0
+        console.log('登录状态恢复成功')
+      }
+    } catch (error) {
+      console.error('恢复登录状态失败:', error)
+    }
     
     // 获取系统信息
     this.getSystemInfo()
@@ -124,23 +141,39 @@ App({
       userInfo: userInfo
     })
     
+    // 保存到全局数据
     this.globalData.sessionToken = sessionToken
     this.globalData.userInfo = userInfo
     this.globalData.userLevel = userInfo?.user_level || 0
-    wx.setStorageSync('sessionToken', sessionToken)
-    wx.setStorageSync('userInfo', userInfo)
-    // 暂时不调用 getUserInfo()，因为域名备案问题导致返回HTML
-    // this.getUserInfo()
+    
+    // 持久化存储
+    try {
+      wx.setStorageSync('sessionToken', sessionToken)
+      wx.setStorageSync('userInfo', userInfo)
+      console.log('登录信息已保存到本地存储')
+    } catch (error) {
+      console.error('保存登录信息失败:', error)
+    }
   },
 
   // 登出
   logout() {
+    console.log('执行登出操作')
+    
+    // 清除全局数据
     this.globalData.sessionToken = null
     this.globalData.userInfo = null
     this.globalData.userLevel = 0
     this.globalData.permissions = {}
-    wx.removeStorageSync('sessionToken')
-    wx.removeStorageSync('userInfo')
+    
+    // 清除本地存储
+    try {
+      wx.removeStorageSync('sessionToken')
+      wx.removeStorageSync('userInfo')
+      console.log('登录信息已从本地存储清除')
+    } catch (error) {
+      console.error('清除登录信息失败:', error)
+    }
   },
 
   // 获取系统信息

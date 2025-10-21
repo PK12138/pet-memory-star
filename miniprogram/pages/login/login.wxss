@@ -163,9 +163,11 @@
   font-weight: 500;
   margin: 0 auto;
   display: block;
-  -webkit-text-security: disc;  /* 为密码输入框添加额外的安全性 */
-  text-security: disc;  /* 为密码输入框添加额外的安全性 */
-  font-family: system-ui, -apple-system, sans-serif;  /* 使用系统字体以确保密码掩码正确显示 */
+}
+
+/* 只对密码输入框应用掩码样式 */
+.form-input[type="password"] {
+  font-family: system-ui, -apple-system, sans-serif;
 }
 
 .form-input::placeholder {

@@ -59,11 +59,18 @@ auth_service = AuthService(db)
 payment_service = PaymentService()
 
 # 依赖函数：获取当前用户
-async def get_current_user(authorization: Optional[str] = Header(None)):
-    if not authorization or not authorization.startswith("Bearer "):
+async def get_current_user(
+    authorization: Optional[str] = Header(None),
+    x_session_token: Optional[str] = Header(None, alias="x-session-token")
+):
+    # 优先使用 x-session-token，其次使用 Authorization
+    session_token = x_session_token
+    if not session_token and authorization and authorization.startswith("Bearer "):
+        session_token = authorization.replace("Bearer ", "")
+    
+    if not session_token:
         raise HTTPException(status_code=401, detail="未提供有效的认证令牌")
     
-    session_token = authorization.replace("Bearer ", "")
     user = auth_service.get_current_user(session_token)
     
     if not user:

@@ -1,0 +1,28 @@
+<!-- pages/test-api/test-api.wxml -->
+<view class="container">
+  <view class="title">API 连接测试</view>
+  
+  <view class="info">
+    <text class="label">服务器地址：</text>
+    <text class="value">{{baseUrl}}</text>
+  </view>
+  
+  <view class="section">
+    <button type="primary" bindtap="testHealth">测试健康检查</button>
+    <view class="result" wx:if="{{healthResult}}">
+      <text>{{healthResult}}</text>
+    </view>
+  </view>
+  
+  <view class="section">
+    <button type="primary" bindtap="testLogin">测试登录接口</button>
+    <view class="result" wx:if="{{loginResult}}">
+      <text>{{loginResult}}</text>
+    </view>
+  </view>
+  
+  <view class="section">
+    <button bindtap="clearCache">清除缓存</button>
+  </view>
+</view>
+

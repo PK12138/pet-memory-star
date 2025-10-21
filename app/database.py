@@ -553,7 +553,10 @@ class Database:
         
         # 生成会话令牌
         session_token = secrets.token_urlsafe(32)
-        expires_at = datetime.now() + timedelta(days=30)  # 30天有效期
+        # 使用 datetime.utcnow() 确保与 SQLite 的 CURRENT_TIMESTAMP 一致
+        expires_at = datetime.utcnow() + timedelta(days=30)  # 30天有效期
+        
+        print(f"🔑 创建会话: user_id={user_id}, token={session_token[:20]}..., expires_at={expires_at}")
         
         cursor.execute('''
         INSERT INTO user_sessions (user_id, session_token, expires_at, ip_address, user_agent)
@@ -567,13 +570,28 @@ class Database:
         """通过会话令牌获取用户信息"""
         cursor = self.conn.cursor()
         
-        print(f"🔍 查询会话: {session_token[:20]}...")
+        print(f"🔍 查询会话: {session_token[:20] if session_token else 'None'}...")
         
+        # 先检查会话是否存在
+        cursor.execute('''
+        SELECT s.user_id, s.expires_at, datetime('now') as current_time
+        FROM user_sessions s
+        WHERE s.session_token = ?
+        ''', (session_token,))
+        
+        session_info = cursor.fetchone()
+        if session_info:
+            print(f"🔍 会话信息: user_id={session_info[0]}, expires_at={session_info[1]}, current_time={session_info[2]}")
+        else:
+            print(f"❌ 会话不存在")
+            return None
+        
+        # 查询用户信息（包含过期检查）
         cursor.execute('''
         SELECT u.id, u.email, u.user_level, u.is_active, u.email_verified
         FROM users u
         JOIN user_sessions s ON u.id = s.user_id
-        WHERE s.session_token = ? AND s.expires_at > CURRENT_TIMESTAMP
+        WHERE s.session_token = ? AND s.expires_at > datetime('now')
         ''', (session_token,))
         
         user = cursor.fetchone()

@@ -71,7 +71,9 @@ class MemorialService:
             pet_id=pet_id,
             memorial_url=memorial_url,
             ai_letter=ai_letter,
-            user_id=user_id  # 传递user_id
+            user_id=user_id,  # 传递user_id
+            description=pet_info.get('description', ''),  # 从pet_info获取description
+            personality=personality_type  # 传递性格类型
         )
         
         # 如果提供了用户ID，将纪念馆关联到用户

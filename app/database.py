@@ -792,7 +792,7 @@ class Database:
         """根据ID获取宠物信息"""
         cursor = self.conn.cursor()
         cursor.execute('''
-        SELECT id, user_id, name, species, breed, color, gender, birth_date, memorial_date, weight, status, personality_type, description
+        SELECT id, user_id, name, species, breed, color, gender, birth_date, memorial_date, weight, status, personality_type
         FROM pets
         WHERE id = ?
         ''', (pet_id,))
@@ -811,12 +811,11 @@ class Database:
                 'memorial_date': result[8],
                 'weight': result[9],
                 'status': result[10],
-                'personality_type': result[11] if len(result) > 11 else '',
-                'description': result[12] if len(result) > 12 else ''
+                'personality_type': result[11] if len(result) > 11 else ''
             }
         return None
     
-    def create_memorial_record(self, memorial_id, pet_id, memorial_url, ai_letter="", user_id=None):
+    def create_memorial_record(self, memorial_id, pet_id, memorial_url, ai_letter="", user_id=None, description="", personality=""):
         """创建纪念馆记录"""
         cursor = self.conn.cursor()
         
@@ -842,8 +841,8 @@ class Database:
             pet_info.get('birth_date', '') if pet_info else '',
             pet_info.get('memorial_date', '') if pet_info else '',
             pet_info.get('weight', 0.0) if pet_info else 0.0,
-            pet_info.get('description', '') if pet_info else '',
-            pet_info.get('personality_type', '') if pet_info else ''
+            description,
+            personality
         ))
         self.conn.commit()
     

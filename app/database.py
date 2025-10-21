@@ -788,13 +788,63 @@ class Database:
         ''', (pet_id, user_id, name, species, breed, color, gender, birth_date, memorial_date, weight, status))
         self.conn.commit()
     
-    def create_memorial_record(self, memorial_id, pet_id, memorial_url, ai_letter=""):
-        """创建纪念馆记录"""
+    def get_pet_by_id(self, pet_id):
+        """根据ID获取宠物信息"""
         cursor = self.conn.cursor()
         cursor.execute('''
-        INSERT INTO memorials (id, pet_id, memorial_url, ai_letter)
-        VALUES (?, ?, ?, ?)
-        ''', (memorial_id, pet_id, memorial_url, ai_letter))
+        SELECT id, user_id, name, species, breed, color, gender, birth_date, memorial_date, weight, status, personality_type, description
+        FROM pets
+        WHERE id = ?
+        ''', (pet_id,))
+        
+        result = cursor.fetchone()
+        if result:
+            return {
+                'id': result[0],
+                'user_id': result[1],
+                'name': result[2],
+                'species': result[3],
+                'breed': result[4],
+                'color': result[5],
+                'gender': result[6],
+                'birth_date': result[7],
+                'memorial_date': result[8],
+                'weight': result[9],
+                'status': result[10],
+                'personality_type': result[11] if len(result) > 11 else '',
+                'description': result[12] if len(result) > 12 else ''
+            }
+        return None
+    
+    def create_memorial_record(self, memorial_id, pet_id, memorial_url, ai_letter="", user_id=None):
+        """创建纪念馆记录"""
+        cursor = self.conn.cursor()
+        
+        # 获取宠物信息以填充冗余字段
+        pet_info = self.get_pet_by_id(pet_id)
+        
+        cursor.execute('''
+        INSERT INTO memorials (id, pet_id, memorial_url, ai_letter, user_id, 
+                               pet_name, species, breed, color, gender, 
+                               birth_date, memorial_date, weight, description, personality)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        ''', (
+            memorial_id, 
+            pet_id, 
+            memorial_url, 
+            ai_letter,
+            user_id,
+            pet_info.get('name', '') if pet_info else '',
+            pet_info.get('species', '') if pet_info else '',
+            pet_info.get('breed', '') if pet_info else '',
+            pet_info.get('color', '') if pet_info else '',
+            pet_info.get('gender', '') if pet_info else '',
+            pet_info.get('birth_date', '') if pet_info else '',
+            pet_info.get('memorial_date', '') if pet_info else '',
+            pet_info.get('weight', 0.0) if pet_info else 0.0,
+            pet_info.get('description', '') if pet_info else '',
+            pet_info.get('personality_type', '') if pet_info else ''
+        ))
         self.conn.commit()
     
     def save_personality_test(self, pet_id, question_id, answer):

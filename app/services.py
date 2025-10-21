@@ -70,7 +70,8 @@ class MemorialService:
             memorial_id=memorial_id,
             pet_id=pet_id,
             memorial_url=memorial_url,
-            ai_letter=ai_letter
+            ai_letter=ai_letter,
+            user_id=user_id  # 传递user_id
         )
         
         # 如果提供了用户ID，将纪念馆关联到用户

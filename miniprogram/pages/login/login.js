@@ -26,9 +26,15 @@ Page({
 
   // 密码输入
   onPasswordInput(e) {
+    // 确保密码输入是安全的
+    const value = e.detail.value || ''
+    
+    // 移除任何不安全的字符
+    const safeValue = value.replace(/[<>]/g, '')
+    
     this.setData({
-      password: e.detail.value,
-      passwordError: ''
+      password: safeValue,
+      passwordError: value !== safeValue ? '密码包含不安全字符' : ''
     })
   },
 

@@ -43,24 +43,17 @@ class ApiService {
           if (res.statusCode === 200) {
             resolve(res.data)
           } else if (res.statusCode === 401) {
-            // 未授权，清除登录状态
-            const app = this.getApp()
-            app.globalData.sessionToken = null
-            app.globalData.userInfo = null
-            wx.removeStorageSync('sessionToken')
-            wx.removeStorageSync('userInfo')
-            wx.showToast({
-              title: '登录已过期',
-              icon: 'none'
+            // 未授权，返回401错误
+            reject({
+              statusCode: 401,
+              message: '登录已过期'
             })
-            setTimeout(() => {
-              wx.reLaunch({
-                url: '/pages/login/login'
-              })
-            }, 1500)
-            reject(new Error('登录已过期'))
           } else {
-            reject(new Error(`请求失败: ${res.statusCode}`))
+            // 其他错误，返回错误信息但不影响登录状态
+            reject({
+              statusCode: res.statusCode,
+              message: `请求失败: ${res.statusCode}`
+            })
           }
         },
         fail: (error) => {

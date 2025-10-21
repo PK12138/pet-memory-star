@@ -234,7 +234,8 @@ App({
       // 处理不同类型的错误
       const errorMessage = error.message || error.errMsg || '未知错误'
       
-      if (errorMessage.includes('登录已过期')) {
+      // 只有在明确收到 401 未授权响应时才登出
+      if (error.statusCode === 401) {
         this.logout()
         wx.showModal({
           title: '登录已过期',
@@ -249,9 +250,9 @@ App({
       } else if (errorMessage.includes('网络') || errorMessage.includes('timeout')) {
         this.showError('网络连接失败，请检查网络设置')
       } else if (errorMessage.includes('服务器')) {
-        this.showError('服务器错误，请稍后重试')
+        console.warn('服务器错误，但不影响登录状态:', error)
       } else {
-        this.showError('操作失败，请稍后重试')
+        console.warn('操作失败，但不影响登录状态:', error)
       }
       
       throw error

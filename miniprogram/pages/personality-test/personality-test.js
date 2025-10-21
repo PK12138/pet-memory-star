@@ -409,6 +409,7 @@ Page({
     console.log('开始创建纪念馆，宠物信息:', petInfo)
     
     try {
+      // 1. 先创建纪念馆
       const res = await app.request({
         url: '/api/memorial/create',
         method: 'POST',
@@ -432,6 +433,12 @@ Page({
       console.log('创建纪念馆响应:', res)
       
       if (res.success) {
+        // 2. 如果有照片，上传照片
+        if (petInfo.photos && petInfo.photos.length > 0) {
+          console.log('开始上传照片，共', petInfo.photos.length, '张')
+          await this.uploadPhotos(res.memorial_id, petInfo.photos)
+        }
+        
         wx.showToast({
           title: '纪念馆创建成功',
           icon: 'success'
@@ -466,6 +473,39 @@ Page({
       this.setData({
         loading: false
       })
+    }
+  },
+
+  // 上传照片到纪念馆
+  async uploadPhotos(memorialId, photos) {
+    try {
+      for (let i = 0; i < photos.length; i++) {
+        const photo = photos[i]
+        console.log(`上传第 ${i + 1}/${photos.length} 张照片:`, photo)
+        
+        await new Promise((resolve, reject) => {
+          wx.uploadFile({
+            url: `${app.globalData.apiUrl}/api/memorial/upload-photos/${memorialId}`,
+            filePath: photo,
+            name: 'photos',
+            header: {
+              'x-session-token': app.globalData.sessionToken
+            },
+            success: (res) => {
+              console.log(`照片 ${i + 1} 上传成功:`, res)
+              resolve(res)
+            },
+            fail: (err) => {
+              console.error(`照片 ${i + 1} 上传失败:`, err)
+              reject(err)
+            }
+          })
+        })
+      }
+      console.log('所有照片上传完成')
+    } catch (error) {
+      console.error('上传照片出错:', error)
+      // 不阻止纪念馆创建，只记录错误
     }
   }
 })

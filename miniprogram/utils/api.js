@@ -49,7 +49,7 @@ class ApiService {
         timeout: timeout,
         header: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${app.globalData.sessionToken}`,
+          'x-session-token': app.globalData.sessionToken || '',
           ...header
         },
         success: (res) => {

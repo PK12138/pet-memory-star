@@ -80,13 +80,32 @@ Page({
         url: '/api/user/level-info'
       })
       
-      if (res.success) {
+      if (res && res.success) {
         this.setData({
-          levelInfo: res.level_info
+          levelInfo: res.level_info || {}
+        })
+      } else {
+        console.warn('等级信息加载失败，使用默认值')
+        this.setData({
+          levelInfo: {
+            level: this.data.userLevel || 1,
+            level_name: '普通用户',
+            experience: 0,
+            next_level_exp: 100
+          }
         })
       }
     } catch (error) {
       console.error('加载等级信息失败:', error)
+      // 不影响登录状态，只是使用默认值
+      this.setData({
+        levelInfo: {
+          level: this.data.userLevel || 1,
+          level_name: '普通用户',
+          experience: 0,
+          next_level_exp: 100
+        }
+      })
     }
   },
 
@@ -97,7 +116,7 @@ Page({
         url: '/api/user/dashboard'
       })
       
-      if (res.success) {
+      if (res && res.success && res.data) {
         this.setData({
           stats: {
             memorialCount: res.data.memorial_count || 0,
@@ -105,9 +124,26 @@ Page({
             totalViews: res.data.total_views || 0
           }
         })
+      } else {
+        console.warn('统计数据加载失败，使用默认值')
+        this.setData({
+          stats: {
+            memorialCount: 0,
+            photoCount: 0,
+            totalViews: 0
+          }
+        })
       }
     } catch (error) {
       console.error('加载统计数据失败:', error)
+      // 不影响登录状态，只是使用默认值
+      this.setData({
+        stats: {
+          memorialCount: 0,
+          photoCount: 0,
+          totalViews: 0
+        }
+      })
     }
   },
 

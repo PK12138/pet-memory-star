@@ -29,7 +29,8 @@
         <text class="form-label">密码</text>
         <input 
           class="form-input {{passwordError ? 'error' : ''}}" 
-          type="password" 
+          type="password"
+          password="{{true}}"
           placeholder="请输入您的密码"
           value="{{password}}"
           bindinput="onPasswordInput"

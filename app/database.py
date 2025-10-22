@@ -732,7 +732,7 @@ class Database:
         """获取纪念馆的照片数量"""
         cursor = self.conn.cursor()
         cursor.execute('''
-        SELECT COUNT(*) FROM photos WHERE memorial_id = ?
+        SELECT COUNT(*) FROM memorial_photos WHERE memorial_id = ?
         ''', (memorial_id,))
         return cursor.fetchone()[0]
     

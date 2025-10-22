@@ -3,6 +3,7 @@
     "pages/index/index",
     "pages/login/login",
     "pages/register/register",
+    "pages/forgot-password/forgot-password",
     "pages/user-center/user-center",
     "pages/memorials/memorials",
     "pages/memorial-edit/memorial-edit",

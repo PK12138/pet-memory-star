@@ -485,7 +485,7 @@ Page({
         
         await new Promise((resolve, reject) => {
           wx.uploadFile({
-            url: `${app.globalData.apiUrl}/api/memorial/upload-photos/${memorialId}`,
+            url: `${app.globalData.baseUrl}/api/memorial/upload-photos/${memorialId}`,
             filePath: photo,
             name: 'photos',
             header: {

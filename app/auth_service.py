@@ -222,9 +222,9 @@ class AuthService:
         if not user:
             return {"can_upload": False, "message": "用户未登录"}
         
-        # 检查邮箱是否已验证
-        if not user.get("email_verified", False):
-            return {"can_upload": False, "message": "请先验证邮箱"}
+        # 检查邮箱是否已验证（暂时禁用，不影响小程序用户体验）
+        # if not user.get("email_verified", False):
+        #     return {"can_upload": False, "message": "请先验证邮箱"}
         
         # 检查纪念馆是否属于该用户
         memorial = self.db.get_memorial_by_id(memorial_id)

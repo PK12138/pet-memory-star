@@ -4,7 +4,13 @@ const app = getApp()
 Page({
   data: {
     memorialId: null,
-    memorialInfo: {}
+    memorialInfo: {},
+    messages: [],
+    newMessage: {
+      name: '',
+      content: ''
+    },
+    submitting: false
   },
 
   onLoad(options) {
@@ -15,6 +21,7 @@ Page({
         memorialId: id
       })
       this.loadMemorialDetail()
+      this.loadMessages()
     } else {
       wx.showToast({
         title: '参数错误',
@@ -142,6 +149,105 @@ Page({
       title: `${memorialInfo.pet_name}的纪念馆 - 爪迹星`,
       query: `id=${this.data.memorialId}`,
       imageUrl: memorialInfo.photos && memorialInfo.photos.length > 0 ? memorialInfo.photos[0] : ''
+    }
+  },
+
+  // 加载留言列表
+  async loadMessages() {
+    try {
+      const res = await app.request({
+        url: `/api/messages/${this.data.memorialId}`
+      })
+
+      if (res.success) {
+        this.setData({
+          messages: res.messages || []
+        })
+        console.log('留言加载成功:', res.messages)
+      }
+    } catch (error) {
+      console.error('加载留言失败:', error)
+      // 不显示错误提示，避免影响用户体验
+    }
+  },
+
+  // 昵称输入
+  onNameInput(e) {
+    this.setData({
+      'newMessage.name': e.detail.value
+    })
+  },
+
+  // 留言内容输入
+  onMessageInput(e) {
+    this.setData({
+      'newMessage.content': e.detail.value
+    })
+  },
+
+  // 提交留言
+  async submitMessage() {
+    const { memorialId, newMessage } = this.data
+
+    if (!newMessage.name || !newMessage.name.trim()) {
+      wx.showToast({
+        title: '请输入昵称',
+        icon: 'none'
+      })
+      return
+    }
+
+    if (!newMessage.content || !newMessage.content.trim()) {
+      wx.showToast({
+        title: '请输入留言内容',
+        icon: 'none'
+      })
+      return
+    }
+
+    this.setData({ submitting: true })
+
+    try {
+      const res = await app.request({
+        url: '/api/message',
+        method: 'POST',
+        data: {
+          memorial_id: memorialId,
+          visitor_name: newMessage.name.trim(),
+          message: newMessage.content.trim()
+        }
+      })
+
+      if (res.success) {
+        wx.showToast({
+          title: '留言成功',
+          icon: 'success'
+        })
+
+        // 清空输入
+        this.setData({
+          newMessage: {
+            name: '',
+            content: ''
+          }
+        })
+
+        // 重新加载留言列表
+        await this.loadMessages()
+      } else {
+        wx.showToast({
+          title: res.message || '留言失败',
+          icon: 'none'
+        })
+      }
+    } catch (error) {
+      console.error('提交留言失败:', error)
+      wx.showToast({
+        title: error.message || '留言失败',
+        icon: 'none'
+      })
+    } finally {
+      this.setData({ submitting: false })
     }
   }
 })

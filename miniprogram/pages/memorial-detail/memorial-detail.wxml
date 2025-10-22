@@ -99,6 +99,65 @@
     </view>
   </view>
   
+  <!-- 留言板 -->
+  <view class="messages-section">
+    <text class="section-title">留言板 ({{messages.length}})</text>
+    
+    <!-- 留言列表 -->
+    <view wx:if="{{messages.length > 0}}" class="messages-list">
+      <view wx:for="{{messages}}" wx:key="index" class="message-item">
+        <view class="message-header">
+          <text class="message-author">{{item.visitor_name}}</text>
+          <text class="message-time">{{item.created_at}}</text>
+        </view>
+        <view class="message-content">
+          <text class="message-text">{{item.message}}</text>
+        </view>
+      </view>
+    </view>
+    
+    <!-- 无留言提示 -->
+    <view wx:if="{{messages.length === 0}}" class="no-messages">
+      <text class="no-messages-icon">💬</text>
+      <text class="no-messages-text">还没有留言，快来留下第一条祝福吧~</text>
+    </view>
+    
+    <!-- 添加留言 -->
+    <view class="add-message-section">
+      <text class="add-message-label">留下您的祝福</text>
+      
+      <view class="input-group">
+        <input 
+          class="name-input" 
+          placeholder="您的昵称" 
+          value="{{newMessage.name}}"
+          bindinput="onNameInput"
+          maxlength="20"
+        />
+      </view>
+      
+      <view class="input-group">
+        <textarea 
+          class="message-textarea" 
+          placeholder="写下您的留言..." 
+          value="{{newMessage.content}}"
+          bindinput="onMessageInput"
+          maxlength="200"
+          auto-height
+        />
+        <text class="char-count">{{newMessage.content.length}}/200</text>
+      </view>
+      
+      <button 
+        class="btn-submit-message" 
+        bindtap="submitMessage"
+        disabled="{{!newMessage.name || !newMessage.content || submitting}}"
+      >
+        {{submitting ? '发送中...' : '发送留言'}}
+      </button>
+    </view>
+  </view>
+  
   <!-- 创建信息 -->
   <view class="meta-section">
     <text class="meta-text">创建于 {{memorialInfo.created_at}}</text>

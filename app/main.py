@@ -1783,8 +1783,9 @@ async def upload_memorial_photos(
             return {"success": False, "message": "纪念馆不存在或无权限"}
         
         # 检查照片上传权限
-        if not auth_service.can_upload_photo(user["id"]):
-            return {"success": False, "message": "已达到照片上传上限，请升级会员"}
+        photo_permission = auth_service.can_upload_photo(user["id"], memorial_id)
+        if not photo_permission.get("can_upload", False):
+            return {"success": False, "message": photo_permission.get("message", "无法上传照片")}
         
         uploaded_photos = []
         

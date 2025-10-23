@@ -83,18 +83,23 @@
     <view class="stats-grid">
       <view class="stat-item">
         <text class="stat-icon">📸</text>
-        <text class="stat-number">{{memorialInfo.photo_count || 0}}</text>
+        <text class="stat-number">{{memorialInfo.photos.length || 0}}</text>
         <text class="stat-label">张照片</text>
       </view>
       <view class="stat-item">
         <text class="stat-icon">👁️</text>
-        <text class="stat-number">{{memorialInfo.view_count || 0}}</text>
-        <text class="stat-label">次浏览</text>
+        <text class="stat-number">{{visitStats.total_visits}}</text>
+        <text class="stat-label">次访问</text>
       </view>
       <view class="stat-item">
-        <text class="stat-icon">❤️</text>
-        <text class="stat-number">{{memorialInfo.like_count || 0}}</text>
-        <text class="stat-label">个赞</text>
+        <text class="stat-icon">👥</text>
+        <text class="stat-number">{{visitStats.unique_visitors}}</text>
+        <text class="stat-label">位访客</text>
+      </view>
+      <view class="stat-item">
+        <text class="stat-icon">💬</text>
+        <text class="stat-number">{{messages.length}}</text>
+        <text class="stat-label">条留言</text>
       </view>
     </view>
   </view>

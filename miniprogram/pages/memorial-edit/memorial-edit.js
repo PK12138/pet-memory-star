@@ -54,6 +54,18 @@ Page({
 
       if (res.success) {
         const memorial = res.memorial
+        
+        // 将照片相对路径转换为完整URL
+        let photos = memorial.photos || []
+        if (Array.isArray(photos)) {
+          photos = photos.map(photo => {
+            if (photo && photo.startsWith('/')) {
+              return `${app.globalData.baseUrl}${photo}`
+            }
+            return photo
+          })
+        }
+        
         this.setData({
           memorialInfo: {
             pet_name: memorial.pet_name || '',
@@ -67,7 +79,7 @@ Page({
             weight: memorial.weight || '',
             description: memorial.description || '',
             personality: memorial.personality || '',
-            photos: memorial.photos || []
+            photos: photos
           }
         })
       } else {

@@ -46,8 +46,23 @@ Page({
 
       if (res.success) {
         console.log('获取到纪念馆列表:', res.memorials)
+        
+        // 将照片相对路径转换为完整URL
+        const memorials = (res.memorials || []).map(memorial => {
+          if (memorial.photos && Array.isArray(memorial.photos)) {
+            memorial.photos = memorial.photos.map(photo => {
+              // 如果是相对路径，拼接完整URL
+              if (photo && photo.startsWith('/')) {
+                return `${app.globalData.baseUrl}${photo}`
+              }
+              return photo
+            })
+          }
+          return memorial
+        })
+        
         this.setData({
-          memorials: res.memorials || []
+          memorials: memorials
         })
       } else {
         console.warn('加载纪念馆列表失败:', res.message)

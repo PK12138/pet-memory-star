@@ -10,7 +10,12 @@ Page({
       name: '',
       content: ''
     },
-    submitting: false
+    submitting: false,
+    visitStats: {
+      total_visits: 0,
+      unique_visitors: 0,
+      last_visit: null
+    }
   },
 
   onLoad(options) {
@@ -22,6 +27,8 @@ Page({
       })
       this.loadMemorialDetail()
       this.loadMessages()
+      this.recordVisit()
+      this.loadVisitStats()
     } else {
       wx.showToast({
         title: '参数错误',
@@ -45,8 +52,21 @@ Page({
       })
 
       if (res.success) {
+        const memorial = res.memorial || {}
+        
+        // 将照片相对路径转换为完整URL
+        if (memorial.photos && Array.isArray(memorial.photos)) {
+          memorial.photos = memorial.photos.map(photo => {
+            // 如果是相对路径，拼接完整URL
+            if (photo && photo.startsWith('/')) {
+              return `${app.globalData.baseUrl}${photo}`
+            }
+            return photo
+          })
+        }
+        
         this.setData({
-          memorialInfo: res.memorial
+          memorialInfo: memorial
         })
       } else {
         wx.showToast({
@@ -183,6 +203,46 @@ Page({
     this.setData({
       'newMessage.content': e.detail.value
     })
+  },
+
+  // 记录访问
+  async recordVisit() {
+    try {
+      await app.request({
+        url: '/api/visit-stat',
+        method: 'POST',
+        data: {
+          memorial_id: this.data.memorialId
+        }
+      })
+      console.log('访问记录成功')
+    } catch (error) {
+      console.error('记录访问失败:', error)
+      // 不显示错误提示，避免影响用户体验
+    }
+  },
+
+  // 加载访问统计
+  async loadVisitStats() {
+    try {
+      const res = await app.request({
+        url: `/api/visit-stats/${this.data.memorialId}`
+      })
+
+      if (res.success && res.stats) {
+        this.setData({
+          visitStats: {
+            total_visits: res.stats.total_visits || 0,
+            unique_visitors: res.stats.unique_visitors || 0,
+            last_visit: res.stats.last_visit || null
+          }
+        })
+        console.log('访问统计加载成功:', res.stats)
+      }
+    } catch (error) {
+      console.error('加载访问统计失败:', error)
+      // 不显示错误提示
+    }
   },
 
   // 提交留言

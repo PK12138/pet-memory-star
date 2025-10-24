@@ -34,6 +34,14 @@
     </view>
   </view>
   
+  <!-- AI信件 -->
+  <view wx:if="{{memorialInfo.ai_letter && memorialInfo.pet_status !== 'alive'}}" class="ai-letter-section">
+    <text class="section-title">💌 来自{{memorialInfo.pet_name}}的信</text>
+    <view class="letter-content">
+      <text class="letter-text">{{memorialInfo.ai_letter}}</text>
+    </view>
+  </view>
+  
   <!-- 性格特点 -->
   <view wx:if="{{memorialInfo.personality}}" class="personality-section">
     <text class="section-title">🌟 性格分析</text>

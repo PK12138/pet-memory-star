@@ -170,6 +170,38 @@
   text-align: center;
 }
 
+/* AI信件区域 */
+.ai-letter-section {
+  padding: 30rpx 20rpx;
+  background: #fff;
+}
+
+.letter-content {
+  padding: 30rpx;
+  background: linear-gradient(135deg, #fef4e4 0%, #fff9f0 100%);
+  border-radius: 20rpx;
+  border: 2rpx solid #f0e4d7;
+  position: relative;
+}
+
+.letter-content::before {
+  content: '💌';
+  position: absolute;
+  top: -15rpx;
+  right: 20rpx;
+  font-size: 40rpx;
+  background: #fff;
+  padding: 5rpx;
+  border-radius: 50%;
+}
+
+.letter-text {
+  font-size: 28rpx;
+  color: #5d4e37;
+  line-height: 2;
+  white-space: pre-wrap;
+}
+
 /* 性格区域 */
 .personality-content {
   background: rgba(46, 204, 113, 0.05);

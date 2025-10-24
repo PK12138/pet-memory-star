@@ -67,16 +67,16 @@
       <!-- 纪念馆统计 -->
       <view class="memorial-stats">
         <view class="stat-item">
-          <text class="stat-icon">📸</text>
-          <text class="stat-text">{{item.photo_count || 0}} 张照片</text>
+          <text class="stat-icon">💬</text>
+          <text class="stat-text">{{item.message_count || 0}} 条留言</text>
         </view>
         <view class="stat-item">
           <text class="stat-icon">👁️</text>
-          <text class="stat-text">{{item.view_count || 0}} 次浏览</text>
+          <text class="stat-text">{{item.view_count || 0}} 次访问</text>
         </view>
         <view class="stat-item">
-          <text class="stat-icon">❤️</text>
-          <text class="stat-text">{{item.like_count || 0}} 个赞</text>
+          <text class="stat-icon">👥</text>
+          <text class="stat-text">{{item.visitor_count || 0}} 位访客</text>
         </view>
       </view>
       

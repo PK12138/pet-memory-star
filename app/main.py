@@ -1668,9 +1668,27 @@ async def get_user_memorials(session_token: str = Header(None, alias="x-session-
         
         # 为每个纪念馆添加统计信息
         for memorial in memorials:
-            memorial["photos"] = db.get_memorial_photos(memorial["id"]) or []
-            memorial["views"] = db.get_memorial_views(memorial["id"]) or 0
+            photos = db.get_memorial_photos(memorial["id"]) or []
+            memorial["photos"] = photos
+            memorial["photo_count"] = len(photos)
+            
+            # 获取访问统计
+            visit_stats = db.get_visit_stats(memorial["id"])
+            if visit_stats:
+                memorial["view_count"] = visit_stats[0] or 0  # total_visits
+                memorial["visitor_count"] = visit_stats[1] or 0  # unique_visitors
+            else:
+                memorial["view_count"] = 0
+                memorial["visitor_count"] = 0
+            
+            # 获取留言数量
+            messages = db.get_messages(memorial["id"])
+            memorial["message_count"] = len(messages) if messages else 0
+            
+            # 保留旧字段以兼容
+            memorial["views"] = memorial["view_count"]
             memorial["likes"] = db.get_memorial_likes(memorial["id"]) or 0
+            memorial["like_count"] = memorial["likes"]
         
         return {
             "success": True,

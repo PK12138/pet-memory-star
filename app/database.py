@@ -301,6 +301,20 @@ class Database:
         )
         ''')
         
+        # AI对话消息表
+        cursor.execute('''
+        CREATE TABLE IF NOT EXISTS ai_chat_messages (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            memorial_id TEXT NOT NULL,
+            user_id INTEGER NOT NULL,
+            role TEXT NOT NULL,  -- 'user' 或 'assistant'
+            content TEXT NOT NULL,
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            FOREIGN KEY (memorial_id) REFERENCES memorials(id),
+            FOREIGN KEY (user_id) REFERENCES users(id)
+        )
+        ''')
+        
         # 邮箱验证码表
         cursor.execute('''
         CREATE TABLE IF NOT EXISTS email_codes (
@@ -1503,6 +1517,68 @@ class Database:
         except Exception as e:
             print(f"增加点赞次数失败: {e}")
             return False
+    
+    # ==================== AI对话相关方法 ====================
+    
+    def save_chat_message(self, memorial_id: str, user_id: int, role: str, content: str):
+        """保存AI对话消息"""
+        cursor = self.conn.cursor()
+        try:
+            cursor.execute('''
+            INSERT INTO ai_chat_messages (memorial_id, user_id, role, content, created_at)
+            VALUES (?, ?, ?, ?, CURRENT_TIMESTAMP)
+            ''', (memorial_id, user_id, role, content))
+            self.conn.commit()
+            return cursor.lastrowid
+        except Exception as e:
+            print(f"保存对话消息失败: {e}")
+            return None
+    
+    def get_chat_history(self, memorial_id: str, user_id: int, limit: int = 50):
+        """获取对话历史（最近N条）"""
+        cursor = self.conn.cursor()
+        cursor.execute('''
+        SELECT id, role, content, created_at
+        FROM ai_chat_messages
+        WHERE memorial_id = ? AND user_id = ?
+        ORDER BY created_at DESC
+        LIMIT ?
+        ''', (memorial_id, user_id, limit))
+        
+        messages = []
+        for row in cursor.fetchall():
+            messages.append({
+                'id': row[0],
+                'role': row[1],
+                'content': row[2],
+                'created_at': row[3]
+            })
+        
+        # 返回时按时间正序排列（最旧的在前）
+        return list(reversed(messages))
+    
+    def delete_chat_history(self, memorial_id: str, user_id: int):
+        """删除某个纪念馆的所有对话历史"""
+        cursor = self.conn.cursor()
+        try:
+            cursor.execute('''
+            DELETE FROM ai_chat_messages
+            WHERE memorial_id = ? AND user_id = ?
+            ''', (memorial_id, user_id))
+            self.conn.commit()
+            return True
+        except Exception as e:
+            print(f"删除对话历史失败: {e}")
+            return False
+    
+    def get_chat_count(self, memorial_id: str, user_id: int):
+        """获取对话消息数量"""
+        cursor = self.conn.cursor()
+        cursor.execute('''
+        SELECT COUNT(*) FROM ai_chat_messages
+        WHERE memorial_id = ? AND user_id = ?
+        ''', (memorial_id, user_id))
+        return cursor.fetchone()[0]
     
     def close(self):
         self.conn.close()

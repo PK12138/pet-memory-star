@@ -1,0 +1,88 @@
+<view class="chat-container">
+  <!-- 顶部导航栏 -->
+  <view class="chat-header">
+    <view class="header-info">
+      <image wx:if="{{petAvatar}}" class="pet-avatar" src="{{petAvatar}}" mode="aspectFill" />
+      <view wx:else class="pet-avatar-placeholder">🐾</view>
+      <view class="header-text">
+        <text class="pet-name">{{petName}}</text>
+        <text class="online-status">{{loading ? '正在输入...' : '在线'}}</text>
+      </view>
+    </view>
+    <button class="btn-clear" bindtap="clearHistory">
+      <text class="icon">🗑️</text>
+    </button>
+  </view>
+
+  <!-- 消息列表 -->
+  <scroll-view 
+    class="messages-container" 
+    scroll-y 
+    scroll-into-view="{{scrollIntoView}}"
+    scroll-with-animation
+  >
+    <view wx:for="{{messages}}" wx:key="index" id="msg-{{index}}" class="message-wrapper">
+      <!-- AI消息（宠物） -->
+      <view wx:if="{{item.role === 'assistant'}}" class="message message-ai">
+        <image wx:if="{{petAvatar}}" class="message-avatar" src="{{petAvatar}}" mode="aspectFill" />
+        <view wx:else class="message-avatar-placeholder">🐾</view>
+        <view class="message-content">
+          <view class="message-bubble message-bubble-ai">
+            <text class="message-text">{{item.content}}</text>
+          </view>
+        </view>
+      </view>
+
+      <!-- 用户消息 -->
+      <view wx:if="{{item.role === 'user'}}" class="message message-user">
+        <view class="message-content">
+          <view class="message-bubble message-bubble-user">
+            <text class="message-text">{{item.content}}</text>
+          </view>
+        </view>
+        <view class="message-avatar-placeholder">👤</view>
+      </view>
+    </view>
+
+    <!-- 加载中动画 -->
+    <view wx:if="{{loading}}" class="message message-ai">
+      <image wx:if="{{petAvatar}}" class="message-avatar" src="{{petAvatar}}" mode="aspectFill" />
+      <view wx:else class="message-avatar-placeholder">🐾</view>
+      <view class="message-content">
+        <view class="message-bubble message-bubble-ai">
+          <view class="typing-indicator">
+            <view class="typing-dot"></view>
+            <view class="typing-dot"></view>
+            <view class="typing-dot"></view>
+          </view>
+        </view>
+      </view>
+    </view>
+  </scroll-view>
+
+  <!-- 输入栏 -->
+  <view class="input-container">
+    <view class="input-wrapper">
+      <textarea
+        class="message-input"
+        placeholder="和{{petName}}说些什么吧..."
+        value="{{inputMessage}}"
+        bindinput="onInput"
+        maxlength="500"
+        auto-height
+        cursor-spacing="20"
+        confirm-type="send"
+        bindconfirm="sendMessage"
+      />
+      <text class="char-count">{{inputMessage.length}}/500</text>
+    </view>
+    <button 
+      class="btn-send" 
+      bindtap="sendMessage"
+      disabled="{{!inputMessage || loading}}"
+    >
+      <text class="send-icon">{{loading ? '...' : '发送'}}</text>
+    </button>
+  </view>
+</view>
+

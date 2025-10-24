@@ -116,6 +116,19 @@ Page({
     })
   },
 
+  // 跳转到AI对话页面
+  goToAIChat() {
+    const { memorialId, memorialInfo } = this.data
+    const petName = memorialInfo.pet_name || '宠物'
+    const petAvatar = memorialInfo.photos && memorialInfo.photos.length > 0 
+      ? memorialInfo.photos[0] 
+      : ''
+    
+    wx.navigateTo({
+      url: `/pages/ai-chat/ai-chat?id=${memorialId}&name=${encodeURIComponent(petName)}&avatar=${encodeURIComponent(petAvatar)}`
+    })
+  },
+
   // 分享纪念馆
   shareMemorial() {
     wx.showActionSheet({

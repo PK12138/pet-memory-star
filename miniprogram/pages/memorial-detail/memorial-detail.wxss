@@ -64,6 +64,17 @@
   box-shadow: 0 4rpx 15rpx rgba(0, 0, 0, 0.1);
 }
 
+.btn-chat {
+  background: linear-gradient(135deg, #667eea, #764ba2);
+  color: white;
+  box-shadow: 0 4rpx 15rpx rgba(102, 126, 234, 0.3);
+}
+
+.btn-chat:active {
+  transform: scale(0.95);
+  box-shadow: 0 2rpx 10rpx rgba(102, 126, 234, 0.3);
+}
+
 .btn-edit {
   background: #3498db;
   color: white;

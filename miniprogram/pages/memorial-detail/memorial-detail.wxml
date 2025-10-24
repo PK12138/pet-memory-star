@@ -9,6 +9,9 @@
     </view>
     
     <view class="header-actions">
+      <button class="action-btn btn-chat" bindtap="goToAIChat">
+        <text class="btn-icon">💬</text>
+      </button>
       <button class="action-btn btn-edit" bindtap="editMemorial">
         <text class="btn-icon">✏️</text>
       </button>

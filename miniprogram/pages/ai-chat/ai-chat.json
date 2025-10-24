@@ -1,0 +1,9 @@
+{
+  "navigationBarTitleText": "AI对话",
+  "navigationBarBackgroundColor": "#667eea",
+  "navigationBarTextStyle": "white",
+  "backgroundColor": "#667eea",
+  "enablePullDownRefresh": false,
+  "disableScroll": true
+}
+

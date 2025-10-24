@@ -7,11 +7,13 @@ from database import Database
 from services import MemorialService, EmailService
 from auth_service import AuthService
 from payment_service import PaymentService
+from ai_chat_service import AIChatService
 import os
 import uuid
 import uvicorn
 import json
 from typing import Optional
+from datetime import datetime
 
 app = FastAPI(title="爪迹星·云纪念馆")
 
@@ -56,6 +58,7 @@ db = Database()
 memorial_service = MemorialService(db)
 email_service = EmailService()
 auth_service = AuthService(db)
+ai_chat_service = AIChatService()
 payment_service = PaymentService()
 
 # 依赖函数：获取当前用户
@@ -1988,6 +1991,165 @@ async def delete_photo(photo_id: str, session_token: str = Header(None, alias="x
         
     except Exception as e:
         return {"success": False, "message": f"删除照片失败: {str(e)}"}
+
+
+# ==================== AI对话API ====================
+
+@app.post("/api/chat/{memorial_id}")
+async def chat_with_pet(
+    memorial_id: str,
+    request: Request,
+    session_token: str = Header(None, alias="x-session-token")
+):
+    """与宠物AI对话"""
+    try:
+        # 验证用户登录
+        user = auth_service.get_current_user(session_token)
+        if not user:
+            return {"success": False, "message": "用户未登录"}
+        
+        # 获取请求数据
+        data = await request.json()
+        message = data.get("message", "").strip()
+        
+        if not message:
+            return {"success": False, "message": "消息不能为空"}
+        
+        # 获取纪念馆信息
+        memorial = db.get_memorial_by_id(memorial_id)
+        if not memorial:
+            return {"success": False, "message": "纪念馆不存在"}
+        
+        # 检查权限（只有创建者可以对话）
+        if memorial.get("user_id") != user["id"]:
+            return {"success": False, "message": "无权访问此纪念馆"}
+        
+        # 获取对话历史
+        chat_history = db.get_chat_history(memorial_id, user["id"], limit=20)
+        
+        # 调用AI服务生成回复
+        ai_reply = ai_chat_service.chat(memorial, message, chat_history)
+        
+        # 保存用户消息
+        db.save_chat_message(memorial_id, user["id"], "user", message)
+        
+        # 保存AI回复
+        db.save_chat_message(memorial_id, user["id"], "assistant", ai_reply)
+        
+        return {
+            "success": True,
+            "message": ai_reply,
+            "timestamp": datetime.now().isoformat()
+        }
+        
+    except Exception as e:
+        print(f"AI对话失败: {e}")
+        return {"success": False, "message": f"对话失败: {str(e)}"}
+
+
+@app.get("/api/chat/{memorial_id}/history")
+async def get_chat_history(
+    memorial_id: str,
+    limit: int = 50,
+    session_token: str = Header(None, alias="x-session-token")
+):
+    """获取对话历史"""
+    try:
+        # 验证用户登录
+        user = auth_service.get_current_user(session_token)
+        if not user:
+            return {"success": False, "message": "用户未登录"}
+        
+        # 获取纪念馆信息
+        memorial = db.get_memorial_by_id(memorial_id)
+        if not memorial:
+            return {"success": False, "message": "纪念馆不存在"}
+        
+        # 检查权限
+        if memorial.get("user_id") != user["id"]:
+            return {"success": False, "message": "无权访问此纪念馆"}
+        
+        # 获取对话历史
+        history = db.get_chat_history(memorial_id, user["id"], limit)
+        
+        return {
+            "success": True,
+            "history": history,
+            "count": len(history)
+        }
+        
+    except Exception as e:
+        print(f"获取对话历史失败: {e}")
+        return {"success": False, "message": f"获取失败: {str(e)}"}
+
+
+@app.delete("/api/chat/{memorial_id}/history")
+async def clear_chat_history(
+    memorial_id: str,
+    session_token: str = Header(None, alias="x-session-token")
+):
+    """清空对话历史"""
+    try:
+        # 验证用户登录
+        user = auth_service.get_current_user(session_token)
+        if not user:
+            return {"success": False, "message": "用户未登录"}
+        
+        # 获取纪念馆信息
+        memorial = db.get_memorial_by_id(memorial_id)
+        if not memorial:
+            return {"success": False, "message": "纪念馆不存在"}
+        
+        # 检查权限
+        if memorial.get("user_id") != user["id"]:
+            return {"success": False, "message": "无权访问此纪念馆"}
+        
+        # 删除对话历史
+        success = db.delete_chat_history(memorial_id, user["id"])
+        
+        if success:
+            return {"success": True, "message": "对话历史已清空"}
+        else:
+            return {"success": False, "message": "清空失败"}
+        
+    except Exception as e:
+        print(f"清空对话历史失败: {e}")
+        return {"success": False, "message": f"清空失败: {str(e)}"}
+
+
+@app.get("/api/chat/{memorial_id}/greeting")
+async def get_greeting(
+    memorial_id: str,
+    session_token: str = Header(None, alias="x-session-token")
+):
+    """获取宠物的问候语"""
+    try:
+        # 验证用户登录
+        user = auth_service.get_current_user(session_token)
+        if not user:
+            return {"success": False, "message": "用户未登录"}
+        
+        # 获取纪念馆信息
+        memorial = db.get_memorial_by_id(memorial_id)
+        if not memorial:
+            return {"success": False, "message": "纪念馆不存在"}
+        
+        # 检查权限
+        if memorial.get("user_id") != user["id"]:
+            return {"success": False, "message": "无权访问此纪念馆"}
+        
+        # 获取问候语
+        greeting = ai_chat_service.get_greeting_message(memorial)
+        
+        return {
+            "success": True,
+            "greeting": greeting
+        }
+        
+    except Exception as e:
+        print(f"获取问候语失败: {e}")
+        return {"success": False, "message": f"获取失败: {str(e)}"}
+
 
 if __name__ == "__main__":
     uvicorn.run("main:app", host="0.0.0.0", port=8000, reload=True)

@@ -79,6 +79,7 @@
     <button class="btn btn-primary" bindtap="goToMemorials">我的纪念馆</button>
     <button class="btn btn-secondary" bindtap="goToPhotoManager">照片管理</button>
     <button class="btn btn-secondary" bindtap="goToOrders">订单管理</button>
+    <button class="btn btn-theme" bindtap="goToThemeSettings">🎨 主题设置</button>
     <button class="btn btn-secondary" bindtap="logout">退出登录</button>
   </view>
 </view>

@@ -9,6 +9,12 @@
     </view>
     
     <view class="header-actions">
+      <button class="action-btn btn-diary" bindtap="goToMoodDiary">
+        <text class="btn-icon">📝</text>
+      </button>
+      <button class="action-btn btn-reminder" bindtap="goToReminderSetup">
+        <text class="btn-icon">⏰</text>
+      </button>
       <button class="action-btn btn-edit" bindtap="editMemorial">
         <text class="btn-icon">✏️</text>
       </button>

@@ -102,6 +102,20 @@ Page({
     })
   },
 
+  // 跳转到提醒设置
+  goToReminderSetup() {
+    wx.navigateTo({
+      url: `/pages/reminder-setup/reminder-setup?id=${this.data.memorialId}`
+    })
+  },
+
+  // 跳转到心情日记
+  goToMoodDiary() {
+    wx.navigateTo({
+      url: `/pages/mood-diary/mood-diary?id=${this.data.memorialId}`
+    })
+  },
+
   // 分享纪念馆
   shareMemorial() {
     wx.showActionSheet({

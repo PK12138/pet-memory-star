@@ -1,0 +1,123 @@
+<!-- pages/reminder-setup/reminder-setup.wxml -->
+<view class="container">
+  <!-- 顶部标题 -->
+  <view class="header">
+    <text class="header-title">📅 纪念日提醒</text>
+    <text class="header-subtitle">设置重要日期，永不忘记</text>
+  </view>
+
+  <!-- 提醒列表 -->
+  <view class="reminders-section">
+    <view class="section-header">
+      <text class="section-title">我的提醒 ({{reminders.length}})</text>
+      <button class="add-btn" bindtap="showAddReminder">
+        <text class="add-icon">+</text> 添加提醒
+      </button>
+    </view>
+
+    <view class="reminders-list">
+      <block wx:if="{{reminders.length > 0}}">
+        <view class="reminder-card" wx:for="{{reminders}}" wx:key="id">
+          <view class="reminder-header">
+            <text class="reminder-type-badge">
+              {{item.type === 'birthday' ? '🎂' : item.type === 'memorial' ? '🕯️' : item.type === 'adoption' ? '🏠' : '✨'}}
+            </text>
+            <view class="reminder-info">
+              <text class="reminder-name">
+                {{item.type === 'custom' && item.custom_name ? item.custom_name : item.type === 'birthday' ? '生日' : item.type === 'memorial' ? '纪念日' : item.type === 'adoption' ? '领养日' : '自定义'}}
+              </text>
+              <text class="reminder-date">{{item.date}}</text>
+            </view>
+            <button class="delete-btn" bindtap="deleteReminder" data-id="{{item.id}}" data-name="{{item.type === 'custom' && item.custom_name ? item.custom_name : '提醒'}}">
+              删除
+            </button>
+          </view>
+          <view class="reminder-desc" wx:if="{{item.custom_description}}">
+            <text>{{item.custom_description}}</text>
+          </view>
+        </view>
+      </block>
+      <view class="empty-state" wx:else>
+        <text class="empty-icon">📭</text>
+        <text class="empty-text">还没有设置任何提醒</text>
+        <text class="empty-hint">点击上方"添加提醒"开始设置</text>
+      </view>
+    </view>
+  </view>
+
+  <!-- 添加提醒对话框 -->
+  <view class="dialog-mask" wx:if="{{showAddDialog}}" bindtap="hideAddDialog">
+    <view class="dialog-container" catchtap="{{null}}">
+      <view class="dialog-header">
+        <text class="dialog-title">添加新提醒</text>
+        <text class="dialog-close" bindtap="hideAddDialog">×</text>
+      </view>
+
+      <view class="dialog-content">
+        <!-- 选择提醒类型 -->
+        <view class="form-group">
+          <text class="form-label">提醒类型</text>
+          <view class="reminder-types">
+            <view 
+              class="type-item {{formData.reminderType === item.value ? 'active' : ''}}"
+              wx:for="{{reminderTypes}}"
+              wx:key="value"
+              bindtap="selectReminderType"
+              data-type="{{item.value}}"
+            >
+              <text class="type-icon">{{item.icon}}</text>
+              <text class="type-name">{{item.name}}</text>
+            </view>
+          </view>
+        </view>
+
+        <!-- 自定义字段 -->
+        <block wx:if="{{showCustomFields}}">
+          <view class="form-group">
+            <text class="form-label">提醒名称 *</text>
+            <input 
+              class="form-input" 
+              placeholder="例如：第一次见面、特殊纪念日"
+              value="{{formData.customName}}"
+              bindinput="onCustomNameInput"
+            />
+          </view>
+
+          <view class="form-group">
+            <text class="form-label">提醒描述</text>
+            <textarea 
+              class="form-textarea" 
+              placeholder="描述这个提醒的特殊意义..."
+              value="{{formData.customDescription}}"
+              bindinput="onCustomDescInput"
+              maxlength="200"
+            />
+          </view>
+        </block>
+
+        <!-- 选择日期 -->
+        <view class="form-group">
+          <text class="form-label">提醒日期 *</text>
+          <picker 
+            mode="date" 
+            value="{{formData.reminderDate}}"
+            bindchange="onDateChange"
+          >
+            <view class="picker-display">
+              <text class="{{formData.reminderDate ? 'selected' : 'placeholder'}}">
+                {{formData.reminderDate || '请选择日期'}}
+              </text>
+              <text class="picker-arrow">›</text>
+            </view>
+          </picker>
+        </view>
+      </view>
+
+      <view class="dialog-footer">
+        <button class="btn btn-cancel" bindtap="hideAddDialog">取消</button>
+        <button class="btn btn-confirm" bindtap="submitReminder">确定</button>
+      </view>
+    </view>
+  </view>
+</view>
+

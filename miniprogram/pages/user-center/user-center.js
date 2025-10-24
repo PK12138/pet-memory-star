@@ -166,6 +166,13 @@ Page({
     })
   },
 
+  // 跳转到主题设置
+  goToThemeSettings() {
+    wx.navigateTo({
+      url: '/pages/theme-settings/theme-settings'
+    })
+  },
+
   // 退出登录
   logout() {
     wx.showModal({

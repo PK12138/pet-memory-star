@@ -1,0 +1,131 @@
+<!-- pages/mood-diary/mood-diary.wxml -->
+<view class="container">
+  <!-- 顶部标题 -->
+  <view class="header">
+    <text class="header-title">📝 心情日记</text>
+    <text class="header-subtitle">记录与TA相处的点点滴滴</text>
+  </view>
+
+  <!-- 日记列表 -->
+  <view class="diaries-section">
+    <view class="section-header">
+      <text class="section-title">我的日记 ({{diaries.length}})</text>
+      <button class="add-btn" bindtap="showAddDiary">
+        <text class="add-icon">+</text> 写日记
+      </button>
+    </view>
+
+    <view class="diaries-list">
+      <block wx:if="{{diaries.length > 0}}">
+        <view class="diary-card" wx:for="{{diaries}}" wx:key="index">
+          <view class="diary-header">
+            <view class="mood-badge">
+              <text class="mood-emoji">{{item.mood_type === 'happy' ? '😊' : item.mood_type === 'sad' ? '😢' : item.mood_type === 'calm' ? '😌' : item.mood_type === 'excited' ? '🤗' : item.mood_type === 'lonely' ? '😔' : '🙏'}}</text>
+              <view class="mood-details">
+                <text class="mood-name">{{item.mood_type === 'happy' ? '开心' : item.mood_type === 'sad' ? '伤心' : item.mood_type === 'calm' ? '平静' : item.mood_type === 'excited' ? '兴奋' : item.mood_type === 'lonely' ? '孤独' : '感恩'}}</text>
+                <view class="mood-score-bar">
+                  <view class="score-fill" style="width: {{item.mood_score * 10}}%"></view>
+                </view>
+              </view>
+            </view>
+            <view class="diary-meta">
+              <text class="diary-date">{{item.created_at}}</text>
+              <text class="weather-icon" wx:if="{{item.weather}}">
+                {{item.weather === 'sunny' ? '☀️' : item.weather === 'cloudy' ? '⛅' : item.weather === 'rainy' ? '🌧️' : '❄️'}}
+              </text>
+            </view>
+          </view>
+          <view class="diary-content">
+            <text>{{item.diary_content}}</text>
+          </view>
+        </view>
+      </block>
+      <view class="empty-state" wx:else>
+        <text class="empty-icon">📖</text>
+        <text class="empty-text">还没有心情日记</text>
+        <text class="empty-hint">点击上方"写日记"记录心情</text>
+      </view>
+    </view>
+  </view>
+
+  <!-- 添加日记对话框 -->
+  <view class="dialog-mask" wx:if="{{showAddDialog}}" bindtap="hideAddDialog">
+    <view class="dialog-container" catchtap="{{null}}">
+      <view class="dialog-header">
+        <text class="dialog-title">记录心情</text>
+        <text class="dialog-close" bindtap="hideAddDialog">×</text>
+      </view>
+
+      <view class="dialog-content">
+        <!-- 选择心情类型 -->
+        <view class="form-group">
+          <text class="form-label">今天的心情</text>
+          <view class="mood-types">
+            <view 
+              class="mood-item {{formData.moodType === item.value ? 'active' : ''}}"
+              wx:for="{{moodTypes}}"
+              wx:key="value"
+              bindtap="selectMoodType"
+              data-type="{{item.value}}"
+            >
+              <text class="mood-item-emoji">{{item.emoji}}</text>
+              <text class="mood-item-name">{{item.name}}</text>
+            </view>
+          </view>
+        </view>
+
+        <!-- 心情评分 -->
+        <view class="form-group">
+          <text class="form-label">心情指数 {{formData.moodScore}}/10</text>
+          <slider 
+            min="1" 
+            max="10" 
+            value="{{formData.moodScore}}"
+            show-value="{{false}}"
+            activeColor="#667eea"
+            backgroundColor="#e0e0e0"
+            block-size="20"
+            bindchange="onScoreChange"
+          />
+        </view>
+
+        <!-- 选择天气 -->
+        <view class="form-group">
+          <text class="form-label">今天的天气（可选）</text>
+          <view class="weather-types">
+            <view 
+              class="weather-item {{formData.weather === item.value ? 'active' : ''}}"
+              wx:for="{{weatherTypes}}"
+              wx:key="value"
+              bindtap="selectWeather"
+              data-weather="{{item.value}}"
+            >
+              <text class="weather-emoji">{{item.emoji}}</text>
+              <text class="weather-name">{{item.name}}</text>
+            </view>
+          </view>
+        </view>
+
+        <!-- 日记内容 -->
+        <view class="form-group">
+          <text class="form-label">日记内容 *</text>
+          <textarea 
+            class="diary-textarea" 
+            placeholder="写下今天想对TA说的话..."
+            value="{{formData.content}}"
+            bindinput="onContentInput"
+            maxlength="500"
+            auto-height
+          />
+          <text class="char-count">{{formData.content.length}}/500</text>
+        </view>
+      </view>
+
+      <view class="dialog-footer">
+        <button class="btn btn-cancel" bindtap="hideAddDialog">取消</button>
+        <button class="btn btn-confirm" bindtap="submitDiary">保存</button>
+      </view>
+    </view>
+  </view>
+</view>
+

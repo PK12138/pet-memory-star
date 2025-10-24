@@ -258,6 +258,18 @@
   transform: scale(0.98);
 }
 
+.btn-theme {
+  background: linear-gradient(135deg, #ff9a56 0%, #ff6a88 100%);
+  color: white;
+  box-shadow: 0 8rpx 25rpx rgba(255, 154, 86, 0.4);
+  font-weight: 600;
+}
+
+.btn-theme:active {
+  transform: scale(0.98);
+  box-shadow: 0 4rpx 15rpx rgba(255, 154, 86, 0.6);
+}
+
 /* 响应式设计 */
 @media (max-width: 750rpx) {
   .container {

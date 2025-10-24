@@ -1,0 +1,89 @@
+<!-- pages/theme-settings/theme-settings.wxml -->
+<view class="container">
+  <!-- 顶部标题 -->
+  <view class="header">
+    <text class="header-title">🎨 主题设置</text>
+    <text class="header-subtitle">选择你喜欢的主题风格</text>
+  </view>
+
+  <!-- 主题列表 -->
+  <view class="themes-section">
+    <view class="section-header">
+      <text class="section-title">主题列表</text>
+      <button class="reset-btn" bindtap="resetTheme">
+        <text class="reset-icon">↻</text> 重置
+      </button>
+    </view>
+
+    <view class="themes-grid">
+      <view 
+        class="theme-card {{currentTheme === item.id ? 'active' : ''}}"
+        wx:for="{{themes}}"
+        wx:key="id"
+        bindtap="selectTheme"
+        data-id="{{item.id}}"
+      >
+        <!-- 选中标记 -->
+        <view class="selected-badge" wx:if="{{currentTheme === item.id}}">
+          <text class="badge-icon">✓</text>
+        </view>
+
+        <!-- 主题预览 -->
+        <view class="theme-preview" style="background: {{item.preview}}">
+          <text class="theme-icon">{{item.icon}}</text>
+        </view>
+
+        <!-- 主题信息 -->
+        <view class="theme-info">
+          <text class="theme-name">{{item.name}}</text>
+          <text class="theme-desc">{{item.desc}}</text>
+        </view>
+
+        <!-- 颜色预览 -->
+        <view class="color-preview">
+          <view class="color-dot" style="background: {{item.primaryColor}}"></view>
+          <view class="color-dot" style="background: {{item.secondaryColor}}"></view>
+        </view>
+      </view>
+    </view>
+
+    <!-- 提示信息 -->
+    <view class="tips">
+      <text class="tips-icon">💡</text>
+      <text class="tips-text">主题将应用到整个小程序，让纪念馆更符合你的心情</text>
+    </view>
+  </view>
+
+  <!-- 当前主题预览 -->
+  <view class="current-preview">
+    <text class="preview-title">当前主题效果预览</text>
+    <view class="preview-card">
+      <block wx:for="{{themes}}" wx:key="id">
+        <view wx:if="{{currentTheme === item.id}}" class="preview-content">
+          <view class="preview-header" style="background: {{item.preview}}">
+            <text class="preview-icon">{{item.icon}}</text>
+            <text class="preview-name">{{item.name}}</text>
+          </view>
+          <view class="preview-body">
+            <view class="preview-item">
+              <text class="preview-label">主色调</text>
+              <view class="preview-color" style="background: {{item.primaryColor}}">
+                <text class="color-code">{{item.primaryColor}}</text>
+              </view>
+            </view>
+            <view class="preview-item">
+              <text class="preview-label">辅助色</text>
+              <view class="preview-color" style="background: {{item.secondaryColor}}">
+                <text class="color-code">{{item.secondaryColor}}</text>
+              </view>
+            </view>
+            <view class="preview-desc">
+              <text>{{item.desc}}</text>
+            </view>
+          </view>
+        </view>
+      </block>
+    </view>
+  </view>
+</view>
+

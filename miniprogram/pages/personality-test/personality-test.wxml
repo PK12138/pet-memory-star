@@ -132,19 +132,7 @@
         >
           <view class="picker-text">{{petInfo.status || '请选择'}}</view>
         </picker>
-        <text class="form-hint">选择"健在"时，AI将生成积极宜居馆；选择其他选项，AI将生成安慰性内容</text>
-      </view>
-      
-      <!-- 离别地址 -->
-      <view class="form-group-full">
-        <text class="form-label">离别地址 <text class="required">*</text></text>
-        <input 
-          class="form-input" 
-          type="text" 
-          placeholder="请输入地址"
-          value="{{petInfo.address}}"
-          bindinput="onPetAddressInput"
-        />
+        <text class="form-hint">选择"健在"时，AI信件将被隐藏，直到您主动查看</text>
       </view>
       
       <!-- 上传照片 -->

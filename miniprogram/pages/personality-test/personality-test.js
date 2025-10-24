@@ -24,9 +24,9 @@ Page({
       address: '',
       photos: []
     },
-    speciesOptions: ['狗', '猫', '兔子', '仓鼠', '鸟', '其他'],
+    speciesOptions: ['猫', '狗', '兔子', '鸟', '仓鼠', '其他'],
     genderOptions: ['公', '母'],
-    statusOptions: ['健在', '离世', 'AI生成', '其他'],
+    statusOptions: ['健在', '已逝世'],
     questions: {},
     currentQuestionData: null,
     currentQuestionOptions: [],
@@ -48,57 +48,57 @@ Page({
   async loadQuestions() {
     console.log('开始加载问题')
     
-    // 使用本地题目数据（避免API问题）
+    // 使用与网页版一致的题目数据
     const localQuestions = {
       1: {
         id: 1,
-        question: "你的宠物喜欢什么样的活动？",
-        options: ["安静地待着", "适度运动", "非常活跃"]
+        question: "当遇到陌生人时，你的宠物通常会：",
+        options: ["躲起来观察", "主动上前打招呼", "保持距离但好奇", "完全不在意"]
       },
       2: {
         id: 2,
-        question: "你的宠物对陌生人的态度如何？",
-        options: ["非常警惕", "保持距离", "友好热情"]
+        question: "在玩耍时，你的宠物更喜欢：",
+        options: ["独自探索", "与主人互动", "与其他宠物玩耍", "安静地观察"]
       },
       3: {
         id: 3,
-        question: "你的宠物喜欢什么样的环境？",
-        options: ["安静独处", "适度社交", "热闹环境"]
+        question: "当主人回家时，你的宠物会：",
+        options: ["兴奋地跑来跑去", "温柔地蹭主人", "摇尾巴表示欢迎", "继续做自己的事"]
       },
       4: {
         id: 4,
-        question: "你的宠物的食欲如何？",
-        options: ["挑食", "正常", "胃口很好"]
+        question: "面对新玩具时，你的宠物会：",
+        options: ["立即尝试", "先观察再尝试", "等主人示范", "不感兴趣"]
       },
       5: {
         id: 5,
-        question: "你的宠物对声音的反应如何？",
-        options: ["非常敏感", "一般", "不太在意"]
+        question: "在休息时，你的宠物喜欢：",
+        options: ["找个安静角落", "靠近主人身边", "在能看到主人的地方", "随意找个地方"]
       },
       6: {
         id: 6,
-        question: "你的宠物喜欢玩玩具吗？",
-        options: ["不太感兴趣", "偶尔玩玩", "非常喜欢"]
+        question: "当听到奇怪声音时，你的宠物会：",
+        options: ["立即警觉", "好奇地寻找声源", "寻求主人保护", "继续休息"]
       },
       7: {
         id: 7,
-        question: "你的宠物睡眠时间如何？",
-        options: ["很长", "正常", "较短"]
+        question: "与其他宠物相处时，你的宠物：",
+        options: ["保持独立", "主动社交", "谨慎接触", "完全忽视"]
       },
       8: {
         id: 8,
-        question: "你的宠物对其他宠物的态度如何？",
-        options: ["回避", "中立", "友好"]
+        question: "在训练时，你的宠物：",
+        options: ["专注且快速学习", "需要鼓励和奖励", "容易分心", "抗拒训练"]
       },
       9: {
         id: 9,
-        question: "你的宠物在家里的表现如何？",
-        options: ["安静乖巧", "活泼好动", "非常调皮"]
+        question: "当主人心情不好时，你的宠物会：",
+        options: ["默默陪伴", "主动安慰", "试图转移注意力", "保持距离"]
       },
       10: {
         id: 10,
-        question: "你的宠物学习新技能的速度如何？",
-        options: ["较慢", "一般", "很快"]
+        question: "面对食物时，你的宠物：",
+        options: ["立即吃完", "慢慢品尝", "先闻再吃", "挑食"]
       }
     }
     
@@ -151,12 +151,11 @@ Page({
     let canProceed = false
     
     if (showPetInfo) {
-      // 必填项：宠物姓名、种类、纪念日期、状态、地址、照片
+      // 必填项：宠物姓名、种类、纪念日期、状态、照片
       canProceed = petInfo.name && 
                    petInfo.species && 
                    petInfo.memorialDate && 
                    petInfo.status && 
-                   petInfo.address &&
                    petInfo.photos.length > 0
     } else {
       canProceed = answers[currentQuestion] !== undefined

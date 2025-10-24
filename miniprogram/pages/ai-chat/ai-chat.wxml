@@ -2,8 +2,13 @@
   <!-- 顶部导航栏 -->
   <view class="chat-header">
     <view class="header-info">
-      <image wx:if="{{petAvatar}}" class="pet-avatar" src="{{petAvatar}}" mode="aspectFill" />
-      <view wx:else class="pet-avatar-placeholder">🐾</view>
+      <view class="avatar-container">
+        <image wx:if="{{petAvatar}}" class="pet-avatar" src="{{petAvatar}}" mode="aspectFill" />
+        <view wx:else class="pet-avatar-placeholder">
+          <text class="avatar-emoji">🐾</text>
+        </view>
+        <view class="online-dot"></view>
+      </view>
       <view class="header-text">
         <text class="pet-name">{{petName}}</text>
         <text class="online-status">{{loading ? '正在输入...' : '在线'}}</text>
@@ -24,8 +29,12 @@
     <view wx:for="{{messages}}" wx:key="index" id="msg-{{index}}" class="message-wrapper">
       <!-- AI消息（宠物） -->
       <view wx:if="{{item.role === 'assistant'}}" class="message message-ai">
-        <image wx:if="{{petAvatar}}" class="message-avatar" src="{{petAvatar}}" mode="aspectFill" />
-        <view wx:else class="message-avatar-placeholder">🐾</view>
+        <view class="message-avatar-wrapper">
+          <image wx:if="{{petAvatar}}" class="message-avatar" src="{{petAvatar}}" mode="aspectFill" />
+          <view wx:else class="message-avatar-placeholder">
+            <text class="avatar-emoji-small">🐾</text>
+          </view>
+        </view>
         <view class="message-content">
           <view class="message-bubble message-bubble-ai">
             <text class="message-text">{{item.content}}</text>
@@ -40,14 +49,22 @@
             <text class="message-text">{{item.content}}</text>
           </view>
         </view>
-        <view class="message-avatar-placeholder">👤</view>
+        <view class="message-avatar-wrapper">
+          <view class="user-avatar-placeholder">
+            <text class="avatar-emoji-small">👤</text>
+          </view>
+        </view>
       </view>
     </view>
 
     <!-- 加载中动画 -->
     <view wx:if="{{loading}}" class="message message-ai">
-      <image wx:if="{{petAvatar}}" class="message-avatar" src="{{petAvatar}}" mode="aspectFill" />
-      <view wx:else class="message-avatar-placeholder">🐾</view>
+      <view class="message-avatar-wrapper">
+        <image wx:if="{{petAvatar}}" class="message-avatar" src="{{petAvatar}}" mode="aspectFill" />
+        <view wx:else class="message-avatar-placeholder">
+          <text class="avatar-emoji-small">🐾</text>
+        </view>
+      </view>
       <view class="message-content">
         <view class="message-bubble message-bubble-ai">
           <view class="typing-indicator">

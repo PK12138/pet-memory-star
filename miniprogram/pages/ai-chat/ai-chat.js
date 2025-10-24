@@ -12,18 +12,35 @@ Page({
     greeting: ''
   },
 
-  onLoad(options) {
+  async onLoad(options) {
     console.log('AI对话页面加载', options)
     
     if (options.id) {
+      const app = getApp()
+      let petAvatar = options.avatar || ''
+      
+      // 解码URL（因为传递时被编码了）
+      if (petAvatar) {
+        petAvatar = decodeURIComponent(petAvatar)
+      }
+      
+      // 如果头像是相对路径，转换为绝对路径
+      if (petAvatar && !petAvatar.startsWith('http')) {
+        petAvatar = app.globalData.baseUrl + petAvatar
+      }
+      
+      console.log('宠物名称:', decodeURIComponent(options.name || ''))
+      console.log('原始头像URL:', options.avatar)
+      console.log('解码后头像URL:', petAvatar)
+      
       this.setData({
         memorialId: options.id,
-        petName: options.name || '宠物',
-        petAvatar: options.avatar || ''
+        petName: decodeURIComponent(options.name || '宠物'),
+        petAvatar: petAvatar
       })
       
-      this.loadChatHistory()
-      this.loadGreeting()
+      // 先加载历史记录，再决定是否显示问候语
+      await this.loadChatHistory()
     } else {
       wx.showModal({
         title: '错误',
@@ -36,6 +53,58 @@ Page({
     }
   },
 
+  // 加载对话历史
+  async loadChatHistory() {
+    try {
+      const res = await app.request({
+        url: `/api/chat/${this.data.memorialId}/history`,
+        method: 'GET'
+      })
+      
+      console.log('对话历史响应:', res)
+      
+      if (res.success && res.history) {
+        console.log('历史记录数量:', res.history.length)
+        console.log('历史记录内容:', res.history)
+        
+        // 打印每条消息的详细信息
+        res.history.forEach((msg, index) => {
+          console.log(`消息${index}: ${msg.role} - ${msg.content.substring(0, 50)}... (${msg.created_at})`)
+        })
+        
+        // 如果有历史记录，显示历史
+        if (res.history.length > 0) {
+          // 按照ID排序（ID是自增的，确保顺序正确）
+          const sortedMessages = res.history.sort((a, b) => {
+            // 如果有id字段，按id排序；否则按created_at排序
+            if (a.id && b.id) {
+              return a.id - b.id
+            }
+            return new Date(a.created_at) - new Date(b.created_at)
+          })
+          
+          this.setData({
+            messages: sortedMessages
+          })
+          console.log('排序后的消息:', this.data.messages)
+          
+          // 延迟滚动，确保DOM已渲染
+          setTimeout(() => {
+            this.scrollToBottom()
+          }, 200)
+        } else {
+          // 如果没有历史记录，加载问候语
+          console.log('无历史记录，加载问候语')
+          await this.loadGreeting()
+        }
+      }
+    } catch (error) {
+      console.error('加载对话历史失败:', error)
+      // 加载失败也尝试显示问候语
+      await this.loadGreeting()
+    }
+  },
+
   // 加载问候语
   async loadGreeting() {
     try {
@@ -44,7 +113,10 @@ Page({
         method: 'GET'
       })
       
+      console.log('问候语响应:', res)
+      
       if (res.success && res.greeting) {
+        console.log('问候语内容:', res.greeting)
         // 添加问候语作为第一条消息
         this.setData({
           greeting: res.greeting,
@@ -54,32 +126,11 @@ Page({
             created_at: new Date().toISOString()
           }]
         })
+        console.log('设置问候语后的消息:', this.data.messages)
         this.scrollToBottom()
       }
     } catch (error) {
       console.error('加载问候语失败:', error)
-    }
-  },
-
-  // 加载对话历史
-  async loadChatHistory() {
-    try {
-      const res = await app.request({
-        url: `/api/chat/${this.data.memorialId}/history`,
-        method: 'GET'
-      })
-      
-      if (res.success && res.history) {
-        // 如果有历史记录，显示历史；否则只显示问候语
-        if (res.history.length > 0) {
-          this.setData({
-            messages: res.history
-          })
-          this.scrollToBottom()
-        }
-      }
-    } catch (error) {
-      console.error('加载对话历史失败:', error)
     }
   },
 

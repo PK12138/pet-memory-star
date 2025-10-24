@@ -9,12 +9,6 @@
     </view>
     
     <view class="header-actions">
-      <button class="action-btn btn-diary" bindtap="goToMoodDiary">
-        <text class="btn-icon">📝</text>
-      </button>
-      <button class="action-btn btn-reminder" bindtap="goToReminderSetup">
-        <text class="btn-icon">⏰</text>
-      </button>
       <button class="action-btn btn-edit" bindtap="editMemorial">
         <text class="btn-icon">✏️</text>
       </button>
@@ -40,79 +34,17 @@
     </view>
   </view>
   
-  <!-- 纪念馆信息 -->
-  <view class="info-section">
-    <text class="section-title">详细信息</text>
-    
-    <view class="info-grid">
-      <view wx:if="{{memorialInfo.age}}" class="info-item">
-        <text class="info-label">年龄</text>
-        <text class="info-value">{{memorialInfo.age}} 岁</text>
-      </view>
-      
-      <view wx:if="{{memorialInfo.gender}}" class="info-item">
-        <text class="info-label">性别</text>
-        <text class="info-value">{{memorialInfo.gender}}</text>
-      </view>
-      
-      <view wx:if="{{memorialInfo.color}}" class="info-item">
-        <text class="info-label">毛色</text>
-        <text class="info-value">{{memorialInfo.color}}</text>
-      </view>
-      
-      <view wx:if="{{memorialInfo.weight}}" class="info-item">
-        <text class="info-label">体重</text>
-        <text class="info-value">{{memorialInfo.weight}} kg</text>
-      </view>
-    </view>
-  </view>
-  
-  <!-- 纪念馆描述 -->
-  <view wx:if="{{memorialInfo.description}}" class="description-section">
-    <text class="section-title">纪念馆描述</text>
-    <view class="description-content">
-      <text class="description-text">{{memorialInfo.description}}</text>
-    </view>
-  </view>
-  
   <!-- 性格特点 -->
   <view wx:if="{{memorialInfo.personality}}" class="personality-section">
-    <text class="section-title">性格特点</text>
+    <text class="section-title">🌟 性格分析</text>
     <view class="personality-content">
       <text class="personality-text">{{memorialInfo.personality}}</text>
     </view>
   </view>
   
-  <!-- 纪念馆统计 -->
-  <view class="stats-section">
-    <text class="section-title">纪念馆统计</text>
-    <view class="stats-grid">
-      <view class="stat-item">
-        <text class="stat-icon">📸</text>
-        <text class="stat-number">{{memorialInfo.photos.length || 0}}</text>
-        <text class="stat-label">张照片</text>
-      </view>
-      <view class="stat-item">
-        <text class="stat-icon">👁️</text>
-        <text class="stat-number">{{visitStats.total_visits}}</text>
-        <text class="stat-label">次访问</text>
-      </view>
-      <view class="stat-item">
-        <text class="stat-icon">👥</text>
-        <text class="stat-number">{{visitStats.unique_visitors}}</text>
-        <text class="stat-label">位访客</text>
-      </view>
-      <view class="stat-item">
-        <text class="stat-icon">💬</text>
-        <text class="stat-number">{{messages.length}}</text>
-        <text class="stat-label">条留言</text>
-      </view>
-    </view>
-  </view>
-  
   <!-- 留言板 -->
   <view class="messages-section">
-    <text class="section-title">留言板 ({{messages.length}})</text>
+    <text class="section-title">访客留言</text>
     
     <!-- 留言列表 -->
     <view wx:if="{{messages.length > 0}}" class="messages-list">
@@ -166,6 +98,98 @@
       >
         {{submitting ? '发送中...' : '发送留言'}}
       </button>
+    </view>
+  </view>
+  
+  <!-- 纪念日提醒 -->
+  <view class="reminder-section">
+    <text class="section-title">纪念日提醒</text>
+    <view class="feature-card">
+      <view class="feature-icon">⏰</view>
+      <view class="feature-info">
+        <text class="feature-title">设置重要的纪念日期</text>
+        <text class="feature-desc">我们会在特殊日子提醒您</text>
+      </view>
+      <button class="feature-btn" bindtap="goToReminderSetup">
+        <text>设置提醒</text>
+      </button>
+    </view>
+  </view>
+  
+  <!-- 心情日记 -->
+  <view class="diary-section">
+    <text class="section-title">心情日记</text>
+    <view class="feature-card">
+      <view class="feature-icon">📝</view>
+      <view class="feature-info">
+        <text class="feature-title">记录您的心情</text>
+        <text class="feature-desc">记录对TA的思念和回忆</text>
+      </view>
+      <button class="feature-btn" bindtap="goToMoodDiary">
+        <text>写日记</text>
+      </button>
+    </view>
+  </view>
+  
+  <!-- 纪念馆信息 -->
+  <view class="info-section">
+    <text class="section-title">详细信息</text>
+    
+    <view class="info-grid">
+      <view wx:if="{{memorialInfo.age}}" class="info-item">
+        <text class="info-label">年龄</text>
+        <text class="info-value">{{memorialInfo.age}} 岁</text>
+      </view>
+      
+      <view wx:if="{{memorialInfo.gender}}" class="info-item">
+        <text class="info-label">性别</text>
+        <text class="info-value">{{memorialInfo.gender}}</text>
+      </view>
+      
+      <view wx:if="{{memorialInfo.color}}" class="info-item">
+        <text class="info-label">毛色</text>
+        <text class="info-value">{{memorialInfo.color}}</text>
+      </view>
+      
+      <view wx:if="{{memorialInfo.weight}}" class="info-item">
+        <text class="info-label">体重</text>
+        <text class="info-value">{{memorialInfo.weight}} kg</text>
+      </view>
+    </view>
+  </view>
+  
+  <!-- 纪念馆描述 -->
+  <view wx:if="{{memorialInfo.description}}" class="description-section">
+    <text class="section-title">纪念馆描述</text>
+    <view class="description-content">
+      <text class="description-text">{{memorialInfo.description}}</text>
+    </view>
+  </view>
+  
+  <!-- 访问统计 -->
+  <view class="stats-section">
+    <text class="section-title">访问统计</text>
+    <view class="stats-grid">
+      <view class="stat-item">
+        <text class="stat-icon">📸</text>
+        <text class="stat-number">{{memorialInfo.photos.length || 0}}</text>
+        <text class="stat-label">张照片</text>
+      </view>
+      <view class="stat-item">
+        <text class="stat-icon">👁️</text>
+        <text class="stat-number">{{visitStats.total_visits}}</text>
+        <text class="stat-label">次访问</text>
+      </view>
+      <view class="stat-item">
+        <text class="stat-icon">👥</text>
+        <text class="stat-number">{{visitStats.unique_visitors}}</text>
+        <text class="stat-label">位访客</text>
+      </view>
+      <view class="stat-item">
+        <text class="stat-icon">💬</text>
+        <text class="stat-number">{{messages.length}}</text>
+        <text class="stat-label">条留言</text>
+      </view>
     </view>
   </view>
   

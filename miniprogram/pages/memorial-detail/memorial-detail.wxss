@@ -448,3 +448,65 @@
   transform: none;
 }
 
+/* 功能卡片样式 */
+.reminder-section,
+.diary-section {
+  padding: 30rpx 20rpx;
+  background: #fff;
+}
+
+.feature-card {
+  background: linear-gradient(135deg, #f5f7fa 0%, #ffffff 100%);
+  border-radius: 20rpx;
+  padding: 30rpx;
+  display: flex;
+  align-items: center;
+  gap: 20rpx;
+  box-shadow: 0 4rpx 12rpx rgba(0, 0, 0, 0.05);
+  border: 2rpx solid #f0f0f0;
+}
+
+.feature-icon {
+  width: 80rpx;
+  height: 80rpx;
+  font-size: 50rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.feature-info {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 8rpx;
+}
+
+.feature-title {
+  font-size: 30rpx;
+  font-weight: bold;
+  color: #2c3e50;
+}
+
+.feature-desc {
+  font-size: 26rpx;
+  color: #7f8c8d;
+}
+
+.feature-btn {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: #ffffff;
+  border: none;
+  border-radius: 50rpx;
+  padding: 20rpx 35rpx;
+  font-size: 28rpx;
+  flex-shrink: 0;
+  box-shadow: 0 4rpx 12rpx rgba(102, 126, 234, 0.3);
+}
+
+.feature-btn:active {
+  transform: scale(0.95);
+  opacity: 0.9;
+}
+

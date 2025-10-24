@@ -785,11 +785,15 @@ async def get_mood_diaries(memorial_id: str):
 # 访问统计API
 @app.post("/api/visit-stat")
 async def record_visit(
-    memorial_id: str = Form(...),
+    visit_data: dict,
     request: Request = None
 ):
     """记录访问统计"""
     try:
+        memorial_id = visit_data.get("memorial_id")
+        if not memorial_id:
+            return {"success": False, "error": "缺少memorial_id参数"}
+        
         client_ip = request.client.host if request else "unknown"
         user_agent = request.headers.get("user-agent", "unknown") if request else "unknown"
         

@@ -1061,11 +1061,32 @@ class Database:
         """通过纪念馆ID获取宠物信息"""
         cursor = self.conn.cursor()
         cursor.execute('''
-        SELECT p.* FROM pets p
+        SELECT p.id, p.user_id, p.name, p.species, p.breed, p.color, 
+               p.gender, p.birth_date, p.memorial_date, p.weight, 
+               p.personality_type, p.status, p.created_at
+        FROM pets p
         JOIN memorials m ON p.id = m.pet_id
         WHERE m.id = ?
         ''', (memorial_id,))
-        return cursor.fetchone()
+        
+        result = cursor.fetchone()
+        if result:
+            return {
+                'id': result[0],
+                'user_id': result[1],
+                'name': result[2],
+                'species': result[3],
+                'breed': result[4],
+                'color': result[5],
+                'gender': result[6],
+                'birth_date': result[7],
+                'memorial_date': result[8],
+                'weight': result[9],
+                'personality': result[10],  # personality_type 映射为 personality
+                'status': result[11],
+                'created_at': result[12]
+            }
+        return None
     
     # 验证码和密码重置相关方法
     def create_email_code(self, email, code_type="verification"):

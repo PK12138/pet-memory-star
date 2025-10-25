@@ -504,20 +504,36 @@ async def view_memorial(request: Request, memorial_id: str):
         # 获取照片
         photos = db.get_memorial_photos(memorial_id)
         
+        # 计算年龄（如果有生日和纪念日）
+        age = ""
+        if memorial.get("birth_date") and memorial.get("memorial_date"):
+            from datetime import datetime
+            try:
+                birth = datetime.strptime(memorial.get("birth_date"), "%Y-%m-%d")
+                memorial_d = datetime.strptime(memorial.get("memorial_date"), "%Y-%m-%d")
+                years = memorial_d.year - birth.year
+                months = memorial_d.month - birth.month
+                if months < 0:
+                    years -= 1
+                    months += 12
+                age = f"{years}岁{months}个月" if years > 0 else f"{months}个月"
+            except:
+                age = ""
+        
         # 使用模板渲染
         return templates.TemplateResponse("memorial.html", {
             "request": request,
             "memorial_id": memorial_id,
             "pet_name": pet_info.get("name", "宠物"),
             "species": pet_info.get("species", "未知"),
-            "memorial_date": memorial.get("created_at", "")[:10] if memorial.get("created_at") else "",
-            "age": pet_info.get("age", ""),
+            "memorial_date": memorial.get("memorial_date", "")[:10] if memorial.get("memorial_date") else "",
+            "age": age,
             "gender": pet_info.get("gender", ""),
-            "personality": pet_info.get("personality", ""),
-            "story": pet_info.get("story", ""),
+            "personality": memorial.get("personality", ""),
+            "story": memorial.get("description", ""),
             "photos": photos,
-            "personality_type": pet_info.get("personality_type", ""),
-            "ai_letter": pet_info.get("ai_letter", "")
+            "personality_type": pet_info.get("personality", ""),
+            "ai_letter": memorial.get("ai_letter", "")
         })
     except Exception as e:
         print(f"查看纪念馆错误: {str(e)}")

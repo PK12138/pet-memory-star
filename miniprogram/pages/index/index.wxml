@@ -38,6 +38,19 @@
         <text class="btn-text">开始创建纪念馆</text>
       </button>
     </view>
+
+    <!-- 星空入口 -->
+    <view class="star-sky-entry" bindtap="goToStarSky">
+      <view class="star-sky-bg">
+        <text class="star-icon">🌙</text>
+        <text class="star-icon">⭐</text>
+        <text class="star-icon">✨</text>
+      </view>
+      <view class="star-sky-info">
+        <text class="star-sky-title">🌌 探索星空纪念</text>
+        <text class="star-sky-desc">每一颗星星，都是一只宠物</text>
+      </view>
+    </view>
   </view>
 
   <!-- 功能特性卡片 -->

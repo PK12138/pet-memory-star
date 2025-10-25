@@ -2036,5 +2036,30 @@ class Database:
         
         return calendar_data
     
+    # ==================== 星空纪念相关方法 ====================
+    
+    def get_all_public_memorials(self):
+        """获取所有公开的纪念馆（用于星空展示）"""
+        cursor = self.conn.cursor()
+        cursor.execute('''
+        SELECT id, pet_name, species, memorial_date, created_at
+        FROM memorials
+        WHERE is_public = 1
+        ORDER BY created_at DESC
+        LIMIT 1000
+        ''')
+        
+        memorials = []
+        for row in cursor.fetchall():
+            memorials.append({
+                'id': row[0],
+                'pet_name': row[1],
+                'species': row[2],
+                'memorial_date': row[3],
+                'created_at': row[4]
+            })
+        
+        return memorials
+    
     def close(self):
         self.conn.close()

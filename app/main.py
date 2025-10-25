@@ -2722,5 +2722,82 @@ async def get_dream_calendar(
         return {"success": False, "message": f"获取失败: {str(e)}"}
 
 
+# ==================== 星空纪念API ====================
+
+@app.get("/api/star-sky/memorials")
+async def get_star_sky_memorials():
+    """获取所有公开纪念馆（用于星空展示）"""
+    try:
+        memorials = db.get_all_public_memorials()
+        
+        # 转换为星星数据
+        stars = []
+        for memorial in memorials:
+            # 获取第一张照片
+            photos = db.get_memorial_photos(memorial['id'])
+            photo_url = photos[0] if photos else None
+            
+            # 计算星星位置（伪随机，但固定）
+            import hashlib
+            hash_val = int(hashlib.md5(memorial['id'].encode()).hexdigest()[:8], 16)
+            
+            stars.append({
+                'id': memorial['id'],
+                'pet_name': memorial['pet_name'],
+                'species': memorial['species'],
+                'memorial_date': memorial['memorial_date'],
+                'photo_url': photo_url,
+                'x': (hash_val % 10000) / 100,  # 0-100
+                'y': ((hash_val // 10000) % 10000) / 100,  # 0-100
+                'size': 2 + (hash_val % 3),  # 2-4
+                'brightness': 0.5 + ((hash_val % 50) / 100),  # 0.5-1.0
+                'color': get_star_color(memorial['species']),
+                'days_passed': calculate_days_passed(memorial['memorial_date'])
+            })
+        
+        return {
+            "success": True,
+            "stars": stars,
+            "total": len(stars)
+        }
+        
+    except Exception as e:
+        print(f"获取星空数据失败: {e}")
+        import traceback
+        traceback.print_exc()
+        return {"success": False, "message": f"获取失败: {str(e)}"}
+
+
+def get_star_color(species: str) -> str:
+    """根据宠物品种返回星星颜色"""
+    species_lower = species.lower() if species else ''
+    
+    if '猫' in species_lower or 'cat' in species_lower:
+        return '#F5A623'  # 橙色
+    elif '狗' in species_lower or 'dog' in species_lower:
+        return '#4A90E2'  # 蓝色
+    elif '兔' in species_lower or 'rabbit' in species_lower:
+        return '#7ED321'  # 绿色
+    elif '鸟' in species_lower or 'bird' in species_lower:
+        return '#FF6B6B'  # 红色
+    else:
+        return '#FFD700'  # 金色（默认）
+
+
+def calculate_days_passed(memorial_date: str) -> int:
+    """计算离世天数"""
+    if not memorial_date:
+        return 0
+    
+    try:
+        from datetime import datetime
+        memorial_dt = datetime.strptime(memorial_date, "%Y-%m-%d")
+        now = datetime.now()
+        delta = now - memorial_dt
+        return delta.days
+    except:
+        return 0
+
+
 if __name__ == "__main__":
     uvicorn.run("main:app", host="0.0.0.0", port=8000, reload=True)

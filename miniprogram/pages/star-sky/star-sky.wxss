@@ -1,0 +1,338 @@
+/* 星空纪念页面样式 */
+
+page {
+  background: linear-gradient(180deg, #0a0e27 0%, #1a1447 50%, #000000 100%);
+  height: 100vh;
+  overflow: hidden;
+}
+
+.container {
+  position: relative;
+  width: 100%;
+  height: 100vh;
+}
+
+/* 星空Canvas */
+.star-canvas {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 1;
+}
+
+/* 顶部标题 */
+.header {
+  position: absolute;
+  top: 40rpx;
+  left: 0;
+  right: 0;
+  text-align: center;
+  z-index: 10;
+}
+
+.title {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 15rpx;
+}
+
+.title-icon {
+  font-size: 50rpx;
+  animation: float 3s ease-in-out infinite;
+}
+
+@keyframes float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-10rpx); }
+}
+
+.title-text {
+  font-size: 44rpx;
+  font-weight: bold;
+  color: #ffffff;
+  text-shadow: 0 0 20rpx rgba(255, 255, 255, 0.5);
+}
+
+.subtitle {
+  margin-top: 10rpx;
+  font-size: 24rpx;
+  color: rgba(255, 255, 255, 0.6);
+  letter-spacing: 2rpx;
+}
+
+/* 底部工具栏 */
+.toolbar {
+  position: absolute;
+  bottom: 60rpx;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  gap: 60rpx;
+  z-index: 10;
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(20rpx);
+  padding: 20rpx 50rpx;
+  border-radius: 60rpx;
+  border: 1rpx solid rgba(255, 255, 255, 0.2);
+}
+
+.tool-btn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8rpx;
+}
+
+.tool-icon {
+  font-size: 40rpx;
+}
+
+.tool-label {
+  font-size: 22rpx;
+  color: rgba(255, 255, 255, 0.8);
+}
+
+/* 纪念馆信息卡片 */
+.memorial-card {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.8);
+  backdrop-filter: blur(10rpx);
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.3s ease;
+}
+
+.memorial-card.show {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.card-content {
+  position: relative;
+  width: 85%;
+  max-width: 600rpx;
+  background: linear-gradient(135deg, rgba(102, 126, 234, 0.15) 0%, rgba(118, 75, 162, 0.15) 100%);
+  backdrop-filter: blur(30rpx);
+  border-radius: 40rpx;
+  padding: 50rpx 40rpx 40rpx;
+  border: 2rpx solid rgba(255, 255, 255, 0.2);
+  box-shadow: 0 20rpx 60rpx rgba(0, 0, 0, 0.5);
+}
+
+.close-btn {
+  position: absolute;
+  top: 20rpx;
+  right: 20rpx;
+  width: 60rpx;
+  height: 60rpx;
+  line-height: 60rpx;
+  text-align: center;
+  font-size: 50rpx;
+  color: rgba(255, 255, 255, 0.6);
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.pet-photo {
+  width: 200rpx;
+  height: 200rpx;
+  margin: 0 auto 30rpx;
+  border-radius: 50%;
+  overflow: hidden;
+  border: 4rpx solid rgba(255, 255, 255, 0.3);
+  box-shadow: 0 10rpx 30rpx rgba(0, 0, 0, 0.3);
+}
+
+.photo-img {
+  width: 100%;
+  height: 100%;
+}
+
+.photo-placeholder {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, #667eea, #764ba2);
+}
+
+.placeholder-emoji {
+  font-size: 100rpx;
+}
+
+.pet-info {
+  text-align: center;
+  margin-bottom: 30rpx;
+}
+
+.pet-name {
+  font-size: 40rpx;
+  font-weight: bold;
+  color: #ffffff;
+  margin-bottom: 10rpx;
+}
+
+.pet-species {
+  font-size: 28rpx;
+  color: rgba(255, 255, 255, 0.7);
+  margin-bottom: 15rpx;
+}
+
+.pet-date {
+  font-size: 24rpx;
+  color: rgba(255, 255, 255, 0.5);
+  margin-bottom: 10rpx;
+}
+
+.days-passed {
+  font-size: 26rpx;
+  color: #FFD700;
+  padding: 10rpx 20rpx;
+  background: rgba(255, 215, 0, 0.1);
+  border-radius: 20rpx;
+  display: inline-block;
+}
+
+.action-buttons {
+  display: flex;
+  gap: 15rpx;
+}
+
+.action-btn {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8rpx;
+  padding: 20rpx 10rpx;
+  background: rgba(255, 255, 255, 0.1);
+  border: 1rpx solid rgba(255, 255, 255, 0.2);
+  border-radius: 20rpx;
+  color: rgba(255, 255, 255, 0.9);
+  font-size: 24rpx;
+  transition: all 0.3s;
+}
+
+.action-btn.primary {
+  background: linear-gradient(135deg, #667eea, #764ba2);
+  border: none;
+  color: #ffffff;
+}
+
+.action-btn:active {
+  transform: scale(0.95);
+  opacity: 0.8;
+}
+
+.btn-icon {
+  font-size: 32rpx;
+}
+
+/* 加载中 */
+.loading-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.8);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  z-index: 200;
+}
+
+.loading-spinner {
+  width: 80rpx;
+  height: 80rpx;
+  border: 6rpx solid rgba(255, 255, 255, 0.2);
+  border-top-color: #ffffff;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+.loading-text {
+  margin-top: 30rpx;
+  font-size: 28rpx;
+  color: rgba(255, 255, 255, 0.8);
+}
+
+/* 流星 */
+.meteor {
+  position: absolute;
+  width: 4rpx;
+  height: 120rpx;
+  background: linear-gradient(to bottom, rgba(255, 255, 255, 0.8), transparent);
+  border-radius: 2rpx;
+  opacity: 0;
+  z-index: 5;
+}
+
+.meteor.flying {
+  animation: meteor-fall 2s ease-out;
+}
+
+@keyframes meteor-fall {
+  0% {
+    top: 0;
+    right: 0;
+    opacity: 1;
+    transform: rotate(45deg) translateX(0);
+  }
+  100% {
+    top: 100%;
+    right: 50%;
+    opacity: 0;
+    transform: rotate(45deg) translateX(100rpx);
+  }
+}
+
+/* 星星数量显示 */
+.star-count {
+  position: absolute;
+  top: 150rpx;
+  right: 30rpx;
+  display: flex;
+  align-items: center;
+  gap: 10rpx;
+  padding: 15rpx 25rpx;
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(20rpx);
+  border-radius: 30rpx;
+  border: 1rpx solid rgba(255, 255, 255, 0.2);
+  z-index: 10;
+}
+
+.count-icon {
+  font-size: 30rpx;
+  animation: twinkle 2s ease-in-out infinite;
+}
+
+@keyframes twinkle {
+  0%, 100% { opacity: 0.5; transform: scale(1); }
+  50% { opacity: 1; transform: scale(1.2); }
+}
+
+.count-text {
+  font-size: 24rpx;
+  color: rgba(255, 255, 255, 0.8);
+  font-weight: bold;
+}
+

@@ -179,6 +179,13 @@ Page({
     })
   },
 
+  // 跳转到星空纪念页面
+  goToStarSky() {
+    wx.navigateTo({
+      url: '/pages/star-sky/star-sky'
+    })
+  },
+
   // 跳转到纪念馆列表
   goToMemorials() {
     wx.navigateTo({

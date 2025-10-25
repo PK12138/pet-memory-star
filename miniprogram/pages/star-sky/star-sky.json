@@ -1,0 +1,10 @@
+{
+  "navigationBarTitleText": "星空纪念",
+  "navigationBarBackgroundColor": "#0a0e27",
+  "navigationBarTextStyle": "white",
+  "navigationStyle": "custom",
+  "enablePullDownRefresh": false,
+  "backgroundColor": "#000000",
+  "backgroundTextStyle": "light"
+}
+

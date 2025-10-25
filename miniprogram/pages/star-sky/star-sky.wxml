@@ -1,0 +1,103 @@
+<!--星空纪念页面-->
+<view class="container">
+  <!-- 星空Canvas -->
+  <canvas 
+    canvas-id="starCanvas" 
+    type="2d"
+    id="starCanvas"
+    class="star-canvas"
+    bindtouchstart="onTouchStart"
+    bindtouchmove="onTouchMove"
+    bindtouchend="onTouchEnd"
+  ></canvas>
+
+  <!-- 顶部标题 -->
+  <view class="header">
+    <view class="title">
+      <text class="title-icon">🌙</text>
+      <text class="title-text">星空纪念</text>
+    </view>
+    <view class="subtitle">每一颗星星，都是一只宠物</view>
+  </view>
+
+  <!-- 底部工具栏 -->
+  <view class="toolbar">
+    <view class="tool-btn" bindtap="goToSearch">
+      <text class="tool-icon">🔍</text>
+      <text class="tool-label">搜索</text>
+    </view>
+    <view class="tool-btn" bindtap="goToMyStar">
+      <text class="tool-icon">🏠</text>
+      <text class="tool-label">我的星星</text>
+    </view>
+    <view class="tool-btn" bindtap="makeWish">
+      <text class="tool-icon">✨</text>
+      <text class="tool-label">许愿</text>
+    </view>
+  </view>
+
+  <!-- 纪念馆信息卡片 -->
+  <view class="memorial-card {{showCard ? 'show' : ''}}" catchtap="closeCard">
+    <view class="card-content" catchtap="stopPropagation">
+      <!-- 关闭按钮 -->
+      <view class="close-btn" catchtap="closeCard">×</view>
+      
+      <!-- 宠物照片 -->
+      <view class="pet-photo">
+        <image 
+          wx:if="{{selectedStar.photo_url}}" 
+          src="{{selectedStar.photo_url}}" 
+          mode="aspectFill"
+          class="photo-img"
+        />
+        <view wx:else class="photo-placeholder">
+          <text class="placeholder-emoji">{{getSpeciesEmoji(selectedStar.species)}}</text>
+        </view>
+      </view>
+
+      <!-- 宠物信息 -->
+      <view class="pet-info">
+        <view class="pet-name">{{selectedStar.pet_name}}</view>
+        <view class="pet-species">{{selectedStar.species}}</view>
+        <view class="pet-date" wx:if="{{selectedStar.memorial_date}}">
+          {{selectedStar.memorial_date}}
+        </view>
+        <view class="days-passed" wx:if="{{selectedStar.days_passed > 0}}">
+          化作星星的第{{selectedStar.days_passed}}天
+        </view>
+      </view>
+
+      <!-- 操作按钮 -->
+      <view class="action-buttons">
+        <button class="action-btn primary" bindtap="viewMemorial">
+          <text class="btn-icon">🏛️</text>
+          <text>查看纪念馆</text>
+        </button>
+        <button class="action-btn" bindtap="sendFlower">
+          <text class="btn-icon">🌸</text>
+          <text>送花</text>
+        </button>
+        <button class="action-btn" bindtap="lightStar">
+          <text class="btn-icon">✨</text>
+          <text>点亮星星</text>
+        </button>
+      </view>
+    </view>
+  </view>
+
+  <!-- 加载中 -->
+  <view wx:if="{{loading}}" class="loading-overlay">
+    <view class="loading-spinner"></view>
+    <text class="loading-text">星空加载中...</text>
+  </view>
+
+  <!-- 流星 -->
+  <view class="meteor {{showMeteor ? 'flying' : ''}}"></view>
+
+  <!-- 星星数量显示 -->
+  <view class="star-count">
+    <text class="count-icon">⭐</text>
+    <text class="count-text">{{totalStars}}颗星星</text>
+  </view>
+</view>
+

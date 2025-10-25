@@ -63,6 +63,8 @@ payment_service = PaymentService()
 from virtual_companion_service import VirtualCompanionService
 virtual_companion_service = VirtualCompanionService(db)
 from dream_analysis_service import DreamAnalysisService
+# 从环境变量获取 DeepSeek API Key
+DEEPSEEK_API_KEY = os.getenv('DEEPSEEK_API_KEY', '')
 dream_analysis_service = DreamAnalysisService(api_key=DEEPSEEK_API_KEY)
 
 # 依赖函数：获取当前用户

@@ -18,6 +18,17 @@
     <view wx:else class="user-welcome">
       <view class="welcome-text">欢迎回来！</view>
       <view class="user-email">{{userInfo.email}}</view>
+      <!-- 用户操作按钮 -->
+      <view class="user-actions">
+        <button class="user-action-btn" bindtap="goToUserCenter">
+          <text class="btn-icon">📊</text>
+          <text class="btn-text">个人中心</text>
+        </button>
+        <button class="user-action-btn" bindtap="logout">
+          <text class="btn-icon">🚪</text>
+          <text class="btn-text">退出登录</text>
+        </button>
+      </view>
     </view>
     
     <!-- 主要操作按钮 -->
@@ -62,28 +73,4 @@
     </view>
   </view>
   
-  <!-- 用户操作区域 -->
-  <view wx:if="{{userInfo}}" class="user-actions-section">
-    <view class="glass-card">
-      <text class="section-title">快速操作</text>
-      <view class="action-grid">
-        <button class="action-btn" bindtap="goToMemorials">
-          <text class="btn-icon">🏛️</text>
-          <text class="btn-text">我的纪念馆</text>
-        </button>
-        <button class="action-btn" bindtap="goToPhotoManager">
-          <text class="btn-icon">📷</text>
-          <text class="btn-text">照片管理</text>
-        </button>
-        <button class="action-btn" bindtap="goToUserCenter">
-          <text class="btn-icon">👤</text>
-          <text class="btn-text">个人中心</text>
-        </button>
-        <button class="action-btn" bindtap="goToPayment">
-          <text class="btn-icon">💎</text>
-          <text class="btn-text">充值升级</text>
-        </button>
-      </view>
-    </view>
-  </view>
 </view>

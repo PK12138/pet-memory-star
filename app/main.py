@@ -489,17 +489,39 @@ async def create_memorial_advanced(
 
 
 @app.get("/memorial/{memorial_id}", response_class=HTMLResponse)
-def view_memorial(memorial_id: str):
+async def view_memorial(request: Request, memorial_id: str):
     """查看纪念馆页面"""
-    # 使用绝对路径读取纪念馆文件
-    storage_base = os.path.join(os.path.dirname(os.path.dirname(__file__)), "storage")
-    memorial_path = os.path.join(storage_base, "memorials", f"{memorial_id}.html")
-    if not os.path.exists(memorial_path):
-        return HTMLResponse(content="<h1>纪念馆不存在</h1>", status_code=404)
-    
-    with open(memorial_path, "r", encoding="utf-8") as f:
-        content = f.read()
-    return HTMLResponse(content=content)
+    try:
+        # 获取纪念馆信息
+        memorial = db.get_memorial_by_id(memorial_id)
+        if not memorial:
+            return HTMLResponse(content="<h1>纪念馆不存在</h1>", status_code=404)
+        
+        pet_info = db.get_pet_by_memorial_id(memorial_id)
+        if not pet_info:
+            return HTMLResponse(content="<h1>纪念馆数据异常</h1>", status_code=404)
+        
+        # 获取照片
+        photos = db.get_memorial_photos(memorial_id)
+        
+        # 使用模板渲染
+        return templates.TemplateResponse("memorial.html", {
+            "request": request,
+            "memorial_id": memorial_id,
+            "pet_name": pet_info.get("name", "宠物"),
+            "species": pet_info.get("species", "未知"),
+            "memorial_date": memorial.get("created_at", "")[:10] if memorial.get("created_at") else "",
+            "age": pet_info.get("age", ""),
+            "gender": pet_info.get("gender", ""),
+            "personality": pet_info.get("personality", ""),
+            "story": pet_info.get("story", ""),
+            "photos": photos,
+            "personality_type": pet_info.get("personality_type", ""),
+            "ai_letter": pet_info.get("ai_letter", "")
+        })
+    except Exception as e:
+        print(f"查看纪念馆错误: {str(e)}")
+        return HTMLResponse(content=f"<h1>加载失败: {str(e)}</h1>", status_code=500)
 
 @app.get("/memorial/{memorial_id}/ai-chat", response_class=HTMLResponse)
 async def ai_chat_page(request: Request, memorial_id: str):

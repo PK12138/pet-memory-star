@@ -1,0 +1,370 @@
+page {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  min-height: 100vh;
+  padding-bottom: 40rpx;
+}
+
+.container {
+  padding: 30rpx;
+}
+
+/* 顶部信息 */
+.header {
+  background: white;
+  border-radius: 30rpx;
+  padding: 40rpx;
+  margin-bottom: 30rpx;
+  box-shadow: 0 10rpx 40rpx rgba(0, 0, 0, 0.1);
+}
+
+.pet-info {
+  display: flex;
+  align-items: center;
+  gap: 30rpx;
+}
+
+.pet-avatar {
+  width: 120rpx;
+  height: 120rpx;
+  border-radius: 50%;
+  border: 6rpx solid #667eea;
+}
+
+.pet-avatar-placeholder {
+  width: 120rpx;
+  height: 120rpx;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #667eea, #764ba2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 60rpx;
+}
+
+.pet-details {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 10rpx;
+}
+
+.pet-name {
+  font-size: 40rpx;
+  font-weight: 600;
+  color: #333;
+}
+
+.pet-subtitle {
+  font-size: 26rpx;
+  color: #999;
+}
+
+/* 卡片 */
+.card {
+  background: white;
+  border-radius: 30rpx;
+  padding: 40rpx;
+  margin-bottom: 30rpx;
+  box-shadow: 0 10rpx 40rpx rgba(0, 0, 0, 0.1);
+}
+
+.card-title {
+  display: flex;
+  align-items: center;
+  gap: 15rpx;
+  font-size: 32rpx;
+  font-weight: 600;
+  color: #333;
+  margin-bottom: 30rpx;
+}
+
+.card-icon {
+  font-size: 36rpx;
+}
+
+/* 宠物状态 */
+.status-bars {
+  display: flex;
+  flex-direction: column;
+  gap: 35rpx;
+}
+
+.status-item {
+  display: flex;
+  flex-direction: column;
+  gap: 15rpx;
+}
+
+.status-label {
+  display: flex;
+  justify-content: space-between;
+  font-size: 28rpx;
+  color: #666;
+}
+
+.status-value {
+  font-weight: 600;
+  color: #667eea;
+}
+
+.status-bar {
+  height: 20rpx;
+  background: #f0f0f0;
+  border-radius: 20rpx;
+  overflow: hidden;
+}
+
+.status-fill {
+  height: 100%;
+  border-radius: 20rpx;
+  transition: width 0.5s ease;
+}
+
+.status-fill-mood {
+  background: linear-gradient(90deg, #f093fb 0%, #f5576c 100%);
+}
+
+.status-fill-energy {
+  background: linear-gradient(90deg, #4facfe 0%, #00f2fe 100%);
+}
+
+.status-fill-intimacy {
+  background: linear-gradient(90deg, #fa709a 0%, #fee140 100%);
+}
+
+/* 互动游戏 */
+.game-buttons {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 25rpx;
+}
+
+.game-btn {
+  background: linear-gradient(135deg, #667eea, #764ba2);
+  color: white;
+  padding: 40rpx;
+  border-radius: 25rpx;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 15rpx;
+  transition: all 0.3s ease;
+  box-shadow: 0 8rpx 20rpx rgba(102, 126, 234, 0.3);
+}
+
+.game-btn:active {
+  transform: scale(0.95);
+  box-shadow: 0 4rpx 10rpx rgba(102, 126, 234, 0.3);
+}
+
+.game-icon {
+  font-size: 60rpx;
+}
+
+.game-label {
+  font-size: 28rpx;
+  font-weight: 600;
+}
+
+/* 问候消息 */
+.greetings-container {
+  margin-bottom: 25rpx;
+}
+
+.greetings-list {
+  max-height: 600rpx;
+}
+
+.greeting-item {
+  background: #f8f9fa;
+  padding: 25rpx;
+  border-radius: 20rpx;
+  margin-bottom: 20rpx;
+  border-left: 6rpx solid #667eea;
+}
+
+.greeting-type-badge {
+  display: inline-block;
+  padding: 8rpx 20rpx;
+  border-radius: 20rpx;
+  font-size: 22rpx;
+  color: white;
+  margin-bottom: 15rpx;
+}
+
+.type-morning {
+  background: linear-gradient(135deg, #f093fb, #f5576c);
+}
+
+.type-evening {
+  background: linear-gradient(135deg, #4facfe, #00f2fe);
+}
+
+.type-random {
+  background: linear-gradient(135deg, #667eea, #764ba2);
+}
+
+.greeting-content {
+  display: block;
+  color: #333;
+  font-size: 28rpx;
+  line-height: 1.6;
+  margin-bottom: 15rpx;
+}
+
+.greeting-time {
+  display: block;
+  color: #999;
+  font-size: 22rpx;
+}
+
+.btn-get-greeting {
+  width: 100%;
+  background: linear-gradient(135deg, #667eea, #764ba2);
+  color: white;
+  border: none;
+  border-radius: 20rpx;
+  padding: 25rpx;
+  font-size: 28rpx;
+  font-weight: 600;
+}
+
+/* 互动统计 */
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 25rpx;
+}
+
+.stat-item {
+  background: linear-gradient(135deg, #667eea, #764ba2);
+  color: white;
+  padding: 35rpx;
+  border-radius: 20rpx;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 15rpx;
+  box-shadow: 0 8rpx 20rpx rgba(102, 126, 234, 0.3);
+}
+
+.stat-icon {
+  font-size: 60rpx;
+}
+
+.stat-value {
+  font-size: 50rpx;
+  font-weight: 700;
+}
+
+.stat-label {
+  font-size: 24rpx;
+  opacity: 0.9;
+}
+
+/* 情绪曲线 */
+.emotion-chart {
+  padding: 20rpx 0;
+}
+
+.chart-legend {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 30rpx;
+}
+
+.legend-item {
+  display: flex;
+  align-items: center;
+  gap: 10rpx;
+  font-size: 24rpx;
+  color: #666;
+}
+
+.legend-dot {
+  width: 20rpx;
+  height: 20rpx;
+  border-radius: 50%;
+}
+
+.chart-area {
+  display: flex;
+  gap: 20rpx;
+}
+
+.y-axis {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: 15rpx 0;
+}
+
+.y-label {
+  font-size: 30rpx;
+  text-align: center;
+}
+
+.chart-content {
+  flex: 1;
+  display: flex;
+  justify-content: space-around;
+  align-items: flex-end;
+  background: linear-gradient(to top, rgba(102, 126, 234, 0.05), transparent);
+  border-radius: 15rpx;
+  padding: 20rpx;
+  min-height: 300rpx;
+}
+
+.chart-bar {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  flex: 1;
+  max-width: 80rpx;
+}
+
+.bar {
+  width: 40rpx;
+  min-height: 10rpx;
+  border-radius: 10rpx 10rpx 0 0;
+  margin-bottom: 10rpx;
+  transition: height 0.5s ease;
+}
+
+.x-label {
+  font-size: 20rpx;
+  color: #999;
+  transform: rotate(-45deg);
+  transform-origin: center;
+  margin-top: 10rpx;
+}
+
+/* 加载和空状态 */
+.loading-state, .empty-state {
+  text-align: center;
+  padding: 60rpx 40rpx;
+  color: #999;
+}
+
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 15rpx;
+}
+
+.empty-icon {
+  font-size: 100rpx;
+  margin-bottom: 20rpx;
+}
+
+.empty-text {
+  font-size: 28rpx;
+  color: #666;
+}
+
+.empty-hint {
+  font-size: 24rpx;
+  color: #999;
+}
+

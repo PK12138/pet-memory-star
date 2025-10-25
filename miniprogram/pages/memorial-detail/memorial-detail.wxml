@@ -142,6 +142,21 @@
     </view>
   </view>
   
+  <!-- 虚拟陪伴 -->
+  <view class="companion-section">
+    <text class="section-title">虚拟陪伴</text>
+    <view class="feature-card companion-card">
+      <view class="feature-icon">🤖</view>
+      <view class="feature-info">
+        <text class="feature-title">智能互动陪伴</text>
+        <text class="feature-desc">与TA互动游戏，获取主动问候</text>
+      </view>
+      <button class="feature-btn companion-btn" bindtap="goToVirtualCompanion">
+        <text>开始陪伴</text>
+      </button>
+    </view>
+  </view>
+  
   <!-- 纪念馆信息 -->
   <view class="info-section">
     <text class="section-title">详细信息</text>

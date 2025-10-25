@@ -498,6 +498,21 @@
   background: #fff;
 }
 
+.companion-section {
+  padding: 30rpx 20rpx;
+  background: #fff;
+}
+
+.companion-card {
+  background: linear-gradient(135deg, rgba(102, 126, 234, 0.05), rgba(118, 75, 162, 0.05));
+  border: 2rpx solid rgba(102, 126, 234, 0.2);
+}
+
+.companion-btn {
+  background: linear-gradient(135deg, #667eea, #764ba2) !important;
+  box-shadow: 0 8rpx 20rpx rgba(102, 126, 234, 0.3);
+}
+
 .feature-card {
   background: linear-gradient(135deg, #f5f7fa 0%, #ffffff 100%);
   border-radius: 20rpx;

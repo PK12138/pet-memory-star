@@ -1,0 +1,199 @@
+<view class="container">
+  <!-- 顶部信息 -->
+  <view class="header">
+    <view class="pet-info">
+      <image wx:if="{{petAvatar}}" class="pet-avatar" src="{{petAvatar}}" mode="aspectFill"></image>
+      <view wx:else class="pet-avatar-placeholder">🐾</view>
+      <view class="pet-details">
+        <text class="pet-name">{{petName}}</text>
+        <text class="pet-subtitle">虚拟陪伴系统</text>
+      </view>
+    </view>
+  </view>
+
+  <!-- 宠物状态 -->
+  <view class="card">
+    <view class="card-title">
+      <text class="card-icon">💕</text>
+      <text>宠物状态</text>
+    </view>
+    
+    <view wx:if="{{!loading}}" class="status-bars">
+      <view class="status-item">
+        <view class="status-label">
+          <text>😊 心情</text>
+          <text class="status-value">{{petState.mood}}/100</text>
+        </view>
+        <view class="status-bar">
+          <view class="status-fill status-fill-mood" style="width: {{petState.mood}}%"></view>
+        </view>
+      </view>
+      
+      <view class="status-item">
+        <view class="status-label">
+          <text>⚡ 活力</text>
+          <text class="status-value">{{petState.energy}}/100</text>
+        </view>
+        <view class="status-bar">
+          <view class="status-fill status-fill-energy" style="width: {{petState.energy}}%"></view>
+        </view>
+      </view>
+      
+      <view class="status-item">
+        <view class="status-label">
+          <text>💖 亲密度</text>
+          <text class="status-value">{{petState.intimacy}}/100</text>
+        </view>
+        <view class="status-bar">
+          <view class="status-fill status-fill-intimacy" style="width: {{petState.intimacy}}%"></view>
+        </view>
+      </view>
+    </view>
+    
+    <view wx:else class="loading-state">
+      <text>加载中...</text>
+    </view>
+  </view>
+
+  <!-- 互动游戏 -->
+  <view class="card">
+    <view class="card-title">
+      <text class="card-icon">🎮</text>
+      <text>互动游戏</text>
+    </view>
+    
+    <view class="game-buttons">
+      <view class="game-btn" data-type="feed" bindtap="playGame">
+        <text class="game-icon">🍖</text>
+        <text class="game-label">喂食</text>
+      </view>
+      
+      <view class="game-btn" data-type="play" bindtap="playGame">
+        <text class="game-icon">🎾</text>
+        <text class="game-label">玩耍</text>
+      </view>
+      
+      <view class="game-btn" data-type="walk" bindtap="playGame">
+        <text class="game-icon">🚶</text>
+        <text class="game-label">散步</text>
+      </view>
+      
+      <view class="game-btn" data-type="pet" bindtap="playGame">
+        <text class="game-icon">👋</text>
+        <text class="game-label">抚摸</text>
+      </view>
+    </view>
+  </view>
+
+  <!-- 问候消息 -->
+  <view class="card">
+    <view class="card-title">
+      <text class="card-icon">💌</text>
+      <text>主动问候</text>
+    </view>
+    
+    <view wx:if="{{!loadingGreetings}}" class="greetings-container">
+      <scroll-view wx:if="{{greetings.length > 0}}" class="greetings-list" scroll-y>
+        <view wx:for="{{greetings}}" wx:key="id" class="greeting-item">
+          <view class="greeting-type-badge {{greeting.type === 'morning' ? 'type-morning' : greeting.type === 'evening' ? 'type-evening' : 'type-random'}}">
+            {{greeting.type === 'morning' ? '早安' : greeting.type === 'evening' ? '晚安' : greeting.type === 'special_day' ? '特殊日子' : '随机问候'}}
+          </view>
+          <text class="greeting-content">{{greeting.content}}</text>
+          <text class="greeting-time">{{formatTime(greeting.created_at)}}</text>
+        </view>
+      </scroll-view>
+      
+      <view wx:else class="empty-state">
+        <text class="empty-icon">💌</text>
+        <text class="empty-text">还没有问候消息</text>
+        <text class="empty-hint">点击下方按钮获取新问候</text>
+      </view>
+    </view>
+    
+    <view wx:else class="loading-state">
+      <text>加载中...</text>
+    </view>
+    
+    <button class="btn-get-greeting" bindtap="getNewGreeting">
+      🌟 获取新问候
+    </button>
+  </view>
+
+  <!-- 互动统计 -->
+  <view class="card">
+    <view class="card-title">
+      <text class="card-icon">📊</text>
+      <text>互动统计（最近7天）</text>
+    </view>
+    
+    <view wx:if="{{!loading}}" class="stats-grid">
+      <view class="stat-item">
+        <text class="stat-icon">🍖</text>
+        <text class="stat-value">{{stats.feed}}</text>
+        <text class="stat-label">喂食次数</text>
+      </view>
+      
+      <view class="stat-item">
+        <text class="stat-icon">🎾</text>
+        <text class="stat-value">{{stats.play}}</text>
+        <text class="stat-label">玩耍次数</text>
+      </view>
+      
+      <view class="stat-item">
+        <text class="stat-icon">🚶</text>
+        <text class="stat-value">{{stats.walk}}</text>
+        <text class="stat-label">散步次数</text>
+      </view>
+      
+      <view class="stat-item">
+        <text class="stat-icon">👋</text>
+        <text class="stat-value">{{stats.pet}}</text>
+        <text class="stat-label">抚摸次数</text>
+      </view>
+    </view>
+    
+    <view wx:else class="loading-state">
+      <text>加载中...</text>
+    </view>
+  </view>
+
+  <!-- 情绪曲线 -->
+  <view class="card">
+    <view class="card-title">
+      <text class="card-icon">📈</text>
+      <text>情绪曲线（最近7天）</text>
+    </view>
+    
+    <view wx:if="{{emotionData.dates.length > 0}}" class="emotion-chart">
+      <view class="chart-legend">
+        <view class="legend-item">
+          <view class="legend-dot" style="background: #667eea"></view>
+          <text>情绪分数</text>
+        </view>
+      </view>
+      
+      <view class="chart-area">
+        <view class="y-axis">
+          <text class="y-label">😊</text>
+          <text class="y-label">😌</text>
+          <text class="y-label">😐</text>
+          <text class="y-label">😢</text>
+        </view>
+        
+        <view class="chart-content">
+          <view wx:for="{{emotionData.dates}}" wx:key="index" class="chart-bar">
+            <view class="bar" style="height: {{(emotionData.scores[index] + 1) * 50}}%; background: linear-gradient(to top, #667eea, #764ba2);"></view>
+            <text class="x-label">{{item}}</text>
+          </view>
+        </view>
+      </view>
+    </view>
+    
+    <view wx:else class="empty-state">
+      <text class="empty-icon">📈</text>
+      <text class="empty-text">暂无情绪数据</text>
+      <text class="empty-hint">多和TA聊聊天吧</text>
+    </view>
+  </view>
+</view>
+

@@ -116,6 +116,19 @@ Page({
     })
   },
 
+  // 跳转到虚拟陪伴页面
+  goToVirtualCompanion() {
+    const { memorialId, memorialInfo } = this.data
+    const petName = memorialInfo.pet_name || '宠物'
+    const petAvatar = memorialInfo.photos && memorialInfo.photos.length > 0
+      ? encodeURIComponent(memorialInfo.photos[0])
+      : ''
+    
+    wx.navigateTo({
+      url: `/pages/virtual-companion/virtual-companion?memorialId=${memorialId}&petName=${encodeURIComponent(petName)}&petAvatar=${petAvatar}`
+    })
+  },
+
   // 跳转到AI对话页面
   goToAIChat() {
     const { memorialId, memorialInfo } = this.data

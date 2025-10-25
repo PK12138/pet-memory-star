@@ -315,6 +315,65 @@ class Database:
         )
         ''')
         
+        # 情绪记录表
+        cursor.execute('''
+        CREATE TABLE IF NOT EXISTS emotion_records (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            memorial_id TEXT NOT NULL,
+            user_id INTEGER NOT NULL,
+            emotion TEXT NOT NULL,  -- happy/sad/anxious/calm/angry/lonely/nostalgic
+            intensity REAL DEFAULT 0.5,
+            keywords TEXT,  -- JSON格式
+            message TEXT,
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            FOREIGN KEY (memorial_id) REFERENCES memorials(id),
+            FOREIGN KEY (user_id) REFERENCES users(id)
+        )
+        ''')
+        
+        # 问候消息表
+        cursor.execute('''
+        CREATE TABLE IF NOT EXISTS greeting_messages (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            memorial_id TEXT NOT NULL,
+            greeting_type TEXT NOT NULL,  -- morning/evening/special_day/random
+            content TEXT NOT NULL,
+            is_read BOOLEAN DEFAULT 0,
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            FOREIGN KEY (memorial_id) REFERENCES memorials(id)
+        )
+        ''')
+        
+        # 宠物状态表
+        cursor.execute('''
+        CREATE TABLE IF NOT EXISTS pet_states (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            memorial_id TEXT NOT NULL,
+            user_id INTEGER NOT NULL,
+            mood INTEGER DEFAULT 50,  -- 0-100
+            energy INTEGER DEFAULT 50,  -- 0-100
+            intimacy INTEGER DEFAULT 0,  -- 0-100
+            last_interaction TIMESTAMP,
+            updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            FOREIGN KEY (memorial_id) REFERENCES memorials(id),
+            FOREIGN KEY (user_id) REFERENCES users(id),
+            UNIQUE(memorial_id, user_id)
+        )
+        ''')
+        
+        # 互动记录表
+        cursor.execute('''
+        CREATE TABLE IF NOT EXISTS interaction_records (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            memorial_id TEXT NOT NULL,
+            user_id INTEGER NOT NULL,
+            interaction_type TEXT NOT NULL,  -- feed/play/walk/pet
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            FOREIGN KEY (memorial_id) REFERENCES memorials(id),
+            FOREIGN KEY (user_id) REFERENCES users(id)
+        )
+        ''')
+        
         # 邮箱验证码表
         cursor.execute('''
         CREATE TABLE IF NOT EXISTS email_codes (
@@ -1579,6 +1638,157 @@ class Database:
         WHERE memorial_id = ? AND user_id = ?
         ''', (memorial_id, user_id))
         return cursor.fetchone()[0]
+    
+    # ============ 虚拟陪伴相关方法 ============
+    
+    def save_emotion_record(self, memorial_id: str, user_id: int, emotion: str, 
+                           intensity: float, keywords: list, message: str = ""):
+        """保存情绪记录"""
+        cursor = self.conn.cursor()
+        keywords_json = json.dumps(keywords, ensure_ascii=False)
+        cursor.execute('''
+        INSERT INTO emotion_records (memorial_id, user_id, emotion, intensity, keywords, message)
+        VALUES (?, ?, ?, ?, ?, ?)
+        ''', (memorial_id, user_id, emotion, intensity, keywords_json, message))
+        self.conn.commit()
+        return cursor.lastrowid
+    
+    def get_emotion_history(self, memorial_id: str, limit: int = 50, days: int = 30):
+        """获取情绪历史记录"""
+        cursor = self.conn.cursor()
+        cursor.execute('''
+        SELECT emotion, intensity, keywords, message, created_at
+        FROM emotion_records
+        WHERE memorial_id = ? AND created_at >= datetime('now', '-' || ? || ' days')
+        ORDER BY created_at DESC
+        LIMIT ?
+        ''', (memorial_id, days, limit))
+        
+        records = []
+        for row in cursor.fetchall():
+            records.append({
+                "emotion": row[0],
+                "intensity": row[1],
+                "keywords": json.loads(row[2]) if row[2] else [],
+                "message": row[3],
+                "date": row[4]
+            })
+        return records
+    
+    def save_greeting_message(self, memorial_id: str, greeting_type: str, content: str):
+        """保存问候消息"""
+        cursor = self.conn.cursor()
+        cursor.execute('''
+        INSERT INTO greeting_messages (memorial_id, greeting_type, content)
+        VALUES (?, ?, ?)
+        ''', (memorial_id, greeting_type, content))
+        self.conn.commit()
+        return cursor.lastrowid
+    
+    def get_recent_greetings(self, memorial_id: str, limit: int = 10):
+        """获取最近的问候消息"""
+        cursor = self.conn.cursor()
+        cursor.execute('''
+        SELECT id, greeting_type, content, is_read, created_at
+        FROM greeting_messages
+        WHERE memorial_id = ?
+        ORDER BY created_at DESC
+        LIMIT ?
+        ''', (memorial_id, limit))
+        
+        greetings = []
+        for row in cursor.fetchall():
+            greetings.append({
+                "id": row[0],
+                "type": row[1],
+                "content": row[2],
+                "is_read": row[3],
+                "created_at": row[4]
+            })
+        return greetings
+    
+    def mark_greeting_as_read(self, greeting_id: int):
+        """标记问候消息为已读"""
+        cursor = self.conn.cursor()
+        cursor.execute('''
+        UPDATE greeting_messages SET is_read = 1 WHERE id = ?
+        ''', (greeting_id,))
+        self.conn.commit()
+    
+    def get_pet_state(self, memorial_id: str, user_id: int) -> dict:
+        """获取宠物状态"""
+        cursor = self.conn.cursor()
+        cursor.execute('''
+        SELECT mood, energy, intimacy, last_interaction
+        FROM pet_states
+        WHERE memorial_id = ? AND user_id = ?
+        ''', (memorial_id, user_id))
+        
+        row = cursor.fetchone()
+        if row:
+            return {
+                "mood": row[0],
+                "energy": row[1],
+                "intimacy": row[2],
+                "last_interaction": row[3]
+            }
+        else:
+            # 返回默认状态
+            return {
+                "mood": 70,
+                "energy": 60,
+                "intimacy": 0,
+                "last_interaction": None
+            }
+    
+    def update_pet_state(self, memorial_id: str, user_id: int, state: dict):
+        """更新宠物状态"""
+        cursor = self.conn.cursor()
+        cursor.execute('''
+        INSERT OR REPLACE INTO pet_states 
+        (memorial_id, user_id, mood, energy, intimacy, last_interaction, updated_at)
+        VALUES (?, ?, ?, ?, ?, ?, datetime('now'))
+        ''', (memorial_id, user_id, state.get("mood", 50), 
+              state.get("energy", 50), state.get("intimacy", 0),
+              state.get("last_interaction")))
+        self.conn.commit()
+    
+    def record_interaction(self, memorial_id: str, user_id: int, interaction_type: str):
+        """记录互动"""
+        cursor = self.conn.cursor()
+        cursor.execute('''
+        INSERT INTO interaction_records (memorial_id, user_id, interaction_type)
+        VALUES (?, ?, ?)
+        ''', (memorial_id, user_id, interaction_type))
+        self.conn.commit()
+        return cursor.lastrowid
+    
+    def get_interaction_stats(self, memorial_id: str, user_id: int, days: int = 7):
+        """获取互动统计"""
+        cursor = self.conn.cursor()
+        cursor.execute('''
+        SELECT interaction_type, COUNT(*) as count
+        FROM interaction_records
+        WHERE memorial_id = ? AND user_id = ? 
+        AND created_at >= datetime('now', '-' || ? || ' days')
+        GROUP BY interaction_type
+        ''', (memorial_id, user_id, days))
+        
+        stats = {}
+        for row in cursor.fetchall():
+            stats[row[0]] = row[1]
+        
+        # 总互动次数
+        total = sum(stats.values())
+        
+        return {
+            "feed": stats.get("feed", 0),
+            "play": stats.get("play", 0),
+            "walk": stats.get("walk", 0),
+            "pet": stats.get("pet", 0),
+            "total": total,
+            "days": days
+        }
     
     def close(self):
         self.conn.close()

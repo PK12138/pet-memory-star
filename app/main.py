@@ -60,6 +60,8 @@ email_service = EmailService()
 auth_service = AuthService(db)
 ai_chat_service = AIChatService()
 payment_service = PaymentService()
+from virtual_companion_service import VirtualCompanionService
+virtual_companion_service = VirtualCompanionService(db)
 
 # 依赖函数：获取当前用户
 async def get_current_user(
@@ -2181,6 +2183,161 @@ async def get_greeting(
         
     except Exception as e:
         print(f"获取问候语失败: {e}")
+        return {"success": False, "message": f"获取失败: {str(e)}"}
+
+# ============ 虚拟陪伴相关API ============
+
+@app.post("/api/companion/{memorial_id}/analyze-emotion")
+async def analyze_emotion(
+    memorial_id: str,
+    request: Request,
+    session_token: str = Header(None, alias="x-session-token")
+):
+    """分析消息情绪"""
+    try:
+        user = auth_service.get_current_user(session_token)
+        if not user:
+            return {"success": False, "message": "用户未登录"}
+        
+        body = await request.json()
+        message = body.get("message", "")
+        
+        if not message:
+            return {"success": False, "message": "消息不能为空"}
+        
+        # 分析情绪
+        emotion_data = virtual_companion_service.analyze_emotion(message)
+        
+        # 保存情绪记录
+        db.save_emotion_record(
+            memorial_id, 
+            user["id"], 
+            emotion_data.get("emotion", "calm"),
+            emotion_data.get("intensity", 0.5),
+            emotion_data.get("keywords", []),
+            message
+        )
+        
+        return {
+            "success": True,
+            "emotion_data": emotion_data
+        }
+        
+    except Exception as e:
+        print(f"分析情绪失败: {e}")
+        return {"success": False, "message": f"分析失败: {str(e)}"}
+
+@app.get("/api/companion/{memorial_id}/greeting")
+async def get_companion_greeting(
+    memorial_id: str,
+    greeting_type: str = "random",
+    session_token: str = Header(None, alias="x-session-token")
+):
+    """获取主动问候消息"""
+    try:
+        user = auth_service.get_current_user(session_token)
+        if not user:
+            return {"success": False, "message": "用户未登录"}
+        
+        # 生成问候
+        greeting = virtual_companion_service.generate_greeting(memorial_id, greeting_type)
+        
+        return greeting
+        
+    except Exception as e:
+        print(f"生成问候失败: {e}")
+        return {"success": False, "message": f"生成失败: {str(e)}"}
+
+@app.post("/api/companion/{memorial_id}/interact")
+async def interact_with_pet(
+    memorial_id: str,
+    request: Request,
+    session_token: str = Header(None, alias="x-session-token")
+):
+    """与宠物互动游戏"""
+    try:
+        user = auth_service.get_current_user(session_token)
+        if not user:
+            return {"success": False, "message": "用户未登录"}
+        
+        body = await request.json()
+        game_type = body.get("game_type", "pet")  # feed/play/walk/pet
+        
+        # 执行互动
+        result = virtual_companion_service.play_interaction_game(
+            memorial_id, 
+            game_type, 
+            user["id"]
+        )
+        
+        return result
+        
+    except Exception as e:
+        print(f"互动失败: {e}")
+        return {"success": False, "message": f"互动失败: {str(e)}"}
+
+@app.get("/api/companion/{memorial_id}/emotion-curve")
+async def get_emotion_curve(
+    memorial_id: str,
+    days: int = 7,
+    session_token: str = Header(None, alias="x-session-token")
+):
+    """获取情绪曲线数据"""
+    try:
+        user = auth_service.get_current_user(session_token)
+        if not user:
+            return {"success": False, "message": "用户未登录"}
+        
+        # 获取情绪曲线
+        curve_data = virtual_companion_service.get_emotion_curve(memorial_id, days)
+        
+        return curve_data
+        
+    except Exception as e:
+        print(f"获取情绪曲线失败: {e}")
+        return {"success": False, "message": f"获取失败: {str(e)}"}
+
+@app.get("/api/companion/{memorial_id}/status")
+async def get_companion_status(
+    memorial_id: str,
+    session_token: str = Header(None, alias="x-session-token")
+):
+    """获取虚拟陪伴状态"""
+    try:
+        user = auth_service.get_current_user(session_token)
+        if not user:
+            return {"success": False, "message": "用户未登录"}
+        
+        # 获取状态
+        status = virtual_companion_service.get_companion_status(memorial_id, user["id"])
+        
+        return status
+        
+    except Exception as e:
+        print(f"获取状态失败: {e}")
+        return {"success": False, "message": f"获取失败: {str(e)}"}
+
+@app.get("/api/companion/{memorial_id}/recent-greetings")
+async def get_recent_greetings(
+    memorial_id: str,
+    limit: int = 10,
+    session_token: str = Header(None, alias="x-session-token")
+):
+    """获取最近的问候消息"""
+    try:
+        user = auth_service.get_current_user(session_token)
+        if not user:
+            return {"success": False, "message": "用户未登录"}
+        
+        greetings = db.get_recent_greetings(memorial_id, limit)
+        
+        return {
+            "success": True,
+            "greetings": greetings
+        }
+        
+    except Exception as e:
+        print(f"获取问候消息失败: {e}")
         return {"success": False, "message": f"获取失败: {str(e)}"}
 
 

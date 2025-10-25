@@ -534,6 +534,39 @@ async def ai_chat_page(request: Request, memorial_id: str):
             "error_code": 500
         })
 
+@app.get("/memorial/{memorial_id}/companion", response_class=HTMLResponse)
+async def virtual_companion_page(request: Request, memorial_id: str):
+    """虚拟陪伴页面"""
+    try:
+        # 获取纪念馆信息
+        pet_info = db.get_pet_by_memorial_id(memorial_id)
+        if not pet_info:
+            return templates.TemplateResponse("error.html", {
+                "request": request,
+                "error_title": "纪念馆不存在",
+                "error_message": "找不到该纪念馆",
+                "error_code": 404
+            })
+        
+        # 获取宠物的第一张照片作为头像
+        photos = db.get_memorial_photos(memorial_id)
+        pet_avatar = photos[0] if photos else ""
+        
+        return templates.TemplateResponse("virtual_companion.html", {
+            "request": request,
+            "memorial_id": memorial_id,
+            "pet_name": pet_info.get("name", "宠物"),
+            "pet_avatar": pet_avatar
+        })
+    except Exception as e:
+        print(f"虚拟陪伴页面错误: {str(e)}")
+        return templates.TemplateResponse("error.html", {
+            "request": request,
+            "error_title": "页面加载失败",
+            "error_message": str(e),
+            "error_code": 500
+        })
+
 @app.get("/api/test-email")
 async def test_email(email: str):
     """测试邮件发送功能"""

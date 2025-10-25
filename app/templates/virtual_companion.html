@@ -1,0 +1,768 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>虚拟陪伴 - {{ pet_name }}</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', 'Microsoft YaHei', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        /* 顶部导航 */
+        .header {
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            margin-bottom: 30px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .pet-info {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+        
+        .pet-avatar {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            border: 4px solid #667eea;
+            object-fit: cover;
+        }
+        
+        .pet-avatar-placeholder {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 40px;
+        }
+        
+        .pet-details h1 {
+            font-size: 2rem;
+            color: #333;
+            margin-bottom: 5px;
+        }
+        
+        .pet-subtitle {
+            color: #999;
+            font-size: 1.1rem;
+        }
+        
+        .btn-back {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            padding: 12px 30px;
+            border-radius: 25px;
+            border: none;
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+        
+        .btn-back:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(102, 126, 234, 0.4);
+        }
+        
+        /* 主内容区 */
+        .content-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 30px;
+            margin-bottom: 30px;
+        }
+        
+        .card {
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
+        }
+        
+        .card-title {
+            font-size: 1.5rem;
+            color: #333;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        /* 宠物状态卡片 */
+        .status-bars {
+            margin: 20px 0;
+        }
+        
+        .status-item {
+            margin-bottom: 20px;
+        }
+        
+        .status-label {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 8px;
+            font-size: 0.95rem;
+            color: #666;
+        }
+        
+        .status-bar {
+            height: 12px;
+            background: #f0f0f0;
+            border-radius: 10px;
+            overflow: hidden;
+            position: relative;
+        }
+        
+        .status-fill {
+            height: 100%;
+            border-radius: 10px;
+            transition: width 0.5s ease;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .status-fill-mood {
+            background: linear-gradient(90deg, #f093fb 0%, #f5576c 100%);
+        }
+        
+        .status-fill-energy {
+            background: linear-gradient(90deg, #4facfe 0%, #00f2fe 100%);
+        }
+        
+        .status-fill-intimacy {
+            background: linear-gradient(90deg, #fa709a 0%, #fee140 100%);
+        }
+        
+        /* 互动游戏 */
+        .game-buttons {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+            margin-top: 20px;
+        }
+        
+        .game-btn {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            padding: 20px;
+            border: none;
+            border-radius: 15px;
+            cursor: pointer;
+            font-size: 1.1rem;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .game-btn:hover:not(:disabled) {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.4);
+        }
+        
+        .game-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+        
+        .game-btn-icon {
+            font-size: 2rem;
+        }
+        
+        /* 问候消息 */
+        .greetings-list {
+            max-height: 400px;
+            overflow-y: auto;
+        }
+        
+        .greeting-item {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 12px;
+            margin-bottom: 15px;
+            border-left: 4px solid #667eea;
+        }
+        
+        .greeting-type {
+            display: inline-block;
+            background: #667eea;
+            color: white;
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 0.85rem;
+            margin-bottom: 8px;
+        }
+        
+        .greeting-content {
+            color: #333;
+            line-height: 1.6;
+            margin-bottom: 8px;
+        }
+        
+        .greeting-time {
+            color: #999;
+            font-size: 0.85rem;
+        }
+        
+        .btn-get-greeting {
+            width: 100%;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            padding: 12px;
+            border: none;
+            border-radius: 12px;
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: 600;
+            margin-top: 15px;
+            transition: all 0.3s ease;
+        }
+        
+        .btn-get-greeting:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+        
+        .btn-get-greeting:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+        
+        /* 情绪曲线 */
+        .chart-container {
+            position: relative;
+            height: 300px;
+        }
+        
+        /* 互动统计 */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+            margin-top: 20px;
+        }
+        
+        .stat-item {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            padding: 20px;
+            border-radius: 12px;
+            text-align: center;
+        }
+        
+        .stat-icon {
+            font-size: 2rem;
+            margin-bottom: 10px;
+        }
+        
+        .stat-value {
+            font-size: 2rem;
+            font-weight: 700;
+            margin-bottom: 5px;
+        }
+        
+        .stat-label {
+            font-size: 0.9rem;
+            opacity: 0.9;
+        }
+        
+        /* 响应式 */
+        @media (max-width: 768px) {
+            .content-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .header {
+                flex-direction: column;
+                gap: 20px;
+            }
+        }
+        
+        /* 加载动画 */
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: #999;
+        }
+        
+        .spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #667eea;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 20px;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        /* 空状态 */
+        .empty-state {
+            text-align: center;
+            padding: 40px;
+            color: #999;
+        }
+        
+        .empty-icon {
+            font-size: 4rem;
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- 顶部导航 -->
+        <div class="header">
+            <div class="pet-info">
+                {% if pet_avatar %}
+                <img class="pet-avatar" src="{{ pet_avatar }}" alt="{{ pet_name }}">
+                {% else %}
+                <div class="pet-avatar-placeholder">🐾</div>
+                {% endif %}
+                <div class="pet-details">
+                    <h1>{{ pet_name }}</h1>
+                    <div class="pet-subtitle">虚拟陪伴系统</div>
+                </div>
+            </div>
+            <button class="btn-back" onclick="goBack()">← 返回纪念馆</button>
+        </div>
+        
+        <!-- 主内容区 -->
+        <div class="content-grid">
+            <!-- 宠物状态 -->
+            <div class="card">
+                <div class="card-title">
+                    <span>💕</span>
+                    <span>宠物状态</span>
+                </div>
+                <div class="status-bars" id="statusBars">
+                    <div class="loading">
+                        <div class="spinner"></div>
+                        <div>加载中...</div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- 互动游戏 -->
+            <div class="card">
+                <div class="card-title">
+                    <span>🎮</span>
+                    <span>互动游戏</span>
+                </div>
+                <div class="game-buttons">
+                    <button class="game-btn" onclick="playGame('feed')" id="btn-feed">
+                        <div class="game-btn-icon">🍖</div>
+                        <div>喂食</div>
+                    </button>
+                    <button class="game-btn" onclick="playGame('play')" id="btn-play">
+                        <div class="game-btn-icon">🎾</div>
+                        <div>玩耍</div>
+                    </button>
+                    <button class="game-btn" onclick="playGame('walk')" id="btn-walk">
+                        <div class="game-btn-icon">🚶</div>
+                        <div>散步</div>
+                    </button>
+                    <button class="game-btn" onclick="playGame('pet')" id="btn-pet">
+                        <div class="game-btn-icon">👋</div>
+                        <div>抚摸</div>
+                    </button>
+                </div>
+            </div>
+        </div>
+        
+        <div class="content-grid">
+            <!-- 问候消息 -->
+            <div class="card">
+                <div class="card-title">
+                    <span>💌</span>
+                    <span>主动问候</span>
+                </div>
+                <div class="greetings-list" id="greetingsList">
+                    <div class="loading">
+                        <div class="spinner"></div>
+                        <div>加载中...</div>
+                    </div>
+                </div>
+                <button class="btn-get-greeting" onclick="getNewGreeting()" id="btn-greeting">
+                    🌟 获取新问候
+                </button>
+            </div>
+            
+            <!-- 互动统计 -->
+            <div class="card">
+                <div class="card-title">
+                    <span>📊</span>
+                    <span>互动统计（最近7天）</span>
+                </div>
+                <div class="stats-grid" id="statsGrid">
+                    <div class="loading">
+                        <div class="spinner"></div>
+                        <div>加载中...</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- 情绪曲线 -->
+        <div class="card">
+            <div class="card-title">
+                <span>📈</span>
+                <span>情绪曲线（最近7天）</span>
+            </div>
+            <div class="chart-container">
+                <canvas id="emotionChart"></canvas>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        const memorialId = '{{ memorial_id }}';
+        const petName = '{{ pet_name }}';
+        let emotionChart = null;
+        
+        // 页面加载时初始化
+        window.onload = function() {
+            loadCompanionStatus();
+            loadGreetings();
+            loadEmotionCurve();
+        };
+        
+        // 加载陪伴状态
+        async function loadCompanionStatus() {
+            try {
+                const response = await fetch(`/api/companion/${memorialId}/status`, {
+                    headers: {
+                        'x-session-token': localStorage.getItem('session_token')
+                    }
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    renderPetStatus(data.pet_state);
+                    renderInteractionStats(data.interaction_stats);
+                }
+            } catch (error) {
+                console.error('加载状态失败:', error);
+            }
+        }
+        
+        // 渲染宠物状态
+        function renderPetStatus(state) {
+            const statusBars = document.getElementById('statusBars');
+            statusBars.innerHTML = `
+                <div class="status-item">
+                    <div class="status-label">
+                        <span>😊 心情</span>
+                        <span>${state.mood}/100</span>
+                    </div>
+                    <div class="status-bar">
+                        <div class="status-fill status-fill-mood" style="width: ${state.mood}%"></div>
+                    </div>
+                </div>
+                <div class="status-item">
+                    <div class="status-label">
+                        <span>⚡ 活力</span>
+                        <span>${state.energy}/100</span>
+                    </div>
+                    <div class="status-bar">
+                        <div class="status-fill status-fill-energy" style="width: ${state.energy}%"></div>
+                    </div>
+                </div>
+                <div class="status-item">
+                    <div class="status-label">
+                        <span>💖 亲密度</span>
+                        <span>${state.intimacy}/100</span>
+                    </div>
+                    <div class="status-bar">
+                        <div class="status-fill status-fill-intimacy" style="width: ${state.intimacy}%"></div>
+                    </div>
+                </div>
+            `;
+        }
+        
+        // 渲染互动统计
+        function renderInteractionStats(stats) {
+            const statsGrid = document.getElementById('statsGrid');
+            statsGrid.innerHTML = `
+                <div class="stat-item">
+                    <div class="stat-icon">🍖</div>
+                    <div class="stat-value">${stats.feed || 0}</div>
+                    <div class="stat-label">喂食次数</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-icon">🎾</div>
+                    <div class="stat-value">${stats.play || 0}</div>
+                    <div class="stat-label">玩耍次数</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-icon">🚶</div>
+                    <div class="stat-value">${stats.walk || 0}</div>
+                    <div class="stat-label">散步次数</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-icon">👋</div>
+                    <div class="stat-value">${stats.pet || 0}</div>
+                    <div class="stat-label">抚摸次数</div>
+                </div>
+            `;
+        }
+        
+        // 玩游戏
+        async function playGame(gameType) {
+            const buttons = document.querySelectorAll('.game-btn');
+            buttons.forEach(btn => btn.disabled = true);
+            
+            try {
+                const response = await fetch(`/api/companion/${memorialId}/interact`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'x-session-token': localStorage.getItem('session_token')
+                    },
+                    body: JSON.stringify({ game_type: gameType })
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    alert(data.message);
+                    renderPetStatus(data.pet_state);
+                    // 重新加载统计
+                    loadCompanionStatus();
+                }
+            } catch (error) {
+                console.error('互动失败:', error);
+                alert('互动失败，请稍后重试');
+            } finally {
+                setTimeout(() => {
+                    buttons.forEach(btn => btn.disabled = false);
+                }, 1000);
+            }
+        }
+        
+        // 加载问候消息
+        async function loadGreetings() {
+            try {
+                const response = await fetch(`/api/companion/${memorialId}/recent-greetings?limit=5`, {
+                    headers: {
+                        'x-session-token': localStorage.getItem('session_token')
+                    }
+                });
+                
+                const data = await response.json();
+                
+                if (data.success && data.greetings) {
+                    renderGreetings(data.greetings);
+                }
+            } catch (error) {
+                console.error('加载问候失败:', error);
+            }
+        }
+        
+        // 渲染问候消息
+        function renderGreetings(greetings) {
+            const greetingsList = document.getElementById('greetingsList');
+            
+            if (greetings.length === 0) {
+                greetingsList.innerHTML = `
+                    <div class="empty-state">
+                        <div class="empty-icon">💌</div>
+                        <div>还没有问候消息</div>
+                        <div>点击下方按钮获取新问候</div>
+                    </div>
+                `;
+                return;
+            }
+            
+            const typeMap = {
+                'morning': '早安',
+                'evening': '晚安',
+                'special_day': '特殊日子',
+                'random': '随机问候'
+            };
+            
+            greetingsList.innerHTML = greetings.map(g => `
+                <div class="greeting-item">
+                    <div class="greeting-type">${typeMap[g.type] || g.type}</div>
+                    <div class="greeting-content">${g.content}</div>
+                    <div class="greeting-time">${formatTime(g.created_at)}</div>
+                </div>
+            `).join('');
+        }
+        
+        // 获取新问候
+        async function getNewGreeting() {
+            const btn = document.getElementById('btn-greeting');
+            btn.disabled = true;
+            btn.textContent = '生成中...';
+            
+            const hour = new Date().getHours();
+            let greetingType = 'random';
+            if (hour >= 6 && hour < 12) {
+                greetingType = 'morning';
+            } else if (hour >= 20 || hour < 6) {
+                greetingType = 'evening';
+            }
+            
+            try {
+                const response = await fetch(`/api/companion/${memorialId}/greeting?greeting_type=${greetingType}`, {
+                    headers: {
+                        'x-session-token': localStorage.getItem('session_token')
+                    }
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    alert(data.message);
+                    loadGreetings();
+                }
+            } catch (error) {
+                console.error('获取问候失败:', error);
+                alert('获取问候失败，请稍后重试');
+            } finally {
+                btn.disabled = false;
+                btn.textContent = '🌟 获取新问候';
+            }
+        }
+        
+        // 加载情绪曲线
+        async function loadEmotionCurve() {
+            try {
+                const response = await fetch(`/api/companion/${memorialId}/emotion-curve?days=7`, {
+                    headers: {
+                        'x-session-token': localStorage.getItem('session_token')
+                    }
+                });
+                
+                const data = await response.json();
+                
+                if (data.success && data.curve_data) {
+                    renderEmotionChart(data.curve_data);
+                }
+            } catch (error) {
+                console.error('加载情绪曲线失败:', error);
+            }
+        }
+        
+        // 渲染情绪曲线图
+        function renderEmotionChart(curveData) {
+            const ctx = document.getElementById('emotionChart').getContext('2d');
+            
+            if (emotionChart) {
+                emotionChart.destroy();
+            }
+            
+            const labels = curveData.map(d => d.date.slice(5)); // 只显示月-日
+            const scores = curveData.map(d => d.score);
+            
+            emotionChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: '情绪分数',
+                        data: scores,
+                        borderColor: '#667eea',
+                        backgroundColor: 'rgba(102, 126, 234, 0.1)',
+                        borderWidth: 3,
+                        fill: true,
+                        tension: 0.4,
+                        pointRadius: 5,
+                        pointBackgroundColor: '#667eea',
+                        pointBorderColor: '#fff',
+                        pointBorderWidth: 2
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            display: false
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    let label = '情绪分数: ' + context.parsed.y.toFixed(2);
+                                    return label;
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: false,
+                            min: -1,
+                            max: 1,
+                            ticks: {
+                                callback: function(value) {
+                                    if (value > 0.5) return '😊 开心';
+                                    if (value > 0) return '😌 平静';
+                                    if (value > -0.5) return '😐 一般';
+                                    return '😢 难过';
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        }
+        
+        // 格式化时间
+        function formatTime(dateStr) {
+            const date = new Date(dateStr);
+            const now = new Date();
+            const diff = now - date;
+            const minutes = Math.floor(diff / 60000);
+            const hours = Math.floor(diff / 3600000);
+            const days = Math.floor(diff / 86400000);
+            
+            if (minutes < 1) return '刚刚';
+            if (minutes < 60) return `${minutes}分钟前`;
+            if (hours < 24) return `${hours}小时前`;
+            if (days < 7) return `${days}天前`;
+            
+            return date.toLocaleDateString('zh-CN');
+        }
+        
+        // 返回纪念馆
+        function goBack() {
+            window.location.href = `/memorial/${memorialId}`;
+        }
+    </script>
+</body>
+</html>
+

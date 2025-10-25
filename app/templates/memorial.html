@@ -45,10 +45,16 @@
             margin: 0 auto;
         }
         
-        .theme-status-btn {
+        .header-buttons {
             position: absolute;
             top: 20px;
             right: 20px;
+            display: flex;
+            gap: 10px;
+        }
+        
+        .theme-status-btn,
+        .ai-chat-btn {
             background: rgba(255, 255, 255, 0.9);
             color: #333;
             padding: 8px 16px;
@@ -58,12 +64,26 @@
             transition: all 0.3s ease;
             backdrop-filter: blur(10px);
             border: 1px solid rgba(255, 255, 255, 0.3);
+            text-decoration: none;
+            display: inline-block;
         }
         
-        .theme-status-btn:hover {
+        .theme-status-btn:hover,
+        .ai-chat-btn:hover {
             background: rgba(255, 255, 255, 1);
             transform: translateY(-2px);
             box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+        
+        .ai-chat-btn {
+            background: linear-gradient(135deg, rgba(102, 126, 234, 0.9), rgba(118, 75, 162, 0.9));
+            color: white;
+            border: 1px solid rgba(255, 255, 255, 0.5);
+        }
+        
+        .ai-chat-btn:hover {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
         }
         .pet-info {
             display: flex;
@@ -1052,7 +1072,10 @@
             <h1>{{ pet_name }}</h1>
             <p>永远在我们心中闪烁的星星</p>
             <div class="stars-container" id="stars"></div>
-            <div class="theme-status-btn" id="themeStatusBtn">🎨 选择主题</div>
+            <div class="header-buttons">
+                <a href="/memorial/{{ memorial_id }}/ai-chat" class="ai-chat-btn">💬 AI对话</a>
+                <div class="theme-status-btn" id="themeStatusBtn">🎨 选择主题</div>
+            </div>
         </div>
         
         <div class="pet-info">

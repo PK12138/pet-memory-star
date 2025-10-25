@@ -25,13 +25,21 @@ Page({
 
   // 加载纪念馆列表
   async loadMemorials() {
-    // 检查登录状态
-    if (!app.globalData.sessionToken) {
+    // 检查登录状态 - 优先从 Storage 读取，防止时序问题
+    const sessionToken = app.globalData.sessionToken || wx.getStorageSync('sessionToken')
+    console.log('loadMemorials - sessionToken:', sessionToken ? '存在' : '不存在')
+    
+    if (!sessionToken) {
       console.warn('用户未登录，跳转到登录页')
       wx.redirectTo({
         url: '/pages/login/login'
       })
       return
+    }
+    
+    // 确保 app.globalData 中也有
+    if (!app.globalData.sessionToken) {
+      app.globalData.sessionToken = sessionToken
     }
 
     this.setData({

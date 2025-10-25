@@ -159,8 +159,8 @@ Page({
       this.setData({ stars })
       this.drawStars()
       
-      // 继续动画
-      this.animationFrame = requestAnimationFrame(animate)
+      // 继续动画 - 使用setTimeout兼容旧版本
+      this.animationFrame = setTimeout(animate, 1000 / 30) // 30fps
     }
     
     animate()
@@ -284,7 +284,8 @@ Page({
 
   // 定位到我的星星
   goToMyStar() {
-    const token = wx.getStorageSync('session_token')
+    const app = getApp()
+    const token = app.globalData.sessionToken || wx.getStorageSync('sessionToken')
     if (!token) {
       wx.showToast({
         title: '请先登录',
@@ -368,7 +369,11 @@ Page({
   onUnload() {
     // 清理动画
     if (this.animationFrame) {
-      cancelAnimationFrame(this.animationFrame)
+      clearTimeout(this.animationFrame)
+    }
+    // 清理流星定时器
+    if (this.meteorTimer) {
+      clearInterval(this.meteorTimer)
     }
   }
 })

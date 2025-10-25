@@ -35,7 +35,7 @@ Page({
   // 加载星星数据
   loadStars() {
     wx.request({
-      url: `${app.globalData.apiUrl}/api/star-sky/memorials`,
+      url: `${app.globalData.baseUrl}/api/star-sky/memorials`,
       success: (res) => {
         console.log('星空数据:', res.data)
         if (res.data.success) {

@@ -86,7 +86,7 @@
             <text class="date-main">{{item.dream_date}}</text>
             <text wx:if="{{item.dream_time}}" class="date-time">{{item.dream_time}}</text>
           </view>
-          <view class="emotion-badge {{item.emotion_type}}">
+          <view class="emotion-badge" style="{{getEmotionStyle(item.emotion_type)}}">
             <text>{{getEmotionIcon(item.emotion_type)}} {{item.emotion_type}}</text>
           </view>
         </view>
@@ -176,8 +176,8 @@
           </view>
           <view class="emotion-bar-container">
             <view 
-              class="emotion-bar {{item.emotion}}" 
-              style="width: {{item.percentage}}%"
+              class="emotion-bar" 
+              style="width: {{item.percentage}}%; {{getEmotionBarStyle(item.emotion)}}"
             ></view>
           </view>
           <text class="emotion-count">{{item.count}}次</text>

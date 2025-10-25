@@ -225,35 +225,7 @@ page {
   font-weight: bold;
 }
 
-.emotion-badge.温馨 {
-  background: rgba(255, 192, 203, 0.3);
-  color: #ffb6c1;
-}
-
-.emotion-badge.思念 {
-  background: rgba(135, 206, 250, 0.3);
-  color: #87cefa;
-}
-
-.emotion-badge.快乐 {
-  background: rgba(255, 215, 0, 0.3);
-  color: #ffd700;
-}
-
-.emotion-badge.悲伤 {
-  background: rgba(128, 128, 128, 0.3);
-  color: #c0c0c0;
-}
-
-.emotion-badge.平静 {
-  background: rgba(144, 238, 144, 0.3);
-  color: #90ee90;
-}
-
-.emotion-badge.焦虑 {
-  background: rgba(255, 140, 0, 0.3);
-  color: #ff8c00;
-}
+/* 情感徽章颜色 - 通过class动态设置 */
 
 .dream-content {
   margin-bottom: 20rpx;
@@ -475,12 +447,7 @@ page {
   transition: width 0.5s ease;
 }
 
-.emotion-bar.温馨 { background: linear-gradient(90deg, #ff69b4, #ffb6c1); }
-.emotion-bar.思念 { background: linear-gradient(90deg, #4682b4, #87cefa); }
-.emotion-bar.快乐 { background: linear-gradient(90deg, #ffa500, #ffd700); }
-.emotion-bar.悲伤 { background: linear-gradient(90deg, #696969, #a9a9a9); }
-.emotion-bar.平静 { background: linear-gradient(90deg, #32cd32, #90ee90); }
-.emotion-bar.焦虑 { background: linear-gradient(90deg, #ff4500, #ff8c00); }
+/* 情感条颜色通过JS动态设置 */
 
 .emotion-count {
   width: 80rpx;

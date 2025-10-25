@@ -323,6 +323,32 @@ Page({
     return icons[emotion] || '💫'
   },
 
+  // 获取情感样式
+  getEmotionStyle(emotion) {
+    const styles = {
+      '温馨': 'background: rgba(255, 192, 203, 0.3); color: #ffb6c1;',
+      '思念': 'background: rgba(135, 206, 250, 0.3); color: #87cefa;',
+      '快乐': 'background: rgba(255, 215, 0, 0.3); color: #ffd700;',
+      '悲伤': 'background: rgba(128, 128, 128, 0.3); color: #c0c0c0;',
+      '平静': 'background: rgba(144, 238, 144, 0.3); color: #90ee90;',
+      '焦虑': 'background: rgba(255, 140, 0, 0.3); color: #ff8c00;'
+    }
+    return styles[emotion] || 'background: rgba(255, 215, 0, 0.3); color: #ffd700;'
+  },
+
+  // 获取情感条样式
+  getEmotionBarStyle(emotion) {
+    const styles = {
+      '温馨': 'background: linear-gradient(90deg, #ff69b4, #ffb6c1);',
+      '思念': 'background: linear-gradient(90deg, #4682b4, #87cefa);',
+      '快乐': 'background: linear-gradient(90deg, #ffa500, #ffd700);',
+      '悲伤': 'background: linear-gradient(90deg, #696969, #a9a9a9);',
+      '平静': 'background: linear-gradient(90deg, #32cd32, #90ee90);',
+      '焦虑': 'background: linear-gradient(90deg, #ff4500, #ff8c00);'
+    }
+    return styles[emotion] || 'background: linear-gradient(90deg, #ffa500, #ffd700);'
+  },
+
   onShow() {
     // 从其他页面返回时刷新数据
     if (this.data.memorialId) {

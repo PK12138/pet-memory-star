@@ -156,6 +156,21 @@
       </button>
     </view>
   </view>
+
+  <!-- 梦境日记 -->
+  <view class="dream-section">
+    <text class="section-title">梦境日记</text>
+    <view class="feature-card dream-card">
+      <view class="feature-icon">🌙</view>
+      <view class="feature-info">
+        <text class="feature-title">记录梦中重逢</text>
+        <text class="feature-desc">记录每一次在梦中与TA的相遇</text>
+      </view>
+      <button class="feature-btn dream-btn" bindtap="goToDreamDiary">
+        <text>查看梦境</text>
+      </button>
+    </view>
+  </view>
   
   <!-- 纪念馆信息 -->
   <view class="info-section">

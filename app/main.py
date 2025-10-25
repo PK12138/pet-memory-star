@@ -62,6 +62,8 @@ ai_chat_service = AIChatService()
 payment_service = PaymentService()
 from virtual_companion_service import VirtualCompanionService
 virtual_companion_service = VirtualCompanionService(db)
+from dream_analysis_service import DreamAnalysisService
+dream_analysis_service = DreamAnalysisService(api_key=DEEPSEEK_API_KEY)
 
 # 依赖函数：获取当前用户
 async def get_current_user(
@@ -2409,6 +2411,314 @@ async def get_recent_greetings(
         
     except Exception as e:
         print(f"获取问候消息失败: {e}")
+        return {"success": False, "message": f"获取失败: {str(e)}"}
+
+
+# ==================== 梦境日记API ====================
+
+@app.post("/api/dreams/{memorial_id}")
+async def create_dream_diary(
+    memorial_id: str,
+    request: Request,
+    session_token: str = Header(None, alias="x-session-token")
+):
+    """创建梦境日记"""
+    try:
+        user = auth_service.get_current_user(session_token)
+        if not user:
+            return {"success": False, "message": "用户未登录"}
+        
+        data = await request.json()
+        dream_content = data.get("dream_content", "").strip()
+        dream_date = data.get("dream_date")
+        dream_time = data.get("dream_time")
+        emotion_type = data.get("emotion_type")
+        is_private = data.get("is_private", False)
+        
+        if not dream_content:
+            return {"success": False, "message": "请填写梦境内容"}
+        
+        if not dream_date:
+            from datetime import datetime
+            dream_date = datetime.now().strftime("%Y-%m-%d")
+        
+        # 获取宠物信息用于AI分析
+        memorial = db.get_memorial_by_id(memorial_id)
+        if not memorial:
+            return {"success": False, "message": "纪念馆不存在"}
+        
+        pet_name = memorial.get("pet_name", "宠物")
+        
+        # AI分析梦境
+        ai_result = None
+        mood_score = data.get("mood_score")
+        suggested_tags = []
+        
+        if not emotion_type:  # 如果用户没有手动选择情绪，则使用AI分析
+            try:
+                ai_result = await dream_analysis_service.analyze_dream(dream_content, pet_name)
+                emotion_type = ai_result['emotion_type']
+                mood_score = ai_result['mood_score']
+                suggested_tags = dream_analysis_service.suggest_tags(dream_content)
+            except Exception as e:
+                print(f"AI分析失败: {e}")
+                emotion_type = "思念"
+                mood_score = 5
+        
+        # 处理标签
+        user_tags = data.get("tags", [])
+        if isinstance(user_tags, str):
+            user_tags = [t.strip() for t in user_tags.split(',') if t.strip()]
+        all_tags = list(set(user_tags + suggested_tags))
+        tags_str = ','.join(all_tags) if all_tags else None
+        
+        # 创建梦境日记
+        dream_id = db.create_dream_diary(
+            memorial_id=memorial_id,
+            user_id=user['id'],
+            dream_date=dream_date,
+            dream_content=dream_content,
+            emotion_type=emotion_type,
+            mood_score=mood_score,
+            tags=tags_str,
+            dream_time=dream_time,
+            is_private=is_private
+        )
+        
+        # 如果有AI分析结果，更新到数据库
+        if ai_result and ai_result.get('analysis'):
+            db.update_dream_diary(
+                dream_id=dream_id,
+                user_id=user['id'],
+                ai_analysis=ai_result['analysis']
+            )
+        
+        # 获取刚创建的梦境日记
+        dream = db.get_dream_diary_by_id(dream_id, user['id'])
+        
+        return {
+            "success": True,
+            "message": "梦境日记创建成功",
+            "dream": dream,
+            "suggested_tags": suggested_tags
+        }
+        
+    except Exception as e:
+        print(f"创建梦境日记失败: {e}")
+        import traceback
+        traceback.print_exc()
+        return {"success": False, "message": f"创建失败: {str(e)}"}
+
+
+@app.get("/api/dreams/{memorial_id}")
+async def get_dream_diaries(
+    memorial_id: str,
+    limit: int = 50,
+    session_token: str = Header(None, alias="x-session-token")
+):
+    """获取梦境日记列表"""
+    try:
+        user = auth_service.get_current_user(session_token)
+        if not user:
+            return {"success": False, "message": "用户未登录"}
+        
+        dreams = db.get_dream_diaries(memorial_id, user['id'], limit)
+        
+        return {
+            "success": True,
+            "dreams": dreams,
+            "total": len(dreams)
+        }
+        
+    except Exception as e:
+        print(f"获取梦境日记失败: {e}")
+        return {"success": False, "message": f"获取失败: {str(e)}"}
+
+
+@app.get("/api/dreams/{memorial_id}/detail/{dream_id}")
+async def get_dream_detail(
+    memorial_id: str,
+    dream_id: int,
+    session_token: str = Header(None, alias="x-session-token")
+):
+    """获取梦境日记详情"""
+    try:
+        user = auth_service.get_current_user(session_token)
+        if not user:
+            return {"success": False, "message": "用户未登录"}
+        
+        dream = db.get_dream_diary_by_id(dream_id, user['id'])
+        
+        if not dream:
+            return {"success": False, "message": "梦境日记不存在"}
+        
+        if dream['memorial_id'] != memorial_id:
+            return {"success": False, "message": "梦境日记与纪念馆不匹配"}
+        
+        # 获取治愈话语
+        healing_words = await dream_analysis_service.get_healing_words(
+            dream.get('emotion_type', '思念')
+        )
+        
+        return {
+            "success": True,
+            "dream": dream,
+            "healing_words": healing_words
+        }
+        
+    except Exception as e:
+        print(f"获取梦境详情失败: {e}")
+        return {"success": False, "message": f"获取失败: {str(e)}"}
+
+
+@app.put("/api/dreams/{memorial_id}/{dream_id}")
+async def update_dream_diary(
+    memorial_id: str,
+    dream_id: int,
+    request: Request,
+    session_token: str = Header(None, alias="x-session-token")
+):
+    """更新梦境日记"""
+    try:
+        user = auth_service.get_current_user(session_token)
+        if not user:
+            return {"success": False, "message": "用户未登录"}
+        
+        data = await request.json()
+        
+        # 处理标签
+        if 'tags' in data and isinstance(data['tags'], list):
+            data['tags'] = ','.join(data['tags'])
+        
+        success = db.update_dream_diary(dream_id, user['id'], **data)
+        
+        if success:
+            dream = db.get_dream_diary_by_id(dream_id, user['id'])
+            return {
+                "success": True,
+                "message": "更新成功",
+                "dream": dream
+            }
+        else:
+            return {"success": False, "message": "更新失败"}
+        
+    except Exception as e:
+        print(f"更新梦境日记失败: {e}")
+        return {"success": False, "message": f"更新失败: {str(e)}"}
+
+
+@app.delete("/api/dreams/{memorial_id}/{dream_id}")
+async def delete_dream_diary(
+    memorial_id: str,
+    dream_id: int,
+    session_token: str = Header(None, alias="x-session-token")
+):
+    """删除梦境日记"""
+    try:
+        user = auth_service.get_current_user(session_token)
+        if not user:
+            return {"success": False, "message": "用户未登录"}
+        
+        success = db.delete_dream_diary(dream_id, user['id'])
+        
+        if success:
+            return {
+                "success": True,
+                "message": "删除成功"
+            }
+        else:
+            return {"success": False, "message": "删除失败"}
+        
+    except Exception as e:
+        print(f"删除梦境日记失败: {e}")
+        return {"success": False, "message": f"删除失败: {str(e)}"}
+
+
+@app.post("/api/dreams/{memorial_id}/{dream_id}/favorite")
+async def toggle_favorite(
+    memorial_id: str,
+    dream_id: int,
+    request: Request,
+    session_token: str = Header(None, alias="x-session-token")
+):
+    """切换收藏状态"""
+    try:
+        user = auth_service.get_current_user(session_token)
+        if not user:
+            return {"success": False, "message": "用户未登录"}
+        
+        data = await request.json()
+        is_favorite = data.get("is_favorite", False)
+        
+        success = db.update_dream_diary(dream_id, user['id'], is_favorite=is_favorite)
+        
+        if success:
+            return {
+                "success": True,
+                "message": "收藏状态已更新",
+                "is_favorite": is_favorite
+            }
+        else:
+            return {"success": False, "message": "操作失败"}
+        
+    except Exception as e:
+        print(f"切换收藏失败: {e}")
+        return {"success": False, "message": f"操作失败: {str(e)}"}
+
+
+@app.get("/api/dreams/{memorial_id}/stats")
+async def get_dream_stats(
+    memorial_id: str,
+    session_token: str = Header(None, alias="x-session-token")
+):
+    """获取梦境统计"""
+    try:
+        user = auth_service.get_current_user(session_token)
+        if not user:
+            return {"success": False, "message": "用户未登录"}
+        
+        stats = db.get_dream_stats(memorial_id, user['id'])
+        
+        return {
+            "success": True,
+            "stats": stats
+        }
+        
+    except Exception as e:
+        print(f"获取梦境统计失败: {e}")
+        return {"success": False, "message": f"获取失败: {str(e)}"}
+
+
+@app.get("/api/dreams/{memorial_id}/calendar")
+async def get_dream_calendar(
+    memorial_id: str,
+    year: int = None,
+    month: int = None,
+    session_token: str = Header(None, alias="x-session-token")
+):
+    """获取梦境月历"""
+    try:
+        user = auth_service.get_current_user(session_token)
+        if not user:
+            return {"success": False, "message": "用户未登录"}
+        
+        if not year or not month:
+            from datetime import datetime
+            now = datetime.now()
+            year = year or now.year
+            month = month or now.month
+        
+        calendar_data = db.get_dream_calendar(memorial_id, user['id'], year, month)
+        
+        return {
+            "success": True,
+            "year": year,
+            "month": month,
+            "calendar": calendar_data
+        }
+        
+    except Exception as e:
+        print(f"获取梦境月历失败: {e}")
         return {"success": False, "message": f"获取失败: {str(e)}"}
 
 

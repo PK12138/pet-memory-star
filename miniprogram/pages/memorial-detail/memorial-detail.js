@@ -129,6 +129,16 @@ Page({
     })
   },
 
+  // 跳转到梦境日记
+  goToDreamDiary() {
+    const { memorialId, memorialInfo } = this.data
+    const petName = memorialInfo.pet_name || '宠物'
+    
+    wx.navigateTo({
+      url: `/pages/dream-diary/dream-diary?memorialId=${memorialId}&petName=${encodeURIComponent(petName)}`
+    })
+  },
+
   // 跳转到AI对话页面
   goToAIChat() {
     const { memorialId, memorialInfo } = this.data

@@ -289,6 +289,28 @@ class Database:
         )
         ''')
         
+        # 梦境日记表
+        cursor.execute('''
+        CREATE TABLE IF NOT EXISTS dream_diaries (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            memorial_id TEXT NOT NULL,
+            user_id INTEGER NOT NULL,
+            dream_date DATE NOT NULL,
+            dream_time TEXT,
+            dream_content TEXT NOT NULL,
+            emotion_type TEXT,
+            mood_score INTEGER,
+            tags TEXT,
+            ai_analysis TEXT,
+            is_private BOOLEAN DEFAULT 0,
+            is_favorite BOOLEAN DEFAULT 0,
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            FOREIGN KEY (memorial_id) REFERENCES memorials(id),
+            FOREIGN KEY (user_id) REFERENCES users(id)
+        )
+        ''')
+        
         # 访问统计表
         cursor.execute('''
         CREATE TABLE IF NOT EXISTS visit_stats (
@@ -1810,6 +1832,209 @@ class Database:
             "total": total,
             "days": days
         }
+    
+    # ==================== 梦境日记相关方法 ====================
+    
+    def create_dream_diary(self, memorial_id: str, user_id: int, dream_date: str, 
+                          dream_content: str, emotion_type: str = None, 
+                          mood_score: int = None, tags: str = None, 
+                          dream_time: str = None, is_private: bool = False):
+        """创建梦境日记"""
+        cursor = self.conn.cursor()
+        cursor.execute('''
+        INSERT INTO dream_diaries (memorial_id, user_id, dream_date, dream_time, 
+                                   dream_content, emotion_type, mood_score, tags, is_private)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+        ''', (memorial_id, user_id, dream_date, dream_time, dream_content, 
+              emotion_type, mood_score, tags, is_private))
+        self.conn.commit()
+        return cursor.lastrowid
+    
+    def get_dream_diaries(self, memorial_id: str, user_id: int = None, limit: int = 50):
+        """获取梦境日记列表"""
+        cursor = self.conn.cursor()
+        if user_id:
+            cursor.execute('''
+            SELECT id, memorial_id, user_id, dream_date, dream_time, dream_content, 
+                   emotion_type, mood_score, tags, ai_analysis, is_private, is_favorite,
+                   created_at, updated_at
+            FROM dream_diaries 
+            WHERE memorial_id = ? AND user_id = ?
+            ORDER BY dream_date DESC, created_at DESC
+            LIMIT ?
+            ''', (memorial_id, user_id, limit))
+        else:
+            cursor.execute('''
+            SELECT id, memorial_id, user_id, dream_date, dream_time, dream_content, 
+                   emotion_type, mood_score, tags, ai_analysis, is_private, is_favorite,
+                   created_at, updated_at
+            FROM dream_diaries 
+            WHERE memorial_id = ? AND is_private = 0
+            ORDER BY dream_date DESC, created_at DESC
+            LIMIT ?
+            ''', (memorial_id, limit))
+        
+        dreams = []
+        for row in cursor.fetchall():
+            dreams.append({
+                'id': row[0],
+                'memorial_id': row[1],
+                'user_id': row[2],
+                'dream_date': row[3],
+                'dream_time': row[4],
+                'dream_content': row[5],
+                'emotion_type': row[6],
+                'mood_score': row[7],
+                'tags': row[8],
+                'ai_analysis': row[9],
+                'is_private': row[10],
+                'is_favorite': row[11],
+                'created_at': row[12],
+                'updated_at': row[13]
+            })
+        return dreams
+    
+    def get_dream_diary_by_id(self, dream_id: int, user_id: int = None):
+        """获取单个梦境日记"""
+        cursor = self.conn.cursor()
+        if user_id:
+            cursor.execute('''
+            SELECT id, memorial_id, user_id, dream_date, dream_time, dream_content, 
+                   emotion_type, mood_score, tags, ai_analysis, is_private, is_favorite,
+                   created_at, updated_at
+            FROM dream_diaries 
+            WHERE id = ? AND user_id = ?
+            ''', (dream_id, user_id))
+        else:
+            cursor.execute('''
+            SELECT id, memorial_id, user_id, dream_date, dream_time, dream_content, 
+                   emotion_type, mood_score, tags, ai_analysis, is_private, is_favorite,
+                   created_at, updated_at
+            FROM dream_diaries 
+            WHERE id = ?
+            ''', (dream_id,))
+        
+        row = cursor.fetchone()
+        if row:
+            return {
+                'id': row[0],
+                'memorial_id': row[1],
+                'user_id': row[2],
+                'dream_date': row[3],
+                'dream_time': row[4],
+                'dream_content': row[5],
+                'emotion_type': row[6],
+                'mood_score': row[7],
+                'tags': row[8],
+                'ai_analysis': row[9],
+                'is_private': row[10],
+                'is_favorite': row[11],
+                'created_at': row[12],
+                'updated_at': row[13]
+            }
+        return None
+    
+    def update_dream_diary(self, dream_id: int, user_id: int, **kwargs):
+        """更新梦境日记"""
+        allowed_fields = ['dream_date', 'dream_time', 'dream_content', 'emotion_type', 
+                         'mood_score', 'tags', 'ai_analysis', 'is_private', 'is_favorite']
+        
+        updates = []
+        values = []
+        for key, value in kwargs.items():
+            if key in allowed_fields:
+                updates.append(f"{key} = ?")
+                values.append(value)
+        
+        if not updates:
+            return False
+        
+        # 添加updated_at
+        updates.append("updated_at = CURRENT_TIMESTAMP")
+        values.extend([dream_id, user_id])
+        
+        cursor = self.conn.cursor()
+        cursor.execute(f'''
+        UPDATE dream_diaries 
+        SET {", ".join(updates)}
+        WHERE id = ? AND user_id = ?
+        ''', values)
+        self.conn.commit()
+        return cursor.rowcount > 0
+    
+    def delete_dream_diary(self, dream_id: int, user_id: int):
+        """删除梦境日记"""
+        cursor = self.conn.cursor()
+        cursor.execute('''
+        DELETE FROM dream_diaries 
+        WHERE id = ? AND user_id = ?
+        ''', (dream_id, user_id))
+        self.conn.commit()
+        return cursor.rowcount > 0
+    
+    def get_dream_stats(self, memorial_id: str, user_id: int):
+        """获取梦境统计"""
+        cursor = self.conn.cursor()
+        
+        # 总梦境数
+        cursor.execute('''
+        SELECT COUNT(*) FROM dream_diaries 
+        WHERE memorial_id = ? AND user_id = ?
+        ''', (memorial_id, user_id))
+        total_dreams = cursor.fetchone()[0]
+        
+        # 按情绪分类统计
+        cursor.execute('''
+        SELECT emotion_type, COUNT(*) as count
+        FROM dream_diaries 
+        WHERE memorial_id = ? AND user_id = ? AND emotion_type IS NOT NULL
+        GROUP BY emotion_type
+        ''', (memorial_id, user_id))
+        emotions = {row[0]: row[1] for row in cursor.fetchall()}
+        
+        # 最近一次梦到的日期
+        cursor.execute('''
+        SELECT dream_date FROM dream_diaries 
+        WHERE memorial_id = ? AND user_id = ?
+        ORDER BY dream_date DESC LIMIT 1
+        ''', (memorial_id, user_id))
+        last_dream = cursor.fetchone()
+        last_dream_date = last_dream[0] if last_dream else None
+        
+        # 收藏数
+        cursor.execute('''
+        SELECT COUNT(*) FROM dream_diaries 
+        WHERE memorial_id = ? AND user_id = ? AND is_favorite = 1
+        ''', (memorial_id, user_id))
+        favorite_count = cursor.fetchone()[0]
+        
+        return {
+            'total_dreams': total_dreams,
+            'emotions': emotions,
+            'last_dream_date': last_dream_date,
+            'favorite_count': favorite_count
+        }
+    
+    def get_dream_calendar(self, memorial_id: str, user_id: int, year: int, month: int):
+        """获取梦境月历数据"""
+        cursor = self.conn.cursor()
+        cursor.execute('''
+        SELECT dream_date, COUNT(*) as count, GROUP_CONCAT(emotion_type) as emotions
+        FROM dream_diaries 
+        WHERE memorial_id = ? AND user_id = ? 
+        AND strftime('%Y', dream_date) = ? 
+        AND strftime('%m', dream_date) = ?
+        GROUP BY dream_date
+        ''', (memorial_id, user_id, str(year), f"{month:02d}"))
+        
+        calendar_data = {}
+        for row in cursor.fetchall():
+            calendar_data[row[0]] = {
+                'count': row[1],
+                'emotions': row[2].split(',') if row[2] else []
+            }
+        
+        return calendar_data
     
     def close(self):
         self.conn.close()

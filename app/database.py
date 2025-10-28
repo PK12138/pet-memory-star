@@ -2042,7 +2042,7 @@ class Database:
         """获取所有公开的纪念馆（用于星空展示）"""
         cursor = self.conn.cursor()
         cursor.execute('''
-        SELECT id, pet_name, species, memorial_date, created_at
+        SELECT id, pet_name, species, memorial_date, created_at, user_id
         FROM memorials
         WHERE is_public = 1
         ORDER BY created_at DESC
@@ -2056,7 +2056,8 @@ class Database:
                 'pet_name': row[1],
                 'species': row[2],
                 'memorial_date': row[3],
-                'created_at': row[4]
+                'created_at': row[4],
+                'user_id': row[5]
             })
         
         return memorials

@@ -1,5 +1,5 @@
 page {
-  background: radial-gradient(ellipse at bottom, #16213e 0%, #0f1419 100%);
+  background: radial-gradient(ellipse at bottom, #1a1f3a 0%, #0e1420 100%);
   min-height: 100vh;
   padding-bottom: 40rpx;
 }
@@ -34,7 +34,7 @@ page {
   width: 120rpx;
   height: 120rpx;
   border-radius: 50%;
-  background: radial-gradient(ellipse at top, #2c3e5a 0%, #1a2332 100%);
+  background: radial-gradient(ellipse at top, #3d4e7a 0%, #2a3651 100%);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -140,7 +140,7 @@ page {
 }
 
 .game-btn {
-  background: radial-gradient(ellipse at top, #2c3e5a 0%, #1a2332 100%);
+  background: radial-gradient(ellipse at top, #3d4e7a 0%, #2a3651 100%);
   color: white;
   padding: 40rpx;
   border-radius: 25rpx;
@@ -201,7 +201,7 @@ page {
 }
 
 .type-random {
-  background: radial-gradient(ellipse at top, #2c3e5a 0%, #1a2332 100%);
+  background: radial-gradient(ellipse at top, #3d4e7a 0%, #2a3651 100%);
 }
 
 .greeting-content {
@@ -220,7 +220,7 @@ page {
 
 .btn-get-greeting {
   width: 100%;
-  background: radial-gradient(ellipse at top, #2c3e5a 0%, #1a2332 100%);
+  background: radial-gradient(ellipse at top, #3d4e7a 0%, #2a3651 100%);
   color: white;
   border: none;
   border-radius: 20rpx;
@@ -237,7 +237,7 @@ page {
 }
 
 .stat-item {
-  background: radial-gradient(ellipse at top, #2c3e5a 0%, #1a2332 100%);
+  background: radial-gradient(ellipse at top, #3d4e7a 0%, #2a3651 100%);
   color: white;
   padding: 35rpx;
   border-radius: 20rpx;

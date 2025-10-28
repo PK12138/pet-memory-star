@@ -1,7 +1,7 @@
 /* 梦境日记页面样式 */
 
 page {
-  background: radial-gradient(ellipse at bottom, #16213e 0%, #0f1419 100%);
+  background: radial-gradient(ellipse at bottom, #1a1f3a 0%, #0e1420 100%);
   min-height: 100vh;
 }
 
@@ -490,7 +490,7 @@ page {
   bottom: 40rpx;
   width: 120rpx;
   height: 120rpx;
-  background: radial-gradient(ellipse at top, #2c3e5a 0%, #1a2332 100%);
+  background: radial-gradient(ellipse at top, #3d4e7a 0%, #2a3651 100%);
   border-radius: 60rpx;
   display: flex;
   align-items: center;

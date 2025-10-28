@@ -1,7 +1,7 @@
 /* pages/theme-settings/theme-settings.wxss */
 .container {
   min-height: 100vh;
-  background: radial-gradient(ellipse at bottom, #16213e 0%, #0f1419 100%);
+  background: radial-gradient(ellipse at bottom, #1a1f3a 0%, #0e1420 100%);
   padding-bottom: 40rpx;
 }
 

@@ -2,7 +2,7 @@
 
 .container {
   min-height: 100vh;
-  background: radial-gradient(ellipse at bottom, #16213e 0%, #0f1419 100%);
+  background: radial-gradient(ellipse at bottom, #1a1f3a 0%, #0e1420 100%);
   padding: 20rpx;
 }
 
@@ -135,7 +135,7 @@
 }
 
 .upload-btn {
-  background: radial-gradient(ellipse at bottom, #16213e 0%, #0f1419 100%);
+  background: radial-gradient(ellipse at bottom, #1a1f3a 0%, #0e1420 100%);
   border: none;
   border-radius: 50rpx;
   color: white;
@@ -219,7 +219,7 @@
 }
 
 .btn-primary {
-  background: radial-gradient(ellipse at bottom, #16213e 0%, #0f1419 100%);
+  background: radial-gradient(ellipse at bottom, #1a1f3a 0%, #0e1420 100%);
   color: white;
   box-shadow: 0 8rpx 25rpx rgba(102, 126, 234, 0.4);
 }

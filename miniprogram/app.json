@@ -24,10 +24,10 @@
   ],
   "window": {
     "backgroundTextStyle": "light",
-    "navigationBarBackgroundColor": "#16213e",
+    "navigationBarBackgroundColor": "#2d3561",
     "navigationBarTitleText": "爪迹星·云纪念馆",
     "navigationBarTextStyle": "white",
-    "backgroundColor": "#0f1419"
+    "backgroundColor": "#0e1420"
   },
   "networkTimeout": {
     "request": 10000,

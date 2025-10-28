@@ -2,7 +2,7 @@
 
 /* 全局深色星空主题样式 */
 page {
-  background: radial-gradient(ellipse at bottom, #1b2735 0%, #090a0f 100%);
+  background: radial-gradient(ellipse at bottom, #16213e 0%, #0f1419 100%);
   min-height: 100vh;
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', 'Helvetica Neue', Helvetica, Arial, sans-serif;
   line-height: 1.6;
@@ -19,7 +19,7 @@ page {
   box-shadow: 0 20rpx 60rpx rgba(0, 0, 0, 0.3);
 }
 
-/* 毛玻璃按钮样式（深色主题�?*/
+/* 毛玻璃按钮样式（深色主题�?*/
 .glass-btn {
   background: rgba(255, 255, 255, 0.1);
   backdrop-filter: blur(20rpx);
@@ -63,7 +63,7 @@ page {
 .container {
   min-height: 100vh;
   padding: 20rpx;
-  background: radial-gradient(ellipse at bottom, #1b2735 0%, #090a0f 100%);
+  background: radial-gradient(ellipse at bottom, #16213e 0%, #0f1419 100%);
 }
 
 /* 页面标题样式 */
@@ -153,7 +153,7 @@ page {
   transform: scale(0.98);
 }
 
-/* 输入框样�?*/
+/* 输入框样�?*/
 .input-group {
   margin-bottom: 30rpx;
 }
@@ -289,7 +289,7 @@ page {
 .hidden { display: none; }
 .visible { display: block; }
 
-/* 加载状�?*/
+/* 加载状�?*/
 .loading {
   display: flex;
   flex-direction: column;
@@ -314,7 +314,7 @@ page {
   100% { transform: rotate(360deg); }
 }
 
-/* 空状�?*/
+/* 空状�?*/
 .empty-state {
   text-align: center;
   padding: 80rpx 40rpx;
@@ -361,7 +361,7 @@ page {
   grid-template-columns: repeat(4, 1fr);
 }
 
-/* 响应�?*/
+/* 响应�?*/
 @media (max-width: 750rpx) {
   .grid-4 {
     grid-template-columns: repeat(3, 1fr);
@@ -397,7 +397,7 @@ page {
   }
 }
 
-/* 分割�?*/
+/* 分割�?*/
 .divider {
   height: 1rpx;
   background: rgba(255, 255, 255, 0.1);

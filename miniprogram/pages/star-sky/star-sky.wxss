@@ -165,7 +165,7 @@ page {
   display: flex;
   align-items: center;
   justify-content: center;
-  background: radial-gradient(ellipse at top, #2c3e50 0%, #1a252f 100%);
+  background: radial-gradient(ellipse at top, #2c3e5a 0%, #1a2332 100%);
 }
 
 .placeholder-emoji {
@@ -226,7 +226,7 @@ page {
 }
 
 .action-btn.primary {
-  background: radial-gradient(ellipse at top, #2c3e50 0%, #1a252f 100%);
+  background: radial-gradient(ellipse at top, #2c3e5a 0%, #1a2332 100%);
   border: none;
   color: #ffffff;
 }

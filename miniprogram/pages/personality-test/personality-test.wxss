@@ -3,7 +3,7 @@
 .container {
   padding: 20rpx;
   min-height: 100vh;
-  background: radial-gradient(ellipse at bottom, #1b2735 0%, #090a0f 100%);
+  background: radial-gradient(ellipse at bottom, #16213e 0%, #0f1419 100%);
 }
 
 .page-header {
@@ -423,7 +423,7 @@
 }
 
 .btn-primary {
-  background: radial-gradient(ellipse at bottom, #1b2735 0%, #090a0f 100%);
+  background: radial-gradient(ellipse at bottom, #16213e 0%, #0f1419 100%);
   color: white;
   box-shadow: 0 8rpx 25rpx rgba(102, 126, 234, 0.4);
 }

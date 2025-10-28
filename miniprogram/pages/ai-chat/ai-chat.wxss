@@ -3,7 +3,7 @@
   height: 100vh;
   display: flex;
   flex-direction: column;
-  background: radial-gradient(ellipse at bottom, #1b2735 0%, #090a0f 100%);
+  background: radial-gradient(ellipse at bottom, #16213e 0%, #0f1419 100%);
 }
 
 /* 顶部导航栏 */
@@ -40,7 +40,7 @@
   width: 80rpx;
   height: 80rpx;
   border-radius: 50%;
-  background: radial-gradient(ellipse at top, #2c3e50 0%, #1a252f 100%);
+  background: radial-gradient(ellipse at top, #2c3e5a 0%, #1a2332 100%);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -163,7 +163,7 @@
   width: 70rpx;
   height: 70rpx;
   border-radius: 50%;
-  background: radial-gradient(ellipse at top, #2c3e50 0%, #1a252f 100%);
+  background: radial-gradient(ellipse at top, #2c3e5a 0%, #1a2332 100%);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -205,7 +205,7 @@
 }
 
 .message-bubble-user {
-  background: radial-gradient(ellipse at top, #2c3e50 0%, #1a252f 100%);
+  background: radial-gradient(ellipse at top, #2c3e5a 0%, #1a2332 100%);
   border-bottom-right-radius: 5rpx;
 }
 
@@ -293,7 +293,7 @@
 .btn-send {
   width: 120rpx;
   height: 80rpx;
-  background: radial-gradient(ellipse at top, #2c3e50 0%, #1a252f 100%);
+  background: radial-gradient(ellipse at top, #2c3e5a 0%, #1a2332 100%);
   border-radius: 25rpx;
   border: none;
   display: flex;

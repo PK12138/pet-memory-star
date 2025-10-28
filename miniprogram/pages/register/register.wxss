@@ -2,7 +2,7 @@
 
 .container {
   min-height: 100vh;
-  background: radial-gradient(ellipse at bottom, #1b2735 0%, #090a0f 100%);
+  background: radial-gradient(ellipse at bottom, #16213e 0%, #0f1419 100%);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -191,7 +191,7 @@
 .submit-btn {
   width: 100%;
   padding: 25rpx;
-  background: radial-gradient(ellipse at bottom, #1b2735 0%, #090a0f 100%);
+  background: radial-gradient(ellipse at bottom, #16213e 0%, #0f1419 100%);
   border: none;
   border-radius: 50rpx;
   color: white;

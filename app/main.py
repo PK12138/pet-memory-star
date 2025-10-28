@@ -2734,9 +2734,9 @@ async def get_star_sky_memorials(request: Request):
         current_user_id = None
         session_token = request.headers.get('x-session-token')
         if session_token:
-            user_id = db.get_user_id_from_session(session_token)
-            if user_id:
-                current_user_id = user_id
+            user = db.get_user_by_session(session_token)
+            if user:
+                current_user_id = user['id']
         
         memorials = db.get_all_public_memorials()
         

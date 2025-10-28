@@ -1,30 +1,30 @@
-/* app.wxss - 爪迹星小程序全局样式 */
+/* app.wxss - 爪迹星小程序全局样式（深色星空主题） */
 
-/* 全局毛玻璃主题样式 */
+/* 全局深色星空主题样式 */
 page {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%);
+  background: radial-gradient(ellipse at bottom, #1b2735 0%, #090a0f 100%);
   min-height: 100vh;
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', 'Helvetica Neue', Helvetica, Arial, sans-serif;
   line-height: 1.6;
-  color: #333;
+  color: rgba(255, 255, 255, 0.9);
 }
 
-/* 毛玻璃卡片基础样式 */
+/* 毛玻璃卡片基础样式（深色主题） */
 .glass-card {
-  background: rgba(255, 255, 255, 0.9);
+  background: rgba(26, 20, 71, 0.5);
   backdrop-filter: blur(20rpx);
   -webkit-backdrop-filter: blur(20rpx);
   border-radius: 30rpx;
-  border: 1rpx solid rgba(255, 255, 255, 0.2);
-  box-shadow: 0 20rpx 60rpx rgba(0, 0, 0, 0.1);
+  border: 1rpx solid rgba(255, 255, 255, 0.1);
+  box-shadow: 0 20rpx 60rpx rgba(0, 0, 0, 0.3);
 }
 
-/* 毛玻璃按钮样式 */
+/* 毛玻璃按钮样式（深色主题�?*/
 .glass-btn {
-  background: rgba(255, 255, 255, 0.2);
+  background: rgba(255, 255, 255, 0.1);
   backdrop-filter: blur(20rpx);
   -webkit-backdrop-filter: blur(20rpx);
-  border: 1rpx solid rgba(255, 255, 255, 0.3);
+  border: 1rpx solid rgba(255, 255, 255, 0.2);
   border-radius: 50rpx;
   color: white;
   font-weight: 600;
@@ -32,28 +32,28 @@ page {
 }
 
 .glass-btn:active {
-  background: rgba(255, 255, 255, 0.3);
+  background: rgba(255, 255, 255, 0.2);
   transform: scale(0.98);
 }
 
-/* 毛玻璃输入框样式 */
+/* 毛玻璃输入框样式（深色主题） */
 .glass-input {
-  background: rgba(255, 255, 255, 0.9);
+  background: rgba(255, 255, 255, 0.1);
   backdrop-filter: blur(20rpx);
   -webkit-backdrop-filter: blur(20rpx);
-  border: 1rpx solid rgba(255, 255, 255, 0.3);
+  border: 1rpx solid rgba(255, 255, 255, 0.2);
   border-radius: 25rpx;
-  color: #2c3e50;
+  color: rgba(255, 255, 255, 0.9);
 }
 
 .glass-input:focus {
-  border-color: rgba(102, 126, 234, 0.5);
-  box-shadow: 0 0 0 6rpx rgba(102, 126, 234, 0.1);
+  border-color: rgba(255, 215, 0, 0.5);
+  box-shadow: 0 0 0 6rpx rgba(255, 215, 0, 0.1);
 }
 
-/* 渐变文字 */
+/* 渐变文字（星光金色） */
 .gradient-text {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%);
+  background: linear-gradient(135deg, #FFD700 0%, #FFA500 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
@@ -63,7 +63,7 @@ page {
 .container {
   min-height: 100vh;
   padding: 20rpx;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%);
+  background: radial-gradient(ellipse at bottom, #1b2735 0%, #090a0f 100%);
 }
 
 /* 页面标题样式 */
@@ -71,11 +71,11 @@ page {
   text-align: center;
   margin-bottom: 40rpx;
   padding: 60rpx 40rpx;
-  background: rgba(255, 255, 255, 0.1);
+  background: rgba(26, 20, 71, 0.5);
   backdrop-filter: blur(20rpx);
   -webkit-backdrop-filter: blur(20rpx);
   border-radius: 30rpx;
-  border: 1rpx solid rgba(255, 255, 255, 0.2);
+  border: 1rpx solid rgba(255, 255, 255, 0.1);
   color: white;
 }
 
@@ -84,16 +84,17 @@ page {
   font-weight: 700;
   margin-bottom: 20rpx;
   display: block;
+  text-shadow: 0 2rpx 10rpx rgba(0, 0, 0, 0.3);
 }
 
 .page-subtitle {
   font-size: 28rpx;
-  opacity: 0.9;
+  opacity: 0.8;
   display: block;
   line-height: 1.5;
 }
 
-/* 按钮样式 */
+/* 按钮样式（星空主题） */
 .btn {
   padding: 25rpx 50rpx;
   border-radius: 50rpx;
@@ -109,24 +110,24 @@ page {
 }
 
 .btn-primary {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%);
-  color: white;
-  box-shadow: 0 8rpx 25rpx rgba(102, 126, 234, 0.4);
+  background: linear-gradient(135deg, #FFD700 0%, #FFA500 100%);
+  color: #1a1447;
+  box-shadow: 0 8rpx 25rpx rgba(255, 215, 0, 0.4);
 }
 
 .btn-primary:active {
   transform: scale(0.98);
-  box-shadow: 0 4rpx 15rpx rgba(102, 126, 234, 0.6);
+  box-shadow: 0 4rpx 15rpx rgba(255, 215, 0, 0.6);
 }
 
 .btn-secondary {
-  background: rgba(255, 255, 255, 0.2);
+  background: rgba(255, 255, 255, 0.1);
   color: white;
-  border: 1rpx solid rgba(255, 255, 255, 0.3);
+  border: 1rpx solid rgba(255, 255, 255, 0.2);
 }
 
 .btn-secondary:active {
-  background: rgba(255, 255, 255, 0.3);
+  background: rgba(255, 255, 255, 0.2);
   transform: scale(0.98);
 }
 
@@ -152,7 +153,7 @@ page {
   transform: scale(0.98);
 }
 
-/* 输入框样式 */
+/* 输入框样�?*/
 .input-group {
   margin-bottom: 30rpx;
 }
@@ -161,37 +162,37 @@ page {
   display: block;
   font-size: 28rpx;
   font-weight: 600;
-  color: white;
+  color: rgba(255, 255, 255, 0.9);
   margin-bottom: 15rpx;
-  text-shadow: 0 2rpx 4rpx rgba(0, 0, 0, 0.1);
+  text-shadow: 0 2rpx 4rpx rgba(0, 0, 0, 0.3);
 }
 
 .input {
   width: 100%;
   padding: 25rpx 30rpx;
-  background: rgba(255, 255, 255, 0.9);
+  background: rgba(255, 255, 255, 0.1);
   backdrop-filter: blur(20rpx);
   -webkit-backdrop-filter: blur(20rpx);
-  border: 1rpx solid rgba(255, 255, 255, 0.3);
+  border: 1rpx solid rgba(255, 255, 255, 0.2);
   border-radius: 25rpx;
   font-size: 28rpx;
-  color: #2c3e50;
+  color: rgba(255, 255, 255, 0.9);
   transition: all 0.3s ease;
 }
 
 .input:focus {
-  border-color: rgba(102, 126, 234, 0.5);
-  box-shadow: 0 0 0 6rpx rgba(102, 126, 234, 0.1);
+  border-color: rgba(255, 215, 0, 0.5);
+  box-shadow: 0 0 0 6rpx rgba(255, 215, 0, 0.1);
 }
 
 /* 卡片样式 */
 .card {
-  background: rgba(255, 255, 255, 0.9);
+  background: rgba(26, 20, 71, 0.5);
   backdrop-filter: blur(20rpx);
   -webkit-backdrop-filter: blur(20rpx);
   border-radius: 30rpx;
-  border: 1rpx solid rgba(255, 255, 255, 0.2);
-  box-shadow: 0 20rpx 60rpx rgba(0, 0, 0, 0.1);
+  border: 1rpx solid rgba(255, 255, 255, 0.1);
+  box-shadow: 0 20rpx 60rpx rgba(0, 0, 0, 0.3);
   padding: 40rpx;
   margin-bottom: 30rpx;
 }
@@ -200,26 +201,26 @@ page {
 .title {
   font-size: 36rpx;
   font-weight: 600;
-  color: #2c3e50;
+  color: rgba(255, 255, 255, 0.95);
   margin-bottom: 20rpx;
 }
 
 .subtitle {
   font-size: 28rpx;
-  color: #7f8c8d;
+  color: rgba(255, 255, 255, 0.7);
   margin-bottom: 30rpx;
 }
 
 .text-primary {
-  color: #667eea;
+  color: #FFD700;
 }
 
 .text-secondary {
-  color: #7f8c8d;
+  color: rgba(255, 255, 255, 0.6);
 }
 
 .text-success {
-  color: #27ae60;
+  color: #2ecc71;
 }
 
 .text-danger {
@@ -288,7 +289,7 @@ page {
 .hidden { display: none; }
 .visible { display: block; }
 
-/* 加载状态 */
+/* 加载状�?*/
 .loading {
   display: flex;
   flex-direction: column;
@@ -301,8 +302,8 @@ page {
 .loading-spinner {
   width: 60rpx;
   height: 60rpx;
-  border: 6rpx solid rgba(255, 255, 255, 0.3);
-  border-top: 6rpx solid white;
+  border: 6rpx solid rgba(255, 255, 255, 0.2);
+  border-top: 6rpx solid #FFD700;
   border-radius: 50%;
   animation: spin 1s linear infinite;
   margin-bottom: 20rpx;
@@ -313,7 +314,7 @@ page {
   100% { transform: rotate(360deg); }
 }
 
-/* 空状态 */
+/* 空状�?*/
 .empty-state {
   text-align: center;
   padding: 80rpx 40rpx;
@@ -323,7 +324,7 @@ page {
 .empty-icon {
   font-size: 120rpx;
   margin-bottom: 30rpx;
-  opacity: 0.7;
+  opacity: 0.5;
 }
 
 .empty-title {
@@ -339,7 +340,7 @@ page {
   margin-bottom: 40rpx;
   display: block;
   line-height: 1.5;
-  opacity: 0.8;
+  opacity: 0.7;
 }
 
 /* 网格布局 */
@@ -360,7 +361,7 @@ page {
   grid-template-columns: repeat(4, 1fr);
 }
 
-/* 响应式 */
+/* 响应�?*/
 @media (max-width: 750rpx) {
   .grid-4 {
     grid-template-columns: repeat(3, 1fr);
@@ -396,10 +397,10 @@ page {
   }
 }
 
-/* 分割线 */
+/* 分割�?*/
 .divider {
   height: 1rpx;
-  background: rgba(255, 255, 255, 0.2);
+  background: rgba(255, 255, 255, 0.1);
   margin: 30rpx 0;
 }
 
@@ -410,19 +411,23 @@ page {
   border-radius: 20rpx;
   font-size: 24rpx;
   color: white;
-  background: #667eea;
+  background: rgba(255, 215, 0, 0.3);
+  border: 1rpx solid rgba(255, 215, 0, 0.5);
 }
 
 .tag-success {
-  background: #27ae60;
+  background: rgba(46, 204, 113, 0.3);
+  border-color: rgba(46, 204, 113, 0.5);
 }
 
 .tag-warning {
-  background: #f39c12;
+  background: rgba(243, 156, 18, 0.3);
+  border-color: rgba(243, 156, 18, 0.5);
 }
 
 .tag-danger {
-  background: #e74c3c;
+  background: rgba(231, 76, 60, 0.3);
+  border-color: rgba(231, 76, 60, 0.5);
 }
 
 /* 头像样式 */
@@ -430,12 +435,12 @@ page {
   width: 80rpx;
   height: 80rpx;
   border-radius: 50%;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%);
+  background: linear-gradient(135deg, #FFD700 0%, #FFA500 100%);
   display: flex;
   align-items: center;
   justify-content: center;
   font-size: 32rpx;
-  color: white;
+  color: #1a1447;
   font-weight: 600;
 }
 
@@ -453,10 +458,10 @@ page {
 
 /* 毛玻璃导航栏 */
 .nav-bar {
-  background: rgba(255, 255, 255, 0.1);
+  background: rgba(0, 0, 0, 0.5);
   backdrop-filter: blur(20rpx);
   -webkit-backdrop-filter: blur(20rpx);
-  border-bottom: 1rpx solid rgba(255, 255, 255, 0.2);
+  border-bottom: 1rpx solid rgba(255, 255, 255, 0.1);
 }
 
 /* 毛玻璃底部操作栏 */
@@ -465,11 +470,12 @@ page {
   bottom: 0;
   left: 0;
   right: 0;
-  background: rgba(255, 255, 255, 0.9);
+  background: rgba(0, 0, 0, 0.8);
   backdrop-filter: blur(20rpx);
   -webkit-backdrop-filter: blur(20rpx);
-  border-top: 1rpx solid rgba(255, 255, 255, 0.2);
+  border-top: 1rpx solid rgba(255, 255, 255, 0.1);
   padding: 20rpx;
+  padding-bottom: calc(20rpx + env(safe-area-inset-bottom));
   z-index: 1000;
 }
 
@@ -480,7 +486,7 @@ page {
   left: 0;
   right: 0;
   bottom: 0;
-  background: rgba(0, 0, 0, 0.5);
+  background: rgba(0, 0, 0, 0.7);
   backdrop-filter: blur(10rpx);
   -webkit-backdrop-filter: blur(10rpx);
   z-index: 9999;
@@ -491,12 +497,12 @@ page {
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
-  background: rgba(255, 255, 255, 0.9);
+  background: rgba(26, 20, 71, 0.95);
   backdrop-filter: blur(20rpx);
   -webkit-backdrop-filter: blur(20rpx);
   border-radius: 30rpx;
   border: 1rpx solid rgba(255, 255, 255, 0.2);
-  box-shadow: 0 20rpx 60rpx rgba(0, 0, 0, 0.3);
+  box-shadow: 0 20rpx 60rpx rgba(0, 0, 0, 0.5);
   padding: 40rpx;
   max-width: 90%;
   z-index: 10000;

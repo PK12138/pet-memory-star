@@ -1,7 +1,7 @@
 /* pages/reminder-setup/reminder-setup.wxss */
 .container {
   min-height: 100vh;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: radial-gradient(ellipse at bottom, #1b2735 0%, #090a0f 100%);
   padding-bottom: 40rpx;
 }
 
@@ -47,7 +47,7 @@
 }
 
 .add-btn {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: radial-gradient(ellipse at bottom, #1b2735 0%, #090a0f 100%);
   color: #ffffff;
   border: none;
   border-radius: 50rpx;
@@ -139,7 +139,7 @@
   line-height: 1.6;
 }
 
-/* 空状态 */
+/* 空状�?*/
 .empty-state {
   display: flex;
   flex-direction: column;
@@ -167,7 +167,7 @@
   display: block;
 }
 
-/* 对话框遮罩 */
+/* 对话框遮�?*/
 .dialog-mask {
   position: fixed;
   top: 0;
@@ -191,7 +191,7 @@
   }
 }
 
-/* 对话框容器 */
+/* 对话框容�?*/
 .dialog-container {
   width: 90%;
   max-width: 600rpx;
@@ -217,7 +217,7 @@
   justify-content: space-between;
   align-items: center;
   padding: 40rpx;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: radial-gradient(ellipse at bottom, #1b2735 0%, #090a0f 100%);
 }
 
 .dialog-title {
@@ -327,7 +327,7 @@
   transform: rotate(90deg);
 }
 
-/* 对话框底部 */
+/* 对话框底�?*/
 .dialog-footer {
   display: flex;
   gap: 20rpx;
@@ -350,7 +350,7 @@
 }
 
 .btn-confirm {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: radial-gradient(ellipse at bottom, #1b2735 0%, #090a0f 100%);
   color: #ffffff;
 }
 

@@ -1,6 +1,6 @@
 /* pages/add-dream/add-dream.wxss */
 page {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #434190 100%);
+  background: radial-gradient(ellipse at bottom, #1b2735 0%, #090a0f 100%);
   min-height: 100vh;
 }
 

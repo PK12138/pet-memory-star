@@ -154,7 +154,7 @@
   line-height: 1.8;
 }
 
-/* 空状态 */
+/* 空状�?*/
 .empty-state {
   display: flex;
   flex-direction: column;
@@ -182,7 +182,7 @@
   display: block;
 }
 
-/* 对话框遮罩 */
+/* 对话框遮�?*/
 .dialog-mask {
   position: fixed;
   top: 0;
@@ -206,7 +206,7 @@
   }
 }
 
-/* 对话框容器 */
+/* 对话框容�?*/
 .dialog-container {
   width: 90%;
   max-width: 600rpx;
@@ -342,7 +342,7 @@
   color: #2c3e50;
 }
 
-/* 日记输入框 */
+/* 日记输入�?*/
 .diary-textarea {
   width: 100%;
   min-height: 200rpx;
@@ -362,7 +362,7 @@
   text-align: right;
 }
 
-/* 对话框底部 */
+/* 对话框底�?*/
 .dialog-footer {
   display: flex;
   gap: 20rpx;

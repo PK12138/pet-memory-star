@@ -1,5 +1,5 @@
 page {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: radial-gradient(ellipse at bottom, #1b2735 0%, #090a0f 100%);
   min-height: 100vh;
   padding-bottom: 40rpx;
 }
@@ -34,7 +34,7 @@ page {
   width: 120rpx;
   height: 120rpx;
   border-radius: 50%;
-  background: linear-gradient(135deg, #667eea, #764ba2);
+  background: radial-gradient(ellipse at top, #2c3e50 0%, #1a252f 100%);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -82,7 +82,7 @@ page {
   font-size: 36rpx;
 }
 
-/* 宠物状态 */
+/* 宠物状�?*/
 .status-bars {
   display: flex;
   flex-direction: column;
@@ -140,7 +140,7 @@ page {
 }
 
 .game-btn {
-  background: linear-gradient(135deg, #667eea, #764ba2);
+  background: radial-gradient(ellipse at top, #2c3e50 0%, #1a252f 100%);
   color: white;
   padding: 40rpx;
   border-radius: 25rpx;
@@ -166,7 +166,7 @@ page {
   font-weight: 600;
 }
 
-/* 问候消息 */
+/* 问候消�?*/
 .greetings-container {
   margin-bottom: 25rpx;
 }
@@ -201,7 +201,7 @@ page {
 }
 
 .type-random {
-  background: linear-gradient(135deg, #667eea, #764ba2);
+  background: radial-gradient(ellipse at top, #2c3e50 0%, #1a252f 100%);
 }
 
 .greeting-content {
@@ -220,7 +220,7 @@ page {
 
 .btn-get-greeting {
   width: 100%;
-  background: linear-gradient(135deg, #667eea, #764ba2);
+  background: radial-gradient(ellipse at top, #2c3e50 0%, #1a252f 100%);
   color: white;
   border: none;
   border-radius: 20rpx;
@@ -237,7 +237,7 @@ page {
 }
 
 .stat-item {
-  background: linear-gradient(135deg, #667eea, #764ba2);
+  background: radial-gradient(ellipse at top, #2c3e50 0%, #1a252f 100%);
   color: white;
   padding: 35rpx;
   border-radius: 20rpx;
@@ -339,7 +339,7 @@ page {
   margin-top: 10rpx;
 }
 
-/* 加载和空状态 */
+/* 加载和空状�?*/
 .loading-state, .empty-state {
   text-align: center;
   padding: 60rpx 40rpx;

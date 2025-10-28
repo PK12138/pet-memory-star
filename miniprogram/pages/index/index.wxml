@@ -1,89 +1,98 @@
 <!--pages/index/index.wxml-->
-<view class="container">
-  <!-- 主标题卡片 -->
-  <view class="glass-card fadeInUp">
-    <view class="main-title">
-      <text class="logo-icon">⭐</text>
-      <text class="logo-title">爪迹星·云纪念馆</text>
-      <text class="logo-subtitle">每一颗星星，都留下了爱的爪迹</text>
-    </view>
-    
-    <!-- 认证按钮区域 -->
-    <view wx:if="{{!userInfo}}" class="auth-buttons">
-      <button class="auth-btn" bindtap="goToLogin">登录</button>
-      <button class="auth-btn" bindtap="goToRegister">注册</button>
-    </view>
-    
-    <!-- 用户欢迎区域 -->
-    <view wx:else class="user-welcome">
-      <view class="welcome-text">欢迎回来！</view>
-      <view class="user-email">{{userInfo.email}}</view>
-      <!-- 用户操作按钮 -->
-      <view class="user-actions">
-        <button class="user-action-btn" bindtap="goToUserCenter">
-          <text class="btn-icon">📊</text>
-          <text class="btn-text">个人中心</text>
-        </button>
-        <button class="user-action-btn" bindtap="logout">
-          <text class="btn-icon">🚪</text>
-          <text class="btn-text">退出登录</text>
-        </button>
-      </view>
-    </view>
-    
-    <!-- 主要操作按钮 -->
-    <view class="primary-action">
-      <button class="primary-btn" bindtap="startCreateMemorial">
-        <text class="btn-icon">🏠</text>
-        <text class="btn-text">开始创建纪念馆</text>
-      </button>
-    </view>
+<view class="starry-container">
+  <!-- 星空画布 -->
+  <canvas 
+    type="2d" 
+    id="starCanvas" 
+    class="star-canvas"
+    bindtouchstart="onTouchStart"
+    bindtouchmove="onTouchMove"
+    bindtouchend="onTouchEnd"
+  ></canvas>
 
-    <!-- 星空入口 -->
-    <view class="star-sky-entry" bindtap="goToStarSky">
-      <view class="star-sky-bg">
-        <text class="star-icon">🌙</text>
-        <text class="star-icon">⭐</text>
-        <text class="star-icon">✨</text>
+  <!-- 欢迎文字 (首次进入或未登录时显示) -->
+  <view class="welcome-overlay" wx:if="{{showWelcome}}">
+    <view class="welcome-content" animation="{{welcomeAnimation}}">
+      <text class="welcome-icon">🌟</text>
+      <text class="welcome-title">爪迹星·云纪念馆</text>
+      <text class="welcome-subtitle">每一颗星星，都是一个永恒的灵魂</text>
+      <text class="welcome-hint">{{ userInfo ? '滑动旋转星球，探索每一颗星星' : '登录后，创建属于你的星星' }}</text>
+    </view>
+  </view>
+
+  <!-- 顶部信息栏 -->
+  <view class="top-bar">
+    <view class="top-left">
+      <text class="app-name">爪迹星</text>
+      <text class="star-count" wx:if="{{userInfo}}">{{myStarCount}} 颗星星</text>
+    </view>
+    <view class="top-right" wx:if="{{userInfo}}">
+      <text class="user-name">{{userInfo.email}}</text>
+    </view>
+  </view>
+
+  <!-- 滑动提示（仅首次显示） -->
+  <view class="swipe-hint" wx:if="{{!showWelcome && totalStars > 0}}">
+    <text class="hint-icon">👆</text>
+    <text class="hint-text">滑动旋转星球</text>
+  </view>
+
+  <!-- 底部悬浮操作球 -->
+  <view class="float-menu">
+    <view class="float-menu-item" bindtap="startCreateStar">
+      <view class="menu-icon create-icon">✨</view>
+      <text class="menu-label">创建星星</text>
+    </view>
+    
+    <view class="float-menu-item" bindtap="goToLetterBox">
+      <view class="menu-icon">💌</view>
+      <text class="menu-label">信件箱</text>
+      <view class="badge" wx:if="{{unreadLetters > 0}}">{{unreadLetters}}</view>
+    </view>
+    
+    <view class="float-menu-item" bindtap="goToChat">
+      <view class="menu-icon">💬</view>
+      <text class="menu-label">对话</text>
+    </view>
+    
+    <view class="float-menu-item" bindtap="goToProfile">
+      <view class="menu-icon">👤</view>
+      <text class="menu-label">我的</text>
+    </view>
+  </view>
+
+  <!-- 星星详情弹窗 -->
+  <view class="star-detail-modal" wx:if="{{selectedStar}}" bindtap="closeStarDetail">
+    <view class="modal-content" catchtap="stopPropagation">
+      <view class="star-header">
+        <image class="star-avatar" src="{{selectedStar.photo_url}}" mode="aspectFill" />
+        <view class="star-info">
+          <text class="star-name">{{selectedStar.pet_name}}</text>
+          <text class="star-dates">{{selectedStar.birth_date}} - {{selectedStar.death_date}}</text>
+        </view>
+        <view class="close-btn" catchtap="closeStarDetail">✕</view>
       </view>
-      <view class="star-sky-info">
-        <text class="star-sky-title">🌌 探索星空纪念</text>
-        <text class="star-sky-desc">每一颗星星，都是一只宠物</text>
+      
+      <view class="star-description">
+        {{selectedStar.story || '一只可爱的宠物'}}
+      </view>
+      
+      <view class="star-actions">
+        <button class="action-btn primary" catchtap="viewMemorial" data-id="{{selectedStar.id}}">
+          <text class="btn-icon">🏠</text>
+          <text>进入纪念馆</text>
+        </button>
+        <button class="action-btn" catchtap="chatWithPet" data-id="{{selectedStar.id}}">
+          <text class="btn-icon">💬</text>
+          <text>开始对话</text>
+        </button>
       </view>
     </view>
   </view>
 
-  <!-- 功能特性卡片 -->
-  <view class="glass-card slideInLeft">
-    <view class="feature-description">
-      <text class="feature-title">✨ 功能特色</text>
-      <view class="feature-grid">
-        <view class="feature-item">
-          <text class="feature-name">🎨 个性化设计</text>
-          <text class="feature-desc">多种主题模板，支持自定义颜色和布局，让每个纪念馆都独一无二</text>
-        </view>
-        <view class="feature-item">
-          <text class="feature-name">🤖 AI智能助手</text>
-          <text class="feature-desc">基于宠物性格测试，AI生成个性化信件和纪念内容</text>
-        </view>
-        <view class="feature-item">
-          <text class="feature-name">📱 响应式设计</text>
-          <text class="feature-desc">完美适配手机、平板、电脑等各种设备，随时随地访问</text>
-        </view>
-        <view class="feature-item">
-          <text class="feature-name">🔒 隐私保护</text>
-          <text class="feature-desc">支持公开和私密模式，保护您的珍贵回忆</text>
-        </view>
-        <view class="feature-item">
-          <text class="feature-name">📸 多媒体支持</text>
-          <text class="feature-desc">支持照片、视频、音频等多种媒体格式</text>
-        </view>
-        <view class="feature-item">
-          <text class="feature-name">☁️ 云端数据同步</text>
-          <text class="feature-desc">数据云端存储，永不丢失，多设备同步访问</text>
-        </view>
-      </view>
-    </view>
+  <!-- 加载提示 -->
+  <view class="loading-overlay" wx:if="{{loading}}">
+    <view class="loading-spinner"></view>
+    <text class="loading-text">正在加载星空...</text>
   </view>
-  
 </view>

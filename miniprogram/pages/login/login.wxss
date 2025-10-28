@@ -2,7 +2,7 @@
 
 .container {
   min-height: 100vh;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%);
+  background: radial-gradient(ellipse at bottom, #1b2735 0%, #090a0f 100%);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -11,7 +11,7 @@
   overflow: hidden;
 }
 
-/* 动态背景效果 */
+/* 动态星空背景效�?*/
 .container::before {
   content: '';
   position: fixed;
@@ -20,9 +20,9 @@
   width: 100%;
   height: 100%;
   background: 
-    radial-gradient(circle at 20% 80%, rgba(120, 119, 198, 0.3) 0%, transparent 50%),
-    radial-gradient(circle at 80% 20%, rgba(255, 119, 198, 0.3) 0%, transparent 50%),
-    radial-gradient(circle at 40% 40%, rgba(120, 219, 255, 0.3) 0%, transparent 50%);
+    radial-gradient(circle at 20% 80%, rgba(255, 215, 0, 0.1) 0%, transparent 50%),
+    radial-gradient(circle at 80% 20%, rgba(138, 43, 226, 0.1) 0%, transparent 50%),
+    radial-gradient(circle at 40% 40%, rgba(0, 191, 255, 0.1) 0%, transparent 50%);
   z-index: -1;
   animation: float 20s ease-in-out infinite;
 }
@@ -165,7 +165,7 @@
   display: block;
 }
 
-/* 只对密码输入框应用掩码样式 */
+/* 只对密码输入框应用掩码样�?*/
 .form-input[type="password"] {
   font-family: system-ui, -apple-system, sans-serif;
 }
@@ -213,7 +213,7 @@
 .submit-btn {
   width: 100%;
   padding: 25rpx;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%);
+  background: radial-gradient(ellipse at bottom, #1b2735 0%, #090a0f 100%);
   border: none;
   border-radius: 50rpx;
   color: white;
@@ -255,7 +255,7 @@
   100% { transform: rotate(360deg); }
 }
 
-/* 分割线 */
+/* 分割�?*/
 .divider {
   text-align: center;
   margin: 40rpx 0 30rpx;
@@ -314,7 +314,7 @@
   }
 }
 
-/* 响应式设计 */
+/* 响应式设�?*/
 @media (max-width: 750rpx) {
   .container {
     padding: 20rpx;

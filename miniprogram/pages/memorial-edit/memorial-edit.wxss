@@ -2,7 +2,7 @@
 
 .container {
   min-height: 100vh;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%);
+  background: radial-gradient(ellipse at bottom, #1b2735 0%, #090a0f 100%);
   padding: 20rpx;
 }
 
@@ -135,7 +135,7 @@
 }
 
 .upload-btn {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%);
+  background: radial-gradient(ellipse at bottom, #1b2735 0%, #090a0f 100%);
   border: none;
   border-radius: 50rpx;
   color: white;
@@ -219,7 +219,7 @@
 }
 
 .btn-primary {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%);
+  background: radial-gradient(ellipse at bottom, #1b2735 0%, #090a0f 100%);
   color: white;
   box-shadow: 0 8rpx 25rpx rgba(102, 126, 234, 0.4);
 }
@@ -248,7 +248,7 @@
   transform: scale(0.98);
 }
 
-/* 响应式设计 */
+/* 响应式设�?*/
 @media (max-width: 750rpx) {
   .container {
     padding: 16rpx;

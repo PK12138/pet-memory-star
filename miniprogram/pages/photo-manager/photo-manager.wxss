@@ -2,7 +2,7 @@
 
 .container {
   min-height: 100vh;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%);
+  background: radial-gradient(ellipse at bottom, #1b2735 0%, #090a0f 100%);
   padding: 20rpx;
 }
 
@@ -33,7 +33,6 @@
   color: rgba(255, 255, 255, 0.9);
 }
 
-/* 筛选标签 */
 .filter-tabs {
   display: flex;
   justify-content: center;
@@ -60,7 +59,7 @@
 }
 
 .filter-tab.active {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: radial-gradient(ellipse at bottom, #1b2735 0%, #090a0f 100%);
   color: white;
   box-shadow: 0 4rpx 15rpx rgba(102, 126, 234, 0.4);
 }
@@ -69,7 +68,6 @@
   transform: scale(0.98);
 }
 
-/* 上传区域 */
 .upload-section {
   text-align: center;
   margin-bottom: 30rpx;
@@ -83,7 +81,7 @@
 }
 
 .upload-btn {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%);
+  background: radial-gradient(ellipse at bottom, #1b2735 0%, #090a0f 100%);
   border: none;
   border-radius: 50rpx;
   color: white;
@@ -109,7 +107,6 @@
   color: #7f8c8d;
 }
 
-/* 统计区域 */
 .stats-section {
   display: flex;
   justify-content: space-around;
@@ -141,7 +138,6 @@
   color: #7f8c8d;
 }
 
-/* 照片网格 */
 .photo-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(300rpx, 1fr));
@@ -254,7 +250,6 @@
   transform: scale(1.2);
 }
 
-/* 空状态 */
 .empty-state {
   text-align: center;
   padding: 80rpx 40rpx;
@@ -290,7 +285,7 @@
 }
 
 .empty-btn {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%);
+  background: radial-gradient(ellipse at bottom, #1b2735 0%, #090a0f 100%);
   border: none;
   border-radius: 50rpx;
   color: white;
@@ -306,7 +301,6 @@
   box-shadow: 0 4rpx 15rpx rgba(102, 126, 234, 0.6);
 }
 
-/* 批量操作栏 */
 .batch-actions {
   position: fixed;
   bottom: 0;
@@ -337,11 +331,6 @@
   color: white;
 }
 
-.btn-delete {
-  background: #e74c3c;
-  color: white;
-}
-
 .btn-cancel {
   background: #95a5a6;
   color: white;
@@ -351,7 +340,6 @@
   transform: scale(0.98);
 }
 
-/* 底部操作栏 */
 .bottom-actions {
   position: fixed;
   bottom: 20rpx;
@@ -359,7 +347,7 @@
 }
 
 .action-btn-large {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%);
+  background: radial-gradient(ellipse at bottom, #1b2735 0%, #090a0f 100%);
   border: none;
   border-radius: 50rpx;
   color: white;
@@ -378,7 +366,6 @@
   box-shadow: 0 4rpx 15rpx rgba(102, 126, 234, 0.6);
 }
 
-/* 加载状态 */
 .loading-state {
   text-align: center;
   padding: 60rpx;
@@ -405,7 +392,6 @@
   text-shadow: 0 2rpx 4rpx rgba(0, 0, 0, 0.1);
 }
 
-/* 响应式设计 */
 @media (max-width: 750rpx) {
   .container {
     padding: 16rpx;
@@ -431,3 +417,4 @@
     flex-direction: column;
   }
 }
+

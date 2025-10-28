@@ -2,7 +2,7 @@
 
 .container {
   min-height: 100vh;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%);
+  background: radial-gradient(ellipse at bottom, #1b2735 0%, #090a0f 100%);
   padding: 20rpx;
 }
 
@@ -40,7 +40,7 @@
 }
 
 .create-btn {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%);
+  background: radial-gradient(ellipse at bottom, #1b2735 0%, #090a0f 100%);
   border: none;
   border-radius: 50rpx;
   color: white;
@@ -70,7 +70,7 @@
   font-weight: 600;
 }
 
-/* 纪念馆网格 */
+/* 纪念馆网�?*/
 .memorials-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(300rpx, 1fr));
@@ -78,7 +78,7 @@
   margin-bottom: 40rpx;
 }
 
-/* 纪念馆卡片 */
+/* 纪念馆卡�?*/
 .memorial-card {
   background: rgba(255, 255, 255, 0.9);
   backdrop-filter: blur(20rpx);
@@ -97,7 +97,7 @@
   box-shadow: 0 15rpx 40rpx rgba(0, 0, 0, 0.15);
 }
 
-/* 纪念馆头部 */
+/* 纪念馆头�?*/
 .memorial-header {
   display: flex;
   justify-content: space-between;
@@ -160,7 +160,7 @@
   transform: scale(0.95);
 }
 
-/* 纪念馆照片 */
+/* 纪念馆照�?*/
 .memorial-photos {
   display: flex;
   gap: 10rpx;
@@ -175,7 +175,7 @@
   flex-shrink: 0;
 }
 
-/* 纪念馆描述 */
+/* 纪念馆描�?*/
 .memorial-description {
   margin-bottom: 20rpx;
 }
@@ -190,7 +190,7 @@
   overflow: hidden;
 }
 
-/* 纪念馆统计 */
+/* 纪念馆统�?*/
 .memorial-stats {
   display: flex;
   justify-content: space-between;
@@ -229,7 +229,7 @@
   color: #7f8c8d;
 }
 
-/* 空状态 */
+/* 空状�?*/
 .empty-state {
   text-align: center;
   padding: 80rpx 40rpx;
@@ -265,7 +265,7 @@
 }
 
 .empty-btn {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%);
+  background: radial-gradient(ellipse at bottom, #1b2735 0%, #090a0f 100%);
   border: none;
   border-radius: 50rpx;
   color: white;
@@ -281,7 +281,7 @@
   box-shadow: 0 4rpx 15rpx rgba(102, 126, 234, 0.6);
 }
 
-/* 加载状态 */
+/* 加载状�?*/
 .loading-state {
   text-align: center;
   padding: 60rpx;
@@ -308,7 +308,7 @@
   text-shadow: 0 2rpx 4rpx rgba(0, 0, 0, 0.1);
 }
 
-/* 响应式设计 */
+/* 响应式设�?*/
 @media (max-width: 750rpx) {
   .container {
     padding: 16rpx;

@@ -2727,9 +2727,17 @@ async def get_dream_calendar(
 # ==================== 星空纪念API ====================
 
 @app.get("/api/star-sky/memorials")
-async def get_star_sky_memorials():
+async def get_star_sky_memorials(request: Request):
     """获取所有公开纪念馆（用于星空展示）"""
     try:
+        # 获取当前用户ID（如果已登录）
+        current_user_id = None
+        session_token = request.headers.get('x-session-token')
+        if session_token:
+            user_id = db.get_user_id_from_session(session_token)
+            if user_id:
+                current_user_id = user_id
+        
         memorials = db.get_all_public_memorials()
         
         # 转换为星星数据
@@ -2754,7 +2762,8 @@ async def get_star_sky_memorials():
                 'size': 2 + (hash_val % 3),  # 2-4
                 'brightness': 0.5 + ((hash_val % 50) / 100),  # 0.5-1.0
                 'color': get_star_color(memorial['species']),
-                'days_passed': calculate_days_passed(memorial['memorial_date'])
+                'days_passed': calculate_days_passed(memorial['memorial_date']),
+                'is_mine': current_user_id and memorial['user_id'] == current_user_id
             })
         
         return {

@@ -2,7 +2,7 @@
 
 .container {
   min-height: 100vh;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: radial-gradient(ellipse at bottom, #1b2735 0%, #090a0f 100%);
   padding: 40rpx 20rpx;
 }
 
@@ -44,7 +44,7 @@
   width: 120rpx;
   height: 120rpx;
   border-radius: 50%;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%);
+  background: radial-gradient(ellipse at bottom, #1b2735 0%, #090a0f 100%);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -169,7 +169,7 @@
 
 /* 升级区域 */
 .upgrade-section {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%);
+  background: radial-gradient(ellipse at bottom, #1b2735 0%, #090a0f 100%);
   border-radius: 20rpx;
   padding: 40rpx;
   margin-bottom: 40rpx;
@@ -234,7 +234,7 @@
 }
 
 .btn-primary {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%);
+  background: radial-gradient(ellipse at bottom, #1b2735 0%, #090a0f 100%);
   color: white;
   box-shadow: 0 8rpx 25rpx rgba(102, 126, 234, 0.4);
 }
@@ -270,7 +270,7 @@
   box-shadow: 0 4rpx 15rpx rgba(255, 154, 86, 0.6);
 }
 
-/* 响应式设计 */
+/* 响应式设�?*/
 @media (max-width: 750rpx) {
   .container {
     padding: 20rpx 16rpx;

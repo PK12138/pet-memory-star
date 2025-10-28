@@ -1,7 +1,7 @@
 /* 梦境日记页面样式 */
 
 page {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #434190 100%);
+  background: radial-gradient(ellipse at bottom, #1b2735 0%, #090a0f 100%);
   min-height: 100vh;
 }
 
@@ -66,7 +66,7 @@ page {
   50% { opacity: 1; transform: scale(1.2); }
 }
 
-/* 标题区 */
+/* 标题�?*/
 .page-header {
   text-align: center;
   margin-bottom: 30rpx;
@@ -124,7 +124,7 @@ page {
   background: rgba(255, 255, 255, 0.3);
 }
 
-/* Tab栏 */
+/* Tab�?*/
 .tab-bar {
   display: flex;
   background: rgba(255, 255, 255, 0.1);
@@ -225,7 +225,7 @@ page {
   font-weight: bold;
 }
 
-/* 情感徽章颜色 - 通过class动态设置 */
+/* 情感徽章颜色 - 通过class动态设�?*/
 
 .dream-content {
   margin-bottom: 20rpx;
@@ -447,7 +447,7 @@ page {
   transition: width 0.5s ease;
 }
 
-/* 情感条颜色通过JS动态设置 */
+/* 情感条颜色通过JS动态设�?*/
 
 .emotion-count {
   width: 80rpx;
@@ -490,7 +490,7 @@ page {
   bottom: 40rpx;
   width: 120rpx;
   height: 120rpx;
-  background: linear-gradient(135deg, #667eea, #764ba2);
+  background: radial-gradient(ellipse at top, #2c3e50 0%, #1a252f 100%);
   border-radius: 60rpx;
   display: flex;
   align-items: center;
@@ -505,7 +505,7 @@ page {
   font-weight: 300;
 }
 
-/* 加载中 */
+/* 加载�?*/
 .loading-overlay {
   position: fixed;
   top: 0;

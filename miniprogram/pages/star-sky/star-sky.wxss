@@ -63,7 +63,7 @@ page {
   letter-spacing: 2rpx;
 }
 
-/* 底部工具栏 */
+/* 底部工具�?*/
 .toolbar {
   position: absolute;
   bottom: 60rpx;
@@ -95,7 +95,7 @@ page {
   color: rgba(255, 255, 255, 0.8);
 }
 
-/* 纪念馆信息卡片 */
+/* 纪念馆信息卡�?*/
 .memorial-card {
   position: absolute;
   top: 0;
@@ -165,7 +165,7 @@ page {
   display: flex;
   align-items: center;
   justify-content: center;
-  background: linear-gradient(135deg, #667eea, #764ba2);
+  background: radial-gradient(ellipse at top, #2c3e50 0%, #1a252f 100%);
 }
 
 .placeholder-emoji {
@@ -226,7 +226,7 @@ page {
 }
 
 .action-btn.primary {
-  background: linear-gradient(135deg, #667eea, #764ba2);
+  background: radial-gradient(ellipse at top, #2c3e50 0%, #1a252f 100%);
   border: none;
   color: #ffffff;
 }
@@ -240,7 +240,7 @@ page {
   font-size: 32rpx;
 }
 
-/* 加载中 */
+/* 加载�?*/
 .loading-overlay {
   position: absolute;
   top: 0;

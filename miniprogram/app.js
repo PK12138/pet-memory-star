@@ -6,7 +6,7 @@ const config = {
   appId: 'wx9572f66945407446',
   appSecret: 'c4b410be644231ff5635ec960dde38c1',
   
-  // 后端API地址 - 临时使用HTTP测试（开发环境）
+  // 后端API地址 - 远程服务器
   baseUrl: 'http://42.193.230.145',
   
   // 微信API地址

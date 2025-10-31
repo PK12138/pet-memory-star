@@ -134,6 +134,11 @@ Page({
             star.theta = theta
             star.currentBrightness = star.brightness || 0.8
             star.baseSize = star.size || 3
+            
+            // 清理无效的图片URL（避免500错误）
+            if (star.photo_url && (star.photo_url === 'null' || star.photo_url === null)) {
+              star.photo_url = null
+            }
           })
           
           // 计算我的星星数量
@@ -396,7 +401,7 @@ Page({
     const rotationSpeedY = 0.005  // 左右旋转灵敏度
     
     let newRotationX = rotationX - deltaY * rotationSpeedX
-    let newRotationY = rotationY + deltaX * rotationSpeedY
+    let newRotationY = rotationY - deltaX * rotationSpeedY  // 反转左右滑动方向
     
     // 限制上下旋转角度（避免翻转过头）
     newRotationX = Math.max(-Math.PI / 2, Math.min(Math.PI / 2, newRotationX))
@@ -448,19 +453,19 @@ Page({
   showStarDetail(star) {
     console.log('显示星星详情:', star)
     
-    // 添加震动反馈
+    // 轻微震动反馈
     wx.vibrateShort({
       type: 'light'
     })
     
-    this.setData({
+        this.setData({
       selectedStar: star
     })
   },
 
   // 关闭星星详情
   closeStarDetail() {
-    this.setData({
+        this.setData({
       selectedStar: null
     })
   },
@@ -468,6 +473,17 @@ Page({
   // 阻止事件冒泡
   stopPropagation() {
     // 空函数，用于阻止冒泡
+  },
+
+  // 图片加载失败处理
+  onImageError(e) {
+    console.log('图片加载失败，使用占位符')
+    // 图片加载失败时，更新当前星星数据，避免重复尝试加载
+    if (this.data.selectedStar) {
+      this.setData({
+        'selectedStar.photo_url': null
+      })
+    }
   },
 
   // 导航方法

@@ -2,13 +2,14 @@
 <view class="container">
   <!-- 页面标题 -->
   <view class="page-header">
-    <text class="page-title">宠物性格测试</text>
-    <text class="page-subtitle">了解您的宠物，创建专属纪念馆</text>
+    <text class="page-title">🌟 宠物性格深度画像</text>
+    <text class="page-subtitle">20个生活细节，还原ta最真实的样子</text>
+    <text class="page-hint">让AI更懂ta，创造更真实的对话</text>
   </view>
   
   <!-- 进度条 - 只在非基本信息页显示 -->
-  <view wx:if="{{!showPetInfo}}" class="progress-section">
-    <text class="progress-text">第 {{currentQuestion}} 题 / 共 {{totalQuestions}} 题</text>
+  <view wx:if="{{!showPetInfo && !showMemoryQuestions}}" class="progress-section">
+    <text class="progress-text">性格测试：第 {{currentQuestion}} / {{totalQuestions}} 题</text>
     <view class="progress-bar">
       <view class="progress-fill" style="width: {{progress}}%"></view>
     </view>
@@ -16,15 +17,24 @@
   
   <!-- 宠物基本信息 -->
   <view wx:if="{{showPetInfo}}" class="pet-info-section">
-    <text class="section-title">宠物基本信息</text>
+    <view class="section-header">
+      <text class="section-icon">🐾</text>
+      <text class="section-title">创建专属纪念馆</text>
+      <text class="section-subtitle">只需4步，永远铭记ta的温暖</text>
+    </view>
+    
     <view class="form-list">
       <!-- 宠物姓名 -->
       <view class="form-group-full">
-        <text class="form-label">宠物姓名 <text class="required">*</text></text>
+        <text class="form-label">
+          <text class="label-icon">✨</text>
+          <text>ta叫什么名字</text>
+          <text class="required">*</text>
+        </text>
         <input 
           class="form-input" 
           type="text" 
-          placeholder="请输入宠物姓名"
+          placeholder="输入宠物的名字"
           value="{{petInfo.name}}"
           bindinput="onPetNameInput"
         />
@@ -32,7 +42,11 @@
       
       <!-- 宠物种类 -->
       <view class="form-group-full">
-        <text class="form-label">宠物种类 <text class="required">*</text></text>
+        <text class="form-label">
+          <text class="label-icon">🐱</text>
+          <text>ta是什么小可爱</text>
+          <text class="required">*</text>
+        </text>
         <picker 
           class="form-picker" 
           mode="selector" 
@@ -40,109 +54,39 @@
           value="{{petInfo.speciesIndex}}"
           bindchange="onSpeciesChange"
         >
-          <view class="picker-text">{{petInfo.species || '请选择'}}</view>
-        </picker>
-      </view>
-      
-      <!-- 品种 -->
-      <view class="form-group-full">
-        <text class="form-label">品种</text>
-        <input 
-          class="form-input" 
-          type="text" 
-          placeholder="如：金毛、英短、金毛等"
-          value="{{petInfo.breed}}"
-          bindinput="onPetBreedInput"
-        />
-      </view>
-      
-      <!-- 毛色 -->
-      <view class="form-group-full">
-        <text class="form-label">毛色</text>
-        <input 
-          class="form-input" 
-          type="text" 
-          placeholder="如：白色、橘色等"
-          value="{{petInfo.color}}"
-          bindinput="onPetColorInput"
-        />
-      </view>
-      
-      <!-- 性别 -->
-      <view class="form-group-full">
-        <text class="form-label">性别</text>
-        <picker 
-          class="form-picker" 
-          mode="selector" 
-          range="{{genderOptions}}"
-          value="{{petInfo.genderIndex}}"
-          bindchange="onGenderChange"
-        >
-          <view class="picker-text">{{petInfo.gender || '请选择'}}</view>
-        </picker>
-      </view>
-      
-      <!-- 体重 -->
-      <view class="form-group-full">
-        <text class="form-label">体重(kg)</text>
-        <input 
-          class="form-input" 
-          type="digit" 
-          placeholder="请输入体重"
-          value="{{petInfo.weight}}"
-          bindinput="onPetWeightInput"
-        />
-      </view>
-      
-      <!-- 出生日期 -->
-      <view class="form-group-full">
-        <text class="form-label">出生日期</text>
-        <picker 
-          class="form-picker" 
-          mode="date" 
-          value="{{petInfo.birthDate}}"
-          bindchange="onBirthDateChange"
-        >
-          <view class="picker-text">{{petInfo.birthDate || '年/月/日'}}</view>
+          <view class="picker-text">{{petInfo.species || '选择种类'}}</view>
         </picker>
       </view>
       
       <!-- 纪念日期 -->
       <view class="form-group-full">
-        <text class="form-label">纪念日期 <text class="required">*</text></text>
+        <text class="form-label">
+          <text class="label-icon">📅</text>
+          <text>纪念日期</text>
+          <text class="required">*</text>
+        </text>
         <picker 
           class="form-picker" 
           mode="date" 
           value="{{petInfo.memorialDate}}"
           bindchange="onMemorialDateChange"
         >
-          <view class="picker-text">{{petInfo.memorialDate || '年/月/日'}}</view>
+          <view class="picker-text">{{petInfo.memorialDate || '选择日期'}}</view>
         </picker>
-      </view>
-      
-      <!-- 宠物状态 -->
-      <view class="form-group-full">
-        <text class="form-label">宠物状态 <text class="required">*</text></text>
-        <picker 
-          class="form-picker" 
-          mode="selector" 
-          range="{{statusOptions}}"
-          value="{{petInfo.statusIndex}}"
-          bindchange="onStatusChange"
-        >
-          <view class="picker-text">{{petInfo.status || '请选择'}}</view>
-        </picker>
-        <text class="form-hint">选择"健在"时，AI信件将被隐藏，直到您主动查看</text>
       </view>
       
       <!-- 上传照片 -->
       <view class="form-group-full">
-        <text class="form-label">上传照片 <text class="required">*</text></text>
+        <text class="form-label">
+          <text class="label-icon">📷</text>
+          <text>上传ta的照片</text>
+          <text class="required">*</text>
+        </text>
         <view class="upload-area" bindtap="chooseImage">
           <view wx:if="{{petInfo.photos.length === 0}}" class="upload-placeholder">
-            <text class="upload-icon">📷</text>
-            <text class="upload-text">选择文件</text>
-            <text class="upload-hint">可以选多张照片</text>
+            <text class="upload-icon">📸</text>
+            <text class="upload-text">添加照片</text>
+            <text class="upload-hint">分享ta最美的瞬间</text>
           </view>
           <view wx:else class="image-list">
             <view wx:for="{{petInfo.photos}}" wx:key="*this" class="image-item">
@@ -152,6 +96,94 @@
             <view class="add-more-btn" bindtap="chooseImage">
               <text>+</text>
             </view>
+          </view>
+        </view>
+      </view>
+      
+      <!-- 更多信息折叠区 -->
+      <view class="expand-section">
+        <view class="expand-trigger" bindtap="toggleMoreInfo">
+          <text class="expand-text">{{showMoreInfo ? '收起' : '添加更多信息（选填）'}}</text>
+          <text class="expand-icon">{{showMoreInfo ? '▲' : '▼'}}</text>
+        </view>
+        
+        <view wx:if="{{showMoreInfo}}" class="more-info-container">
+          <!-- 品种 -->
+          <view class="form-group-full">
+            <text class="form-label">品种</text>
+            <input 
+              class="form-input" 
+              type="text" 
+              placeholder="如：金毛、英短等"
+              value="{{petInfo.breed}}"
+              bindinput="onPetBreedInput"
+            />
+          </view>
+          
+          <!-- 毛色 -->
+          <view class="form-group-full">
+            <text class="form-label">毛色</text>
+            <input 
+              class="form-input" 
+              type="text" 
+              placeholder="如：白色、橘色等"
+              value="{{petInfo.color}}"
+              bindinput="onPetColorInput"
+            />
+          </view>
+          
+          <!-- 性别 -->
+          <view class="form-group-full">
+            <text class="form-label">性别</text>
+            <picker 
+              class="form-picker" 
+              mode="selector" 
+              range="{{genderOptions}}"
+              value="{{petInfo.genderIndex}}"
+              bindchange="onGenderChange"
+            >
+              <view class="picker-text">{{petInfo.gender || '请选择'}}</view>
+            </picker>
+          </view>
+          
+          <!-- 体重 -->
+          <view class="form-group-full">
+            <text class="form-label">体重(kg)</text>
+            <input 
+              class="form-input" 
+              type="digit" 
+              placeholder="请输入体重"
+              value="{{petInfo.weight}}"
+              bindinput="onPetWeightInput"
+            />
+          </view>
+          
+          <!-- 出生日期 -->
+          <view class="form-group-full">
+            <text class="form-label">出生日期</text>
+            <picker 
+              class="form-picker" 
+              mode="date" 
+              value="{{petInfo.birthDate}}"
+              bindchange="onBirthDateChange"
+            >
+              <view class="picker-text">{{petInfo.birthDate || '年/月/日'}}</view>
+            </picker>
+          </view>
+          
+          <!-- 宠物状态 -->
+          <view class="form-group-full">
+            <text class="form-label">宠物状态</text>
+            <picker 
+              class="form-picker" 
+              mode="selector" 
+              range="{{statusOptions}}"
+              value="{{petInfo.statusIndex}}"
+              bindchange="onStatusChange"
+            >
+              <view class="picker-text">{{petInfo.status || '请选择'}}</view>
+            </picker>
+            <text class="form-hint">选择"健在"时，AI信件将被隐藏</text>
           </view>
         </view>
       </view>
@@ -170,6 +202,49 @@
         data-option="{{item}}"
       >
         {{item}}
+      </view>
+    </view>
+  </view>
+  
+  <!-- 简答题区域 -->
+  <view wx:if="{{showMemoryQuestions}}" class="memory-section">
+    <view class="memory-header">
+      <text class="memory-icon">💭</text>
+      <text class="memory-title">深度回忆</text>
+      <text class="memory-subtitle">分享你与ta之间的珍贵记忆（选填）</text>
+      <text class="memory-tip">💡 填写越详细，AI对话越真实</text>
+    </view>
+    
+    <view class="memory-progress">
+      <text class="memory-progress-text">第 {{currentMemoryQuestion}} / {{totalMemoryQuestions}} 个问题</text>
+    </view>
+    
+    <view class="memory-question-card">
+      <view class="memory-question-header">
+        <text class="memory-question-number">{{currentMemoryQuestion}}</text>
+        <text class="memory-question-text">{{memoryQuestions[currentMemoryQuestion - 1].question}}</text>
+      </view>
+      
+      <view class="memory-hint">
+        <text class="hint-icon">💡</text>
+        <text class="hint-text">{{memoryQuestions[currentMemoryQuestion - 1].hint}}</text>
+      </view>
+      
+      <textarea 
+        class="memory-textarea" 
+        placeholder="{{memoryQuestions[currentMemoryQuestion - 1].placeholder}}"
+        value="{{memoryAnswers[currentMemoryQuestion]}}"
+        bindinput="onMemoryAnswerInput"
+        maxlength="500"
+        auto-height
+        show-confirm-bar="{{false}}"
+      ></textarea>
+      
+      <view class="char-count">
+        <text class="count-current">{{memoryAnswers[currentMemoryQuestion] ? memoryAnswers[currentMemoryQuestion].length : 0}}</text>
+        <text class="count-divider">/</text>
+        <text class="count-max">500字</text>
+        <text class="count-hint">（选填，可跳过）</text>
       </view>
     </view>
   </view>
@@ -195,7 +270,7 @@
   <!-- 导航按钮 -->
   <view class="navigation">
     <button 
-      wx:if="{{currentQuestion > 1 || showPetInfo}}" 
+      wx:if="{{!showResult && (showPetInfo || currentQuestion > 1 || currentMemoryQuestion > 1 || showMemoryQuestions)}}" 
       class="btn btn-secondary" 
       bindtap="prevStep"
     >
@@ -203,12 +278,12 @@
     </button>
     
     <button 
-      wx:if="{{!showResult && (showPetInfo || currentQuestion <= totalQuestions)}}" 
+      wx:if="{{!showResult}}" 
       class="btn btn-primary" 
       bindtap="nextStep"
       disabled="{{!canProceed}}"
     >
-      {{showPetInfo ? '开始性格测试' : (currentQuestion === totalQuestions ? '完成测试' : '下一步')}}
+      {{showPetInfo ? '开始性格测试' : (showMemoryQuestions ? (currentMemoryQuestion === totalMemoryQuestions ? '完成创建' : '下一题 / 跳过') : (currentQuestion === totalQuestions ? '进入深度回忆' : '下一题'))}}
     </button>
     
     <button 

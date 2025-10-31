@@ -1,85 +1,159 @@
 <!--pages/user-center/user-center.wxml-->
 <view class="container">
+  <!-- 顶部装饰 -->
+  <view class="header-decoration"></view>
+  
   <view class="header">
-    <text class="logo">⭐ 爪迹星</text>
-    <text class="subtitle">个人中心</text>
+    <text class="header-icon">👑</text>
+    <text class="logo">个人中心</text>
+    <text class="subtitle">爪迹星·云纪念馆</text>
   </view>
   
   <!-- 用户信息卡片 -->
   <view class="user-info-card">
     <view class="user-avatar">
-      <text class="avatar-text">{{userInfo.email ? userInfo.email[0].toUpperCase() : 'U'}}</text>
+      <image wx:if="{{userInfo.avatar_url}}" class="avatar-image" src="{{userInfo.avatar_url}}" mode="aspectFill"></image>
+      <text wx:else class="avatar-text">{{userInfo.nickname ? userInfo.nickname[0] : '👤'}}</text>
+      <view class="avatar-glow"></view>
     </view>
     <view class="user-details">
-      <text class="user-email">{{userInfo.email}}</text>
-      <text class="user-level">{{levelInfo.name || '免费用户'}}</text>
+      <text class="user-nickname">{{userInfo.nickname || '微信用户'}}</text>
+      <view class="level-badge">
+        <text class="level-icon">{{levelInfo.name === '高级会员' ? '💎' : '⭐'}}</text>
+        <text class="user-level">{{levelInfo.name || '免费用户'}}</text>
+      </view>
     </view>
   </view>
   
   <!-- 统计信息 -->
   <view class="stats-section">
     <view class="stat-card">
+      <text class="stat-icon">🏠</text>
       <text class="stat-number">{{stats.memorialCount || 0}}</text>
       <text class="stat-label">纪念馆</text>
     </view>
     <view class="stat-card">
+      <text class="stat-icon">📷</text>
       <text class="stat-number">{{stats.photoCount || 0}}</text>
       <text class="stat-label">照片</text>
     </view>
     <view class="stat-card">
+      <text class="stat-icon">👀</text>
       <text class="stat-number">{{stats.totalViews || 0}}</text>
       <text class="stat-label">访问量</text>
     </view>
     <view class="stat-card">
+      <text class="stat-icon">🤖</text>
       <text class="stat-number">{{stats.aiUsage || 0}}</text>
       <text class="stat-label">AI使用</text>
     </view>
   </view>
   
+  <!-- 快捷功能 -->
+  <view class="quick-actions">
+    <text class="section-title">
+      <text class="title-icon">⚡</text>
+      <text>快捷功能</text>
+    </text>
+    <view class="action-grid">
+      <view class="action-item" bindtap="goToMemorials">
+        <view class="action-icon-wrapper memorials">
+          <text class="action-icon">🏠</text>
+        </view>
+        <text class="action-label">我的纪念馆</text>
+      </view>
+      <view class="action-item" bindtap="goToPhotoManager">
+        <view class="action-icon-wrapper photos">
+          <text class="action-icon">📷</text>
+        </view>
+        <text class="action-label">照片管理</text>
+      </view>
+      <view class="action-item" bindtap="goToOrders">
+        <view class="action-icon-wrapper orders">
+          <text class="action-icon">📦</text>
+        </view>
+        <text class="action-label">订单管理</text>
+      </view>
+      <view class="action-item" bindtap="goToThemeSettings">
+        <view class="action-icon-wrapper theme">
+          <text class="action-icon">🎨</text>
+        </view>
+        <text class="action-label">主题设置</text>
+      </view>
+    </view>
+  </view>
+  
   <!-- 功能权限 -->
   <view class="permissions-section">
-    <text class="section-title">功能权限</text>
+    <text class="section-title">
+      <text class="title-icon">🔐</text>
+      <text>功能权限</text>
+    </text>
     <view class="permission-list">
       <view class="permission-item">
-        <text class="permission-name">纪念馆创建</text>
-        <text class="permission-status {{permissions.canCreateMemorial ? 'enabled' : 'disabled'}}">
-          {{permissions.canCreateMemorial ? '✓ 已启用' : '✗ 已限制'}}
-        </text>
+        <view class="permission-left">
+          <text class="permission-icon">🏠</text>
+          <text class="permission-name">纪念馆创建</text>
+        </view>
+        <view class="permission-status {{permissions.canCreateMemorial ? 'enabled' : 'disabled'}}">
+          <text class="status-dot"></text>
+          <text>{{permissions.canCreateMemorial ? '已启用' : '已限制'}}</text>
+        </view>
       </view>
       <view class="permission-item">
-        <text class="permission-name">照片上传</text>
-        <text class="permission-status {{permissions.canUploadPhoto ? 'enabled' : 'disabled'}}">
-          {{permissions.canUploadPhoto ? '✓ 已启用' : '✗ 已限制'}}
-        </text>
+        <view class="permission-left">
+          <text class="permission-icon">📷</text>
+          <text class="permission-name">照片上传</text>
+        </view>
+        <view class="permission-status {{permissions.canUploadPhoto ? 'enabled' : 'disabled'}}">
+          <text class="status-dot"></text>
+          <text>{{permissions.canUploadPhoto ? '已启用' : '已限制'}}</text>
+        </view>
       </view>
       <view class="permission-item">
-        <text class="permission-name">AI功能</text>
-        <text class="permission-status {{permissions.canUseAI ? 'enabled' : 'disabled'}}">
-          {{permissions.canUseAI ? '✓ 已启用' : '✗ 已限制'}}
-        </text>
+        <view class="permission-left">
+          <text class="permission-icon">🤖</text>
+          <text class="permission-name">AI功能</text>
+        </view>
+        <view class="permission-status {{permissions.canUseAI ? 'enabled' : 'disabled'}}">
+          <text class="status-dot"></text>
+          <text>{{permissions.canUseAI ? '已启用' : '已限制'}}</text>
+        </view>
       </view>
       <view class="permission-item">
-        <text class="permission-name">数据导出</text>
-        <text class="permission-status {{permissions.canExportData ? 'enabled' : 'disabled'}}">
-          {{permissions.canExportData ? '✓ 已启用' : '✗ 已限制'}}
-        </text>
+        <view class="permission-left">
+          <text class="permission-icon">📤</text>
+          <text class="permission-name">数据导出</text>
+        </view>
+        <view class="permission-status {{permissions.canExportData ? 'enabled' : 'disabled'}}">
+          <text class="status-dot"></text>
+          <text>{{permissions.canExportData ? '已启用' : '已限制'}}</text>
+        </view>
       </view>
     </view>
   </view>
   
   <!-- 升级区域 -->
   <view wx:if="{{userLevel === 0}}" class="upgrade-section">
+    <view class="upgrade-icon">💎</view>
     <text class="upgrade-title">升级到高级会员</text>
     <text class="upgrade-desc">解锁更多功能，享受更好的体验</text>
-    <button class="upgrade-btn" bindtap="goToPayment">立即升级</button>
+    <view class="upgrade-features">
+      <text class="feature-item">✓ 无限纪念馆</text>
+      <text class="feature-item">✓ 无限AI对话</text>
+      <text class="feature-item">✓ 高清照片</text>
+    </view>
+    <button class="upgrade-btn" bindtap="goToPayment">
+      <text class="btn-icon">👑</text>
+      <text>立即升级</text>
+    </button>
   </view>
   
-  <!-- 操作按钮 -->
-  <view class="action-buttons">
-    <button class="btn btn-primary" bindtap="goToMemorials">我的纪念馆</button>
-    <button class="btn btn-secondary" bindtap="goToPhotoManager">照片管理</button>
-    <button class="btn btn-secondary" bindtap="goToOrders">订单管理</button>
-    <button class="btn btn-theme" bindtap="goToThemeSettings">🎨 主题设置</button>
-    <button class="btn btn-secondary" bindtap="logout">退出登录</button>
+  <!-- 退出登录 -->
+  <view class="logout-section">
+    <button class="btn btn-logout" bindtap="logout">
+      <text class="btn-icon">🚪</text>
+      <text>退出登录</text>
+    </button>
   </view>
 </view>

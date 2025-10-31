@@ -2,8 +2,6 @@
   "pages": [
     "pages/index/index",
     "pages/login/login",
-    "pages/register/register",
-    "pages/forgot-password/forgot-password",
     "pages/user-center/user-center",
     "pages/memorials/memorials",
     "pages/memorial-edit/memorial-edit",
@@ -24,10 +22,10 @@
   ],
   "window": {
     "backgroundTextStyle": "light",
-    "navigationBarBackgroundColor": "#2d3561",
+    "navigationBarBackgroundColor": "#0f1b2e",
     "navigationBarTitleText": "爪迹星·云纪念馆",
     "navigationBarTextStyle": "white",
-    "backgroundColor": "#0e1420"
+    "backgroundColor": "#050b14"
   },
   "networkTimeout": {
     "request": 10000,

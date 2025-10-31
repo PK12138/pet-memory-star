@@ -44,31 +44,32 @@
       <text class="menu-label">创建星星</text>
     </view>
     
-    <view class="float-menu-item" bindtap="goToLetterBox">
-      <view class="menu-icon">💌</view>
-      <text class="menu-label">信件箱</text>
-      <view class="badge" wx:if="{{unreadLetters > 0}}">{{unreadLetters}}</view>
-    </view>
-    
-    <view class="float-menu-item" bindtap="goToChat">
-      <view class="menu-icon">💬</view>
-      <text class="menu-label">对话</text>
-    </view>
-    
     <view class="float-menu-item" bindtap="goToProfile">
-      <view class="menu-icon">👤</view>
+      <view class="menu-icon profile-icon">👑</view>
       <text class="menu-label">我的</text>
     </view>
   </view>
 
   <!-- 星星详情弹窗 -->
-  <view class="star-detail-modal" wx:if="{{selectedStar}}" bindtap="closeStarDetail">
+  <view class="star-detail-modal {{selectedStar ? 'show' : ''}}" bindtap="closeStarDetail">
     <view class="modal-content" catchtap="stopPropagation">
       <view class="star-header">
-        <image class="star-avatar" src="{{selectedStar.photo_url}}" mode="aspectFill" />
+        <view class="star-avatar-wrapper">
+          <image 
+            wx:if="{{selectedStar.photo_url && selectedStar.photo_url != 'null'}}"
+            class="star-avatar" 
+            src="{{selectedStar.photo_url}}" 
+            mode="aspectFill"
+            binderror="onImageError"
+            show-menu-by-longpress="{{false}}"
+          />
+          <view wx:else class="star-avatar-placeholder">
+            <text class="placeholder-emoji">🐾</text>
+          </view>
+        </view>
         <view class="star-info">
           <text class="star-name">{{selectedStar.pet_name}}</text>
-          <text class="star-dates">{{selectedStar.birth_date}} - {{selectedStar.death_date}}</text>
+          <text class="star-dates">{{selectedStar.memorial_date || '永远怀念'}}</text>
         </view>
         <view class="close-btn" catchtap="closeStarDetail">✕</view>
       </view>

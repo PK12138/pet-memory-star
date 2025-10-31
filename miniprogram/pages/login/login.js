@@ -3,183 +3,129 @@ const app = getApp()
 
 Page({
   data: {
-    email: '',
-    password: '',
     loading: false,
     successMessage: '',
-    errorMessage: '',
-    emailError: '',
-    passwordError: ''
+    errorMessage: ''
   },
 
   onLoad() {
-    console.log('登录页加载')
-  },
-
-  // 邮箱输入
-  onEmailInput(e) {
-    this.setData({
-      email: e.detail.value,
-      emailError: ''
-    })
-  },
-
-  // 密码输入
-  onPasswordInput(e) {
-    // 确保密码输入是安全的
-    const value = e.detail.value || ''
+    console.log('🚀 微信登录页加载')
     
-    // 移除任何不安全的字符
-    const safeValue = value.replace(/[<>]/g, '')
+    // 检查是否已登录
+    const sessionToken = app.globalData.sessionToken
+    if (sessionToken) {
+      console.log('✅ 已登录，直接跳转首页')
+      wx.reLaunch({
+        url: '/pages/index/index'
+      })
+    }
+  },
+
+  // 微信登录
+  async wxLogin() {
+    console.log('🔑 开始微信登录流程')
     
     this.setData({
-      password: safeValue,
-      passwordError: value !== safeValue ? '密码包含不安全字符' : ''
-    })
-  },
-
-  // 清除错误信息
-  clearErrors() {
-    this.setData({
-      emailError: '',
-      passwordError: '',
+      loading: true,
       errorMessage: '',
       successMessage: ''
     })
-  },
-
-  // 显示错误信息
-  showError(field, message) {
-    const errorField = field + 'Error'
-    this.setData({
-      [errorField]: message
-    })
-  },
-
-  // 显示全局错误信息
-  showGlobalError(message) {
-    this.setData({
-      errorMessage: message
-    })
-  },
-
-  // 显示成功信息
-  showSuccess(message) {
-    this.setData({
-      successMessage: message
-    })
-  },
-
-  // 设置加载状态
-  setLoading(isLoading) {
-    this.setData({
-      loading: isLoading
-    })
-  },
-
-  // 登录
-  async login() {
-    const { email, password } = this.data
-    
-    // 清除之前的错误信息
-    this.clearErrors()
-    
-    // 验证输入
-    if (!email) {
-      this.showError('email', '请输入邮箱地址')
-      return
-    }
-    
-    if (!this.validateEmail(email)) {
-      this.showError('email', '请输入有效的邮箱地址')
-      return
-    }
-    
-    if (!password) {
-      this.showError('password', '请输入密码')
-      return
-    }
-    
-    if (password.length < 6) {
-      this.showError('password', '密码长度不能少于6位')
-      return
-    }
-    
-    this.setLoading(true)
-    
-    console.log('开始登录请求:', { email: email })
     
     try {
-      const res = await app.request({
-        url: '/api/auth/login',
-        method: 'POST',
-        data: {
-          email: email,
-          password: password
-        }
+      // 1. 调用 wx.login 获取 code
+      const loginRes = await new Promise((resolve, reject) => {
+        wx.login({
+          success: resolve,
+          fail: reject
+        })
       })
       
-      console.log('登录请求响应:', res)
+      const code = loginRes.code
+      console.log('📱 获取到微信code:', code)
+      
+      if (!code) {
+        throw new Error('获取微信登录凭证失败')
+      }
+      
+      // 2. 发送 code 到后端换取 session
+      console.log('🌐 发送code到后端')
+      const res = await app.request({
+        url: '/api/auth/wx-login',
+        method: 'POST',
+        data: { code }
+      })
+      
+      console.log('📥 后端响应:', res)
       
       if (res.success) {
-        // 登录成功
-        this.showSuccess('登录成功！')
+        // 3. 保存 token 和用户信息
+        console.log('✅ 登录成功')
+        this.setData({
+          successMessage: '登录成功！',
+          loading: false
+        })
         
-        // 调试输出
-        console.log('登录成功响应:', JSON.stringify(res))
-        
-        // 保存用户信息到全局 - 使用 app.login() 方法确保完整流程
+        // 保存到全局
         app.login(res.session_token, res.user)
         
-        // 延迟跳转
-        console.log('准备跳转到首页，延迟1.5秒')
+        // 短暂延迟后跳转
         setTimeout(() => {
-          console.log('执行跳转到首页')
-          // 使用 reLaunch 而不是 switchTab（因为 app.json 中没有配置 tabBar）
+          console.log('⏭️ 跳转到首页')
           wx.reLaunch({
             url: '/pages/index/index',
             success: () => {
-              console.log('跳转成功')
+              console.log('✅ 跳转成功')
             },
             fail: (err) => {
-              console.error('跳转失败:', err)
+              console.error('❌ 跳转失败:', err)
             }
           })
-        }, 1500)
+        }, 800)
       } else {
-        this.setLoading(false)
-        this.showGlobalError(res.message || '登录失败，请检查邮箱和密码')
+        this.setData({
+          loading: false,
+          errorMessage: res.message || '登录失败，请重试'
+        })
       }
     } catch (error) {
-      console.error('登录失败:', error)
-      this.setLoading(false)
-      this.showGlobalError('网络错误，请稍后重试')
+      console.error('❌ 微信登录失败:', error)
+      this.setData({
+        loading: false,
+        errorMessage: error.message || '登录失败，请检查网络后重试'
+      })
+      
+      // 显示错误提示
+      wx.showToast({
+        title: '登录失败',
+        icon: 'none',
+        duration: 2000
+      })
     }
   },
 
-  // 验证邮箱格式
-  validateEmail(email) {
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
-    return emailRegex.test(email)
-  },
-
-  // 跳转到注册页
-  goToRegister() {
-    wx.navigateTo({
-      url: '/pages/register/register'
+  // 查看隐私政策
+  viewPrivacy() {
+    wx.showModal({
+      title: '隐私政策',
+      content: '我们承诺保护您的个人信息安全。您的微信信息仅用于登录验证，不会用于其他用途。',
+      showCancel: false,
+      confirmText: '知道了'
     })
   },
 
-  // 跳转到忘记密码页
-  goToForgotPassword() {
-    wx.navigateTo({
-      url: '/pages/forgot-password/forgot-password'
+  // 查看服务条款
+  viewTerms() {
+    wx.showModal({
+      title: '服务条款',
+      content: '使用本小程序即表示您同意遵守我们的服务条款。我们致力于为您提供优质的纪念服务。',
+      showCancel: false,
+      confirmText: '知道了'
     })
   },
 
   // 返回首页
   goToHome() {
-    wx.switchTab({
+    wx.reLaunch({
       url: '/pages/index/index'
     })
   }

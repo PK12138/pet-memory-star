@@ -8,6 +8,10 @@ Page({
     progress: 0,
     showPetInfo: true,
     showResult: false,
+    showMoreInfo: false, // 是否展开更多信息
+    showMemoryQuestions: false, // 是否显示简答题环节
+    currentMemoryQuestion: 1,
+    totalMemoryQuestions: 5,
     petInfo: {
       name: '',
       species: '',
@@ -31,6 +35,45 @@ Page({
     currentQuestionData: null,
     currentQuestionOptions: [],
     answers: {},
+    memoryQuestions: [
+      {
+        id: 1,
+        question: "还记得你们第一次见面吗？",
+        placeholder: "描述一下那个特别的时刻：在哪里？ta当时是什么样子？你的第一感觉是什么？",
+        hint: "比如：在宠物店的笼子里，ta用水汪汪的大眼睛看着我..."
+      },
+      {
+        id: 2,
+        question: "ta有什么让你印象最深刻的习惯或癖好？",
+        placeholder: "那些只属于ta的小动作、小习惯...",
+        hint: "比如：每次喝水前一定要用爪子拨一拨水碗..."
+      },
+      {
+        id: 3,
+        question: "你们之间发生过什么特别温馨或有趣的事？",
+        placeholder: "分享一个让你现在想起来还会笑/感动的故事...",
+        hint: "比如：有一次我发烧，ta整晚趴在我身边寸步不离..."
+      },
+      {
+        id: 4,
+        question: "ta最喜欢做什么事？或者你们最喜欢一起做什么？",
+        placeholder: "那些专属于你们的快乐时光...",
+        hint: "比如：每天晚上一起窝在沙发上看电视..."
+      },
+      {
+        id: 5,
+        question: "如果用一句话总结ta的性格，你会怎么说？",
+        placeholder: "用最能代表ta的话，描述ta在你心中的样子...",
+        hint: "比如：一个外表高冷内心温柔的小傲娇..."
+      }
+    ],
+    memoryAnswers: {
+      1: '',
+      2: '',
+      3: '',
+      4: '',
+      5: ''
+    },
     personalityResult: '',
     memorialInfo: {
       description: ''
@@ -48,57 +91,207 @@ Page({
   async loadQuestions() {
     console.log('开始加载问题')
     
-    // 使用与网页版一致的题目数据
+    // 全新设计的性格测试题目 - 更具体、更细节、更个性化
     const localQuestions = {
       1: {
         id: 1,
-        question: "当遇到陌生人时，你的宠物通常会：",
-        options: ["躲起来观察", "主动上前打招呼", "保持距离但好奇", "完全不在意"]
+        question: "清晨醒来后，ta的第一件事通常是：",
+        options: [
+          "立刻跳到你身上要早安亲亲",
+          "伸个懒腰，慢悠悠地开始新的一天",
+          "直奔食盆或水碗",
+          "安静地趴着，等你主动叫ta"
+        ]
       },
       2: {
         id: 2,
-        question: "在玩耍时，你的宠物更喜欢：",
-        options: ["独自探索", "与主人互动", "与其他宠物玩耍", "安静地观察"]
+        question: "当快递员按门铃时，ta会：",
+        options: [
+          "冲到门口狂叫/发出警告声",
+          "好奇地歪着头听，但保持冷静",
+          "立刻躲到沙发底下或房间角落",
+          "完全无视，继续睡觉或玩耍"
+        ]
       },
       3: {
         id: 3,
-        question: "当主人回家时，你的宠物会：",
-        options: ["兴奋地跑来跑去", "温柔地蹭主人", "摇尾巴表示欢迎", "继续做自己的事"]
+        question: "你在家工作/学习时，ta最常做的是：",
+        options: [
+          "趴在你脚边或腿上，寸步不离",
+          "在你视线范围内自己玩，偶尔看看你",
+          "完全独立，在房间另一头做自己的事",
+          "不断来「打扰」你，要求关注"
+        ]
       },
       4: {
         id: 4,
-        question: "面对新玩具时，你的宠物会：",
-        options: ["立即尝试", "先观察再尝试", "等主人示范", "不感兴趣"]
+        question: "下雨打雷时，ta的反应是：",
+        options: [
+          "明显害怕，躲起来或钻进你怀里",
+          "有点紧张，但很快就恢复正常",
+          "似乎很兴奋，对窗外的雨特别好奇",
+          "毫无反应，该干嘛干嘛"
+        ]
       },
       5: {
         id: 5,
-        question: "在休息时，你的宠物喜欢：",
-        options: ["找个安静角落", "靠近主人身边", "在能看到主人的地方", "随意找个地方"]
+        question: "看到窗外的鸟/虫子时，ta会：",
+        options: [
+          "发出特殊的「咔咔」声或呜呜声，超级专注",
+          "兴奋地拍打窗户，想要抓住",
+          "只是看几眼，然后失去兴趣",
+          "完全不在意，眼都不瞟一下"
+        ]
       },
       6: {
         id: 6,
-        question: "当听到奇怪声音时，你的宠物会：",
-        options: ["立即警觉", "好奇地寻找声源", "寻求主人保护", "继续休息"]
+        question: "你下班回家时，ta的欢迎方式是：",
+        options: [
+          "在门口疯狂转圈/摇尾巴，激动到快飞起来",
+          "温柔地蹭你，发出小声的「欢迎回家」",
+          "慢悠悠地走过来瞟一眼，然后继续自己的事",
+          "根本不出现，你得主动去找ta"
+        ]
       },
       7: {
         id: 7,
-        question: "与其他宠物相处时，你的宠物：",
-        options: ["保持独立", "主动社交", "谨慎接触", "完全忽视"]
+        question: "吃饭时间到了，ta的表现是：",
+        options: [
+          "提前半小时就开始催，喵喵叫/汪汪叫个不停",
+          "准时出现在食盆旁，用眼神提醒你",
+          "等你叫ta，不催不急",
+          "记不住时间，经常要你主动喂"
+        ]
       },
       8: {
         id: 8,
-        question: "在训练时，你的宠物：",
-        options: ["专注且快速学习", "需要鼓励和奖励", "容易分心", "抗拒训练"]
+        question: "家里来客人时，ta通常会：",
+        options: [
+          "秒变「社交达人」，主动上前求摸摸",
+          "在远处观察，确认安全后才慢慢靠近",
+          "直接消失不见，躲到房间/柜子里",
+          "完全无视客人，该干嘛干嘛"
+        ]
       },
       9: {
         id: 9,
-        question: "当主人心情不好时，你的宠物会：",
-        options: ["默默陪伴", "主动安慰", "试图转移注意力", "保持距离"]
+        question: "你拿出ta的专用毛巾/梳子时，ta会：",
+        options: [
+          "开心地配合，甚至主动凑过来",
+          "接受但不太情愿，会小声抗议",
+          "立刻逃跑，要你费好大劲才能抓到",
+          "完全放松享受，甚至打呼/呼噜"
+        ]
       },
       10: {
         id: 10,
-        question: "面对食物时，你的宠物：",
-        options: ["立即吃完", "慢慢品尝", "先闻再吃", "挑食"]
+        question: "午后阳光洒进来时，ta最喜欢：",
+        options: [
+          "找一块阳光地板，摊成「饼」晒太阳",
+          "在阳光和阴影之间来回试探温度",
+          "完全不在意阳光，喜欢阴凉的地方",
+          "在阳光里疯玩，追逐光影"
+        ]
+      },
+      11: {
+        id: 11,
+        question: "你拿起外出用的包/钥匙时，ta会：",
+        options: [
+          "立刻警觉，焦虑地跟着你，怕被丢下",
+          "跑到门口或窗边，用眼神送你",
+          "完全不在意，继续睡觉",
+          "开心地以为要带ta出门，兴奋地转圈"
+        ]
+      },
+      12: {
+        id: 12,
+        question: "深夜你准备睡觉时，ta通常：",
+        options: [
+          "已经在你床上/旁边占好位置等你了",
+          "在房间里做最后的「巡逻」，检查安全",
+          "还在客厅玩，精神十足，不想睡",
+          "在自己的小窝里睡得正香"
+        ]
+      },
+      13: {
+        id: 13,
+        question: "当你哭泣或难过时，ta会：",
+        options: [
+          "立刻察觉，用头蹭你或舔你的脸/手",
+          "安静地趴在你身边，默默陪伴",
+          "似乎感觉到了，但不太知道怎么办",
+          "没有特别反应，继续做自己的事"
+        ]
+      },
+      14: {
+        id: 14,
+        question: "看到镜子里的自己时，ta会：",
+        options: [
+          "好奇地凑近研究，甚至伸爪子/鼻子碰",
+          "吓一跳，以为是另一只动物，炸毛/吠叫",
+          "看几眼就失去兴趣，知道那不是真的",
+          "完全无视镜子，从不在意"
+        ]
+      },
+      15: {
+        id: 15,
+        question: "家里换了新家具或重新布置后，ta的反应是：",
+        options: [
+          "第一时间去探索，闻遍每个角落",
+          "有点谨慎，花几天才慢慢接受",
+          "明显不安，在熟悉的地方来回走动",
+          "毫不在意，完全不影响日常生活"
+        ]
+      },
+      16: {
+        id: 16,
+        question: "ta最喜欢的「玩具」其实是：",
+        options: [
+          "你给ta买的正经玩具，百玩不厌",
+          "家里的纸箱/纸袋/塑料袋",
+          "你的拖鞋/袜子/头绳等日常用品",
+          "根本不玩玩具，只喜欢和你互动"
+        ]
+      },
+      17: {
+        id: 17,
+        question: "吃完饭后，ta通常会：",
+        options: [
+          "立刻去「埋屎」或理毛，爱干净",
+          "找个舒服的地方睡觉，消化食物",
+          "继续在家里巡逻或玩耍，精力充沛",
+          "缠着你要零食或继续要吃的"
+        ]
+      },
+      18: {
+        id: 18,
+        question: "你在厨房做饭时，ta会：",
+        options: [
+          "寸步不离地盯着你，等「天上掉馅饼」",
+          "在厨房门口观望，保持礼貌距离",
+          "完全不在意，在客厅做自己的事",
+          "在脚边蹭来蹭去，差点把你绊倒"
+        ]
+      },
+      19: {
+        id: 19,
+        question: "睡觉时，ta的固定姿势是：",
+        options: [
+          "蜷成一团，把脸埋在爪子/尾巴里",
+          "四脚朝天，肚皮完全暴露",
+          "侧躺或趴着，一只眼睛时刻警惕",
+          "没有固定姿势，怎么舒服怎么来"
+        ]
+      },
+      20: {
+        id: 20,
+        question: "当你叫ta的名字时，ta会：",
+        options: [
+          "立刻响应，跑过来或转头看你",
+          "耳朵动一下，但身体不动，「我听见了」",
+          "完全当没听见，继续做自己的事",
+          "看心情，高兴就理你，不高兴就无视"
+        ]
       }
     }
     
@@ -131,13 +324,18 @@ Page({
 
   // 更新进度
   updateProgress() {
-    const { currentQuestion, totalQuestions, showPetInfo } = this.data
+    const { currentQuestion, totalQuestions, showPetInfo, showMemoryQuestions, currentMemoryQuestion, totalMemoryQuestions } = this.data
     let progress = 0
     
     if (showPetInfo) {
+      // 基本信息：10%
       progress = 10
+    } else if (!showMemoryQuestions) {
+      // 性格测试：10% + 60%
+      progress = 10 + (currentQuestion / totalQuestions) * 60
     } else {
-      progress = 10 + (currentQuestion / totalQuestions) * 90
+      // 简答题：70% + 30%
+      progress = 70 + (currentMemoryQuestion / totalMemoryQuestions) * 30
     }
     
     this.setData({
@@ -147,23 +345,43 @@ Page({
 
   // 检查是否可以继续
   checkCanProceed() {
-    const { showPetInfo, petInfo, currentQuestion, answers } = this.data
+    const { showPetInfo, petInfo, currentQuestion, answers, showMemoryQuestions } = this.data
     let canProceed = false
     
     if (showPetInfo) {
-      // 必填项：宠物姓名、种类、纪念日期、状态、照片
+      // 必填项：宠物姓名、种类、纪念日期、照片
       canProceed = petInfo.name && 
                    petInfo.species && 
                    petInfo.memorialDate && 
-                   petInfo.status && 
                    petInfo.photos.length > 0
+    } else if (showMemoryQuestions) {
+      // 简答题：选填，始终可以继续
+      canProceed = true
     } else {
+      // 性格测试：必须选择一个选项
       canProceed = answers[currentQuestion] !== undefined
     }
     
     this.setData({
       canProceed
     })
+  },
+
+  // 切换更多信息展开/收起
+  toggleMoreInfo() {
+    this.setData({
+      showMoreInfo: !this.data.showMoreInfo
+    })
+  },
+
+  // 简答题输入
+  onMemoryAnswerInput(e) {
+    const { currentMemoryQuestion } = this.data
+    const value = e.detail.value
+    this.setData({
+      [`memoryAnswers.${currentMemoryQuestion}`]: value
+    })
+    this.checkCanProceed()
   },
 
   // 宠物姓名输入
@@ -301,36 +519,64 @@ Page({
 
   // 下一步
   nextStep() {
-    const { showPetInfo, currentQuestion, totalQuestions } = this.data
+    const { showPetInfo, currentQuestion, totalQuestions, showMemoryQuestions, currentMemoryQuestion, totalMemoryQuestions } = this.data
     
     if (showPetInfo) {
-      // 从宠物信息进入问题测试
+      // 从宠物信息进入性格测试
       this.setData({
         showPetInfo: false
       })
       this.loadQuestionOptions(1)
-    } else if (currentQuestion < totalQuestions) {
-      // 进入下一题
+    } else if (!showMemoryQuestions && currentQuestion < totalQuestions) {
+      // 性格测试：进入下一题
       const nextQuestion = currentQuestion + 1
       this.setData({
         currentQuestion: nextQuestion
       })
       this.loadQuestionOptions(nextQuestion)
+    } else if (!showMemoryQuestions && currentQuestion === totalQuestions) {
+      // 性格测试完成，进入简答题环节
+      this.setData({
+        showMemoryQuestions: true,
+        currentMemoryQuestion: 1,
+        currentQuestionData: null  // 清空当前题目数据
+      })
+      this.updateProgress()
+      this.checkCanProceed()
+    } else if (showMemoryQuestions && currentMemoryQuestion < totalMemoryQuestions) {
+      // 简答题：进入下一题
+      this.setData({
+        currentMemoryQuestion: currentMemoryQuestion + 1
+      })
+      this.checkCanProceed()
     } else {
-      // 完成测试，显示结果
+      // 所有测试完成，显示结果
       this.generateResult()
     }
   },
 
   // 上一步
   prevStep() {
-    const { showPetInfo, currentQuestion } = this.data
+    const { showPetInfo, currentQuestion, showMemoryQuestions, currentMemoryQuestion, totalQuestions } = this.data
     
     if (showPetInfo) {
       // 返回首页
       wx.navigateBack()
-    } else if (currentQuestion > 1) {
-      // 返回上一题
+    } else if (showMemoryQuestions && currentMemoryQuestion > 1) {
+      // 简答题：返回上一题
+      this.setData({
+        currentMemoryQuestion: currentMemoryQuestion - 1
+      })
+      this.checkCanProceed()
+    } else if (showMemoryQuestions && currentMemoryQuestion === 1) {
+      // 从简答题返回性格测试最后一题
+      this.setData({
+        showMemoryQuestions: false,
+        currentQuestion: totalQuestions
+      })
+      this.loadQuestionOptions(totalQuestions)
+    } else if (!showMemoryQuestions && currentQuestion > 1) {
+      // 性格测试：返回上一题
       const prevQuestion = currentQuestion - 1
       this.setData({
         currentQuestion: prevQuestion
@@ -339,7 +585,8 @@ Page({
     } else {
       // 返回宠物信息
       this.setData({
-        showPetInfo: true
+        showPetInfo: true,
+        currentQuestionData: null
       })
       this.updateProgress()
       this.checkCanProceed()

@@ -122,12 +122,12 @@ page {
   position: relative;
   width: 85%;
   max-width: 600rpx;
-  background: linear-gradient(135deg, rgba(102, 126, 234, 0.15) 0%, rgba(118, 75, 162, 0.15) 100%);
+  background: linear-gradient(135deg, rgba(255, 169, 77, 0.2) 0%, rgba(204, 122, 61, 0.2) 100%);
   backdrop-filter: blur(30rpx);
   border-radius: 40rpx;
   padding: 50rpx 40rpx 40rpx;
-  border: 2rpx solid rgba(255, 255, 255, 0.2);
-  box-shadow: 0 20rpx 60rpx rgba(0, 0, 0, 0.5);
+  border: 2rpx solid rgba(255, 169, 77, 0.4);
+  box-shadow: 0 20rpx 60rpx rgba(15, 27, 46, 0.5);
 }
 
 .close-btn {
@@ -165,7 +165,7 @@ page {
   display: flex;
   align-items: center;
   justify-content: center;
-  background: radial-gradient(ellipse at top, #3d4e7a 0%, #2a3651 100%);
+  background: radial-gradient(ellipse at top, #ffa94d 0%, #cc7a3d 100%);
 }
 
 .placeholder-emoji {
@@ -198,9 +198,9 @@ page {
 
 .days-passed {
   font-size: 26rpx;
-  color: #FFD700;
+  color: #ffa94d;
   padding: 10rpx 20rpx;
-  background: rgba(255, 215, 0, 0.1);
+  background: rgba(255, 169, 77, 0.1);
   border-radius: 20rpx;
   display: inline-block;
 }
@@ -226,7 +226,7 @@ page {
 }
 
 .action-btn.primary {
-  background: radial-gradient(ellipse at top, #3d4e7a 0%, #2a3651 100%);
+  background: radial-gradient(ellipse at top, #ffa94d 0%, #cc7a3d 100%);
   border: none;
   color: #ffffff;
 }

@@ -1,7 +1,7 @@
 /* 梦境日记页面样式 */
 
 page {
-  background: radial-gradient(ellipse at bottom, #1a1f3a 0%, #0e1420 100%);
+  background: radial-gradient(ellipse at bottom, #0f1b2e 0%, #050b14 100%);
   min-height: 100vh;
 }
 
@@ -276,7 +276,7 @@ page {
 }
 
 .favorite-icon.active {
-  color: #ffd700;
+  color: #ffa94d;
   transform: scale(1.2);
 }
 
@@ -335,8 +335,8 @@ page {
 }
 
 .calendar-day.has-dream {
-  background: rgba(255, 215, 0, 0.2);
-  color: #ffd700;
+  background: rgba(255, 169, 77, 0.2);
+  color: #ffa94d;
   font-weight: bold;
 }
 
@@ -355,7 +355,7 @@ page {
   bottom: 5rpx;
   width: 8rpx;
   height: 8rpx;
-  background: #ffd700;
+  background: #ffa94d;
   border-radius: 50%;
 }
 
@@ -381,7 +381,7 @@ page {
 }
 
 .legend-dot.has-dream {
-  background: rgba(255, 215, 0, 0.5);
+  background: rgba(255, 169, 77, 0.5);
 }
 
 .legend-dot.today {
@@ -490,7 +490,7 @@ page {
   bottom: 40rpx;
   width: 120rpx;
   height: 120rpx;
-  background: radial-gradient(ellipse at top, #3d4e7a 0%, #2a3651 100%);
+  background: radial-gradient(ellipse at top, #ffa94d 0%, #cc7a3d 100%);
   border-radius: 60rpx;
   display: flex;
   align-items: center;

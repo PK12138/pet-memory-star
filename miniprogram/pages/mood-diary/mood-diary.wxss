@@ -1,7 +1,7 @@
 /* pages/mood-diary/mood-diary.wxss */
 .container {
   min-height: 100vh;
-  background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+  background: linear-gradient(135deg, #ffa94d 0%, #cc7a3d 100%);
   padding-bottom: 40rpx;
 }
 
@@ -47,7 +47,7 @@
 }
 
 .add-btn {
-  background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+  background: linear-gradient(135deg, #ffa94d 0%, #cc7a3d 100%);
   color: #ffffff;
   border: none;
   border-radius: 50rpx;
@@ -154,7 +154,7 @@
   line-height: 1.8;
 }
 
-/* 空状�?*/
+/* 空状�?*/
 .empty-state {
   display: flex;
   flex-direction: column;
@@ -182,7 +182,7 @@
   display: block;
 }
 
-/* 对话框遮�?*/
+/* 对话框遮�?*/
 .dialog-mask {
   position: fixed;
   top: 0;
@@ -206,7 +206,7 @@
   }
 }
 
-/* 对话框容�?*/
+/* 对话框容�?*/
 .dialog-container {
   width: 90%;
   max-width: 600rpx;
@@ -235,7 +235,7 @@
   justify-content: space-between;
   align-items: center;
   padding: 40rpx;
-  background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+  background: linear-gradient(135deg, #ffa94d 0%, #cc7a3d 100%);
   flex-shrink: 0;
 }
 
@@ -342,7 +342,7 @@
   color: #2c3e50;
 }
 
-/* 日记输入�?*/
+/* 日记输入�?*/
 .diary-textarea {
   width: 100%;
   min-height: 200rpx;
@@ -362,7 +362,7 @@
   text-align: right;
 }
 
-/* 对话框底�?*/
+/* 对话框底�?*/
 .dialog-footer {
   display: flex;
   gap: 20rpx;
@@ -386,7 +386,7 @@
 }
 
 .btn-confirm {
-  background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+  background: linear-gradient(135deg, #ffa94d 0%, #cc7a3d 100%);
   color: #ffffff;
 }
 

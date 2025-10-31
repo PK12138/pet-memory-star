@@ -2,7 +2,7 @@
 
 .container {
   min-height: 100vh;
-  background: radial-gradient(ellipse at bottom, #1a1f3a 0%, #0e1420 100%);
+  background: radial-gradient(ellipse at bottom, #0f1b2e 0%, #050b14 100%);
   padding: 20rpx;
 }
 
@@ -65,7 +65,7 @@
 }
 
 .btn-chat {
-  background: radial-gradient(ellipse at top, #3d4e7a 0%, #2a3651 100%);
+  background: radial-gradient(ellipse at top, #ffa94d 0%, #cc7a3d 100%);
   color: white;
   box-shadow: 0 4rpx 15rpx rgba(102, 126, 234, 0.3);
 }
@@ -189,7 +189,7 @@
 
 .letter-content {
   padding: 30rpx;
-  background: linear-gradient(135deg, #fef4e4 0%, #fff9f0 100%);
+  background: linear-gradient(135deg, #ffa94d 0%, #cc7a3d 100%);
   border-radius: 20rpx;
   border: 2rpx solid #f0e4d7;
   position: relative;
@@ -471,7 +471,7 @@
 .btn-submit-message {
   width: 100%;
   height: 88rpx;
-  background: radial-gradient(ellipse at bottom, #1a1f3a 0%, #0e1420 100%);
+  background: radial-gradient(ellipse at bottom, #0f1b2e 0%, #050b14 100%);
   border: none;
   border-radius: 44rpx;
   color: #fff;
@@ -509,12 +509,12 @@
 }
 
 .companion-btn {
-  background: radial-gradient(ellipse at top, #3d4e7a 0%, #2a3651 100%) !important;
+  background: radial-gradient(ellipse at top, #ffa94d 0%, #cc7a3d 100%) !important;
   box-shadow: 0 8rpx 20rpx rgba(102, 126, 234, 0.3);
 }
 
 .feature-card {
-  background: linear-gradient(135deg, #f5f7fa 0%, #ffffff 100%);
+  background: linear-gradient(135deg, #ffa94d 0%, #cc7a3d 100%);
   border-radius: 20rpx;
   padding: 30rpx;
   display: flex;
@@ -553,7 +553,7 @@
 }
 
 .feature-btn {
-  background: radial-gradient(ellipse at bottom, #1a1f3a 0%, #0e1420 100%);
+  background: radial-gradient(ellipse at bottom, #0f1b2e 0%, #050b14 100%);
   color: #ffffff;
   border: none;
   border-radius: 50rpx;
@@ -579,7 +579,7 @@
 }
 
 .dream-btn {
-  background: radial-gradient(ellipse at bottom, #1a1f3a 0%, #0e1420 100%);
+  background: radial-gradient(ellipse at bottom, #0f1b2e 0%, #050b14 100%);
   color: #ffffff;
 }
 

@@ -184,7 +184,7 @@ async def register_user(request: Request):
 
 @app.post("/api/auth/login")
 async def login_user(request: Request):
-    """用户登录API"""
+    """用户登录API（邮箱登录，已弃用）"""
     try:
         data = await request.json()
         email = data.get("email")
@@ -199,6 +199,121 @@ async def login_user(request: Request):
     except Exception as e:
         return JSONResponse(
             content={"success": False, "message": f"登录失败：{str(e)}"},
+            status_code=500
+        )
+
+@app.post("/api/auth/wx-login")
+async def wx_login(request: Request):
+    """微信登录API"""
+    try:
+        import requests
+        
+        data = await request.json()
+        code = data.get("code")
+        
+        if not code:
+            return JSONResponse(
+                content={"success": False, "message": "缺少code参数"},
+                status_code=400
+            )
+        
+        print(f"🔑 收到微信登录请求: code={code}")
+        
+        # 从 app.js 配置中获取 appId 和 appSecret
+        # 注意：实际生产环境中，appSecret应该存储在环境变量中
+        WECHAT_APPID = os.getenv('WECHAT_APPID', 'wx9572f66945407446')
+        WECHAT_SECRET = os.getenv('WECHAT_SECRET', 'c4b410be644231ff5635ec960dde38c1')
+        
+        # 调用微信API获取openid和session_key
+        wx_api_url = 'https://api.weixin.qq.com/sns/jscode2session'
+        wx_params = {
+            'appid': WECHAT_APPID,
+            'secret': WECHAT_SECRET,
+            'js_code': code,
+            'grant_type': 'authorization_code'
+        }
+        
+        print(f"🔗 调用微信API: {wx_api_url}")
+        
+        wx_response = requests.get(wx_api_url, params=wx_params, timeout=10)
+        wx_data = wx_response.json()
+        
+        print(f"📥 微信API响应: {wx_data}")
+        
+        # 检查微信API响应
+        if 'errcode' in wx_data and wx_data['errcode'] != 0:
+            error_msg = wx_data.get('errmsg', '微信登录失败')
+            print(f"❌ 微信API错误: {error_msg}")
+            return JSONResponse(
+                content={"success": False, "message": f"微信登录失败: {error_msg}"},
+                status_code=400
+            )
+        
+        openid = wx_data.get('openid')
+        session_key = wx_data.get('session_key')
+        
+        if not openid:
+            print(f"❌ 未获取到openid")
+            return JSONResponse(
+                content={"success": False, "message": "微信登录失败：未获取到用户标识"},
+                status_code=400
+            )
+        
+        print(f"✅ 获取到openid: {openid}")
+        
+        # 查询或创建用户
+        user = db.get_user_by_openid(openid)
+        
+        if not user:
+            # 首次登录，创建新用户
+            print(f"🆕 首次登录，创建新用户")
+            user = db.create_user_by_openid(openid)
+            
+            if not user:
+                return JSONResponse(
+                    content={"success": False, "message": "创建用户失败"},
+                    status_code=500
+                )
+        else:
+            print(f"👤 用户已存在: user_id={user['id']}")
+        
+        # 获取客户端信息
+        client_ip = request.client.host if request.client else None
+        user_agent = request.headers.get("user-agent")
+        
+        # 创建会话
+        session_token = db.create_session(user['id'], client_ip, user_agent)
+        
+        print(f"🎫 创建会话成功: session_token={session_token[:20]}...")
+        
+        # 返回登录结果
+        return JSONResponse(content={
+            "success": True,
+            "message": "登录成功",
+            "session_token": session_token,
+            "user": {
+                "id": user['id'],
+                "openid": user.get('openid'),
+                "nickname": user.get('nickname', '微信用户'),
+                "avatar_url": user.get('avatar_url', ''),
+                "user_level": user.get('user_level', 0),
+                "email": user.get('email'),
+                "phone": user.get('phone')
+            }
+        })
+        
+    except requests.exceptions.RequestException as e:
+        print(f"❌ 网络请求错误: {str(e)}")
+        return JSONResponse(
+            content={"success": False, "message": f"网络请求失败：{str(e)}"},
+            status_code=500
+        )
+    except Exception as e:
+        print(f"❌ 微信登录失败: {str(e)}")
+        import traceback
+        traceback.print_exc()
+        return JSONResponse(
+            content={"success": False, "message": f"微信登录失败：{str(e)}"},
             status_code=500
         )
 
@@ -499,8 +614,8 @@ async def view_memorial(request: Request, memorial_id: str):
         # 获取纪念馆信息
         memorial = db.get_memorial_by_id(memorial_id)
         if not memorial:
-            return HTMLResponse(content="<h1>纪念馆不存在</h1>", status_code=404)
-        
+        return HTMLResponse(content="<h1>纪念馆不存在</h1>", status_code=404)
+    
         pet_info = db.get_pet_by_memorial_id(memorial_id)
         if not pet_info:
             return HTMLResponse(content="<h1>纪念馆数据异常</h1>", status_code=404)
@@ -2742,10 +2857,20 @@ async def get_star_sky_memorials(request: Request):
         
         # 转换为星星数据
         stars = []
+        storage_base = os.path.join(os.path.dirname(os.path.dirname(__file__)), "storage")
+        
         for memorial in memorials:
             # 获取第一张照片
             photos = db.get_memorial_photos(memorial['id'])
             photo_url = photos[0] if photos else None
+            
+            # 检查图片文件是否存在
+            if photo_url:
+                # 构建完整的文件路径
+                photo_file_path = os.path.join(storage_base, photo_url.lstrip('/storage/'))
+                if not os.path.exists(photo_file_path):
+                    print(f"图片文件不存在: {photo_file_path}")
+                    photo_url = None
             
             # 计算星星位置（伪随机，但固定）
             import hashlib

@@ -2,7 +2,7 @@
 
 .container {
   min-height: 100vh;
-  background: radial-gradient(ellipse at bottom, #1a1f3a 0%, #0e1420 100%);
+  background: radial-gradient(ellipse at bottom, #0f1b2e 0%, #050b14 100%);
   padding: 20rpx;
 }
 
@@ -59,7 +59,7 @@
 }
 
 .filter-tab.active {
-  background: radial-gradient(ellipse at bottom, #1a1f3a 0%, #0e1420 100%);
+  background: radial-gradient(ellipse at bottom, #0f1b2e 0%, #050b14 100%);
   color: white;
   box-shadow: 0 4rpx 15rpx rgba(102, 126, 234, 0.4);
 }
@@ -81,7 +81,7 @@
 }
 
 .upload-btn {
-  background: radial-gradient(ellipse at bottom, #1a1f3a 0%, #0e1420 100%);
+  background: radial-gradient(ellipse at bottom, #0f1b2e 0%, #050b14 100%);
   border: none;
   border-radius: 50rpx;
   color: white;
@@ -285,7 +285,7 @@
 }
 
 .empty-btn {
-  background: radial-gradient(ellipse at bottom, #1a1f3a 0%, #0e1420 100%);
+  background: radial-gradient(ellipse at bottom, #0f1b2e 0%, #050b14 100%);
   border: none;
   border-radius: 50rpx;
   color: white;
@@ -347,7 +347,7 @@
 }
 
 .action-btn-large {
-  background: radial-gradient(ellipse at bottom, #1a1f3a 0%, #0e1420 100%);
+  background: radial-gradient(ellipse at bottom, #0f1b2e 0%, #050b14 100%);
   border: none;
   border-radius: 50rpx;
   color: white;

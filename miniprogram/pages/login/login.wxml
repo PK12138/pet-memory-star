@@ -1,70 +1,43 @@
 <!--pages/login/login.wxml-->
 <view class="container">
-  <view class="back-home" bindtap="goToHome">← 返回首页</view>
+  <!-- 顶部装饰 -->
+  <view class="header">
+    <text class="logo-icon">🌟</text>
+    <text class="logo">爪迹星·云纪念馆</text>
+    <text class="slogan">每一颗星星，都是永恒的陪伴</text>
+  </view>
   
-  <view class="auth-container fadeInUp">
-    <view class="logo">
-      <text class="logo-icon">⭐</text>
-      <text class="logo-title">爪迹星·云纪念馆</text>
-      <text class="logo-subtitle">登录您的账户</text>
-    </view>
-    
-    <view wx:if="{{successMessage}}" class="success-message">{{successMessage}}</view>
-    <view wx:if="{{errorMessage}}" class="error-message-global">{{errorMessage}}</view>
-    
-    <view class="login-form">
-      <view class="form-group">
-        <text class="form-label">邮箱</text>
-        <input 
-          class="form-input {{emailError ? 'error' : ''}}" 
-          type="text" 
-          placeholder="请输入您的邮箱地址"
-          value="{{email}}"
-          bindinput="onEmailInput"
-        />
-        <view wx:if="{{emailError}}" class="error-message">{{emailError}}</view>
-      </view>
-      
-      <view class="form-group">
-        <text class="form-label">密码</text>
-        <input 
-          class="form-input {{passwordError ? 'error' : ''}}" 
-          type="password"
-          password="{{true}}"
-          maxlength="50"
-          confirm-type="done"
-          adjust-position="{{true}}"
-          safe-password="{{true}}"
-          placeholder="请输入您的密码"
-          value="{{password}}"
-          bindinput="onPasswordInput"
-        />
-        <view wx:if="{{passwordError}}" class="error-message">{{passwordError}}</view>
-      </view>
-      
-      <view class="forgot-password">
-        <text class="forgot-link" bindtap="goToForgotPassword">忘记密码？</text>
-      </view>
-      
-      <button 
-        class="submit-btn" 
-        bindtap="login"
-        disabled="{{loading}}"
-      >
-        {{loading ? '登录中...' : '登录'}}
-      </button>
-    </view>
-    
-    <view wx:if="{{loading}}" class="loading">
-      <view class="loading-spinner"></view>
-    </view>
-    
-    <view class="divider">
-      <text class="divider-text">还没有账户？</text>
-    </view>
-    
-    <view class="switch-form">
-      <text class="switch-link" bindtap="goToRegister">立即注册</text>
-    </view>
+  <!-- 中间插画区域 -->
+  <view class="illustration">
+    <text class="ill-icon">🐾</text>
+    <view class="ill-glow"></view>
+  </view>
+  
+  <!-- 消息提示 -->
+  <view wx:if="{{successMessage}}" class="success-message fadeIn">{{successMessage}}</view>
+  <view wx:if="{{errorMessage}}" class="error-message fadeIn">{{errorMessage}}</view>
+  
+  <!-- 微信登录按钮 -->
+  <button 
+    class="wx-login-btn {{loading ? 'loading' : ''}}" 
+    bindtap="wxLogin"
+    disabled="{{loading}}"
+  >
+    <text class="btn-icon">{{loading ? '⏳' : '🚀'}}</text>
+    <text class="btn-text">{{loading ? '登录中...' : '微信一键登录'}}</text>
+  </button>
+  
+  <!-- 协议 -->
+  <view class="agreement">
+    <text class="agreement-text">登录即表示同意</text>
+    <text class="link" bindtap="viewPrivacy">《隐私政策》</text>
+    <text class="agreement-text">和</text>
+    <text class="link" bindtap="viewTerms">《服务条款》</text>
+  </view>
+  
+  <!-- 返回首页 -->
+  <view class="back-home" bindtap="goToHome">
+    <text class="back-icon">←</text>
+    <text class="back-text">返回首页</text>
   </view>
 </view>

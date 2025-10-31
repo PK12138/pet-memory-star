@@ -614,7 +614,7 @@ async def view_memorial(request: Request, memorial_id: str):
         # 获取纪念馆信息
         memorial = db.get_memorial_by_id(memorial_id)
         if not memorial:
-        return HTMLResponse(content="<h1>纪念馆不存在</h1>", status_code=404)
+            return HTMLResponse(content="<h1>纪念馆不存在</h1>", status_code=404)
     
         pet_info = db.get_pet_by_memorial_id(memorial_id)
         if not pet_info:

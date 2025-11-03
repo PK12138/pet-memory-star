@@ -89,9 +89,19 @@ async def get_current_user(
 
 @app.get("/", response_class=HTMLResponse)
 async def index():
-    """首页"""
+    """首页 - 精美落地页"""
     try:
-        # 使用绝对路径读取模板文件
+        template_path = os.path.join(os.path.dirname(__file__), "templates", "landing.html")
+        with open(template_path, "r", encoding="utf-8") as f:
+            content = f.read()
+        return HTMLResponse(content=content)
+    except Exception as e:
+        return HTMLResponse(content=f"<h1>页面加载错误</h1><p>{str(e)}</p>", status_code=500)
+
+@app.get("/index", response_class=HTMLResponse)
+async def old_index():
+    """主页（旧版，保留兼容性）"""
+    try:
         template_path = os.path.join(os.path.dirname(__file__), "templates", "index.html")
         with open(template_path, "r", encoding="utf-8") as f:
             content = f.read()
@@ -1324,29 +1334,48 @@ async def get_payment_plans():
                 "price": 29.9,
                 "period": "1个月",
                 "features": [
-                    "无限纪念馆",
-                    "无限照片上传",
-                    "AI智能功能",
-                    "数据导出",
-                    "优先客服支持"
+                    "✨ 无限创建纪念馆",
+                    "📸 无限照片上传",
+                    "🤖 AI智能对话",
+                    "💾 数据导出备份",
+                    "🎯 优先客服支持"
                 ],
-                "recommended": False
+                "recommended": False,
+                "badge": ""
             },
             {
                 "id": "yearly",
                 "name": "年度会员",
                 "price": 299.0,
                 "period": "12个月",
+                "original_price": 358.8,
                 "features": [
-                    "无限纪念馆",
-                    "无限照片上传",
-                    "AI智能功能",
-                    "数据导出",
-                    "优先客服支持",
-                    "专属主题",
-                    "自定义域名"
+                    "📦 月度会员所有功能",
+                    "🎖️ 专属纪念勋章",
+                    "🎬 年度回忆视频",
+                    "🎂 生日提醒服务",
+                    "🎨 独家主题模板",
+                    "💰 立省58.8元"
                 ],
-                "recommended": True
+                "recommended": True,
+                "badge": "🔥 最划算"
+            },
+            {
+                "id": "lifetime",
+                "name": "终身会员",
+                "price": 999.0,
+                "period": "永久",
+                "original_price": 3588.0,
+                "features": [
+                    "🌟 年度会员所有功能",
+                    "👑 终身尊贵标识",
+                    "🎁 独家纪念礼包",
+                    "🔮 优先新功能体验",
+                    "💎 永久数据存储",
+                    "💝 专属定制服务"
+                ],
+                "recommended": False,
+                "badge": "💎 限时优惠"
             }
         ]
         
@@ -1406,15 +1435,25 @@ async def create_payment_order(request: Request, session_token: str = Header(Non
         data = await request.json()
         plan_id = data.get("plan_id")
         payment_method = data.get("payment_method")
-        openid = data.get("openid", "")  # 微信支付需要openid
         
         if not plan_id or not payment_method:
             return {"success": False, "message": "参数不完整"}
         
+        # 微信支付需要openid，从用户信息中获取
+        openid = user.get("openid", "")
+        if payment_method == "wechat" and not openid:
+            return {
+                "success": False, 
+                "message": "当前账号未绑定微信，无法使用微信支付"
+            }
+        
+        print(f"🔹 用户 {user['id']} 创建支付订单: plan={plan_id}, method={payment_method}, openid={openid[:10] if openid else 'N/A'}...")
+        
         # 获取套餐信息
         plans = {
             "monthly": {"amount": 29.9, "description": "月度会员"},
-            "yearly": {"amount": 299.0, "description": "年度会员"}
+            "yearly": {"amount": 299.0, "description": "年度会员"},
+            "lifetime": {"amount": 999.0, "description": "终身会员"}
         }
         
         if plan_id not in plans:
@@ -1436,7 +1475,8 @@ async def create_payment_order(request: Request, session_token: str = Header(Non
             return {"success": False, "message": "创建订单失败"}
         
         # 使用真实支付服务创建订单
-        notify_url = f"{os.getenv('SERVER_BASE_URL', 'http://localhost:8000')}/api/payment/{payment_method}/notify"
+        server_url = os.getenv('SERVER_BASE_URL', 'http://pettrailstar.cn')
+        notify_url = f"{server_url}/api/payment/{payment_method}/notify"
         
         payment_result = payment_service.create_payment_order(
             payment_method=payment_method,
@@ -1449,14 +1489,16 @@ async def create_payment_order(request: Request, session_token: str = Header(Non
         )
         
         if payment_result["success"]:
+            print(f"✅ 订单创建成功: {order_id}")
             return {
                 "success": True,
                 "order_id": order_id,
                 "amount": plan["amount"],
-                "payment_data": payment_result,
+                "payment_data": payment_result.get("payment_data"),  # 直接返回支付参数
                 "message": "订单创建成功"
             }
         else:
+            print(f"❌ 订单创建失败: {payment_result.get('message')}")
             return {
                 "success": False,
                 "message": payment_result.get("message", "创建支付订单失败")
@@ -1659,6 +1701,40 @@ async def alipay_payment_notify(request: Request):
     except Exception as e:
         print(f"支付宝回调处理失败: {e}")
         return "failure"
+
+@app.get("/api/payment/status/{order_id}")
+async def get_payment_status(order_id: str, session_token: str = Header(None, alias="x-session-token")):
+    """查询支付订单状态"""
+    try:
+        user = auth_service.get_current_user(session_token)
+        if not user:
+            return {"success": False, "message": "用户未登录"}
+        
+        # 获取订单信息
+        order = db.get_payment_order(order_id)
+        if not order:
+            return {"success": False, "message": "订单不存在"}
+        
+        # 检查订单是否属于当前用户
+        if order["user_id"] != user["id"]:
+            return {"success": False, "message": "无权查看此订单"}
+        
+        return {
+            "success": True,
+            "order": {
+                "order_id": order["order_id"],
+                "plan_id": order["plan_id"],
+                "amount": order["amount"],
+                "status": order["status"],
+                "payment_method": order["payment_method"],
+                "created_at": order["created_at"],
+                "updated_at": order["updated_at"]
+            }
+        }
+        
+    except Exception as e:
+        print(f"❌ 查询订单状态失败: {str(e)}")
+        return {"success": False, "message": f"查询订单状态失败: {str(e)}"}
 
 @app.post("/api/payment/callback")
 async def payment_callback(request: Request):

@@ -23,20 +23,29 @@ class WeChatPayService:
         self.app_id = os.getenv('WECHAT_APP_ID', '')
         self.mch_id = os.getenv('WECHAT_MCH_ID', '')
         self.api_key = os.getenv('WECHAT_API_KEY', '')
+        self.api_v3_key = os.getenv('WECHAT_API_V3_KEY', '')  # V3密钥
         self.cert_serial_no = os.getenv('WECHAT_CERT_SERIAL_NO', '')
         self.private_key_path = os.getenv('WECHAT_PRIVATE_KEY_PATH', '')
         self.cert_path = os.getenv('WECHAT_CERT_PATH', '')
         
         # API地址
         self.base_url = 'https://api.mch.weixin.qq.com'
-        self.unified_order_url = f'{self.base_url}/v3/pay/transactions/jsapi'
+        # 使用小程序支付API（而不是JSAPI）
+        self.unified_order_url = f'{self.base_url}/v3/pay/transactions/jsapi'  # 小程序和JSAPI共用此端点
         self.query_order_url = f'{self.base_url}/v3/pay/transactions/out-trade-no'
         self.close_order_url = f'{self.base_url}/v3/pay/transactions/out-trade-no'
         
-    def create_jsapi_order(self, order_id: str, amount: int, description: str, 
+    def create_miniprogram_order(self, order_id: str, amount: int, description: str, 
                           openid: str, notify_url: str) -> Dict[str, Any]:
-        """创建JSAPI支付订单"""
+        """创建小程序支付订单（与JSAPI类似，但返回格式需匹配小程序wx.requestPayment）"""
         try:
+            # 验证必要参数
+            if not openid:
+                return {
+                    'success': False,
+                    'message': '缺少openid参数，无法创建支付订单'
+                }
+            
             # 构建请求数据
             data = {
                 "appid": self.app_id,
@@ -52,6 +61,8 @@ class WeChatPayService:
                     "openid": openid
                 }
             }
+            
+            print(f"🔹 创建小程序支付订单: order_id={order_id}, amount={amount}分, openid={openid[:10]}...")
             
             # 生成签名
             timestamp = str(int(time.time()))
@@ -82,29 +93,44 @@ class WeChatPayService:
             if response.status_code == 200:
                 result = response.json()
                 if 'prepay_id' in result:
-                    # 生成前端调用的支付参数
-                    pay_params = self._generate_jsapi_pay_params(result['prepay_id'])
+                    # 生成前端调用的支付参数（适配小程序wx.requestPayment）
+                    pay_params = self._generate_miniprogram_pay_params(result['prepay_id'])
+                    print(f"✅ 支付订单创建成功: prepay_id={result['prepay_id']}")
                     return {
                         'success': True,
                         'prepay_id': result['prepay_id'],
-                        'pay_params': pay_params
+                        'payment_data': pay_params  # 直接返回支付参数
                     }
                 else:
+                    error_msg = result.get('message', '创建订单失败')
+                    print(f"❌ 创建订单失败: {error_msg}")
                     return {
                         'success': False,
-                        'message': result.get('message', '创建订单失败')
+                        'message': error_msg
                     }
             else:
+                error_msg = f'请求失败: {response.status_code} - {response.text}'
+                print(f"❌ {error_msg}")
                 return {
                     'success': False,
-                    'message': f'请求失败: {response.status_code}'
+                    'message': error_msg
                 }
                 
         except Exception as e:
+            error_msg = f'创建微信支付订单失败: {str(e)}'
+            print(f"❌ {error_msg}")
+            import traceback
+            traceback.print_exc()
             return {
                 'success': False,
-                'message': f'创建微信支付订单失败: {str(e)}'
+                'message': error_msg
             }
+    
+    # 保留JSAPI支付方法以兼容网页端
+    def create_jsapi_order(self, order_id: str, amount: int, description: str, 
+                          openid: str, notify_url: str) -> Dict[str, Any]:
+        """创建JSAPI支付订单（用于公众号网页）"""
+        return self.create_miniprogram_order(order_id, amount, description, openid, notify_url)
     
     def query_order(self, order_id: str) -> Dict[str, Any]:
         """查询订单状态"""
@@ -176,8 +202,8 @@ class WeChatPayService:
             print(f"生成签名失败: {e}")
             return ""
     
-    def _generate_jsapi_pay_params(self, prepay_id: str) -> Dict[str, str]:
-        """生成JSAPI支付参数"""
+    def _generate_miniprogram_pay_params(self, prepay_id: str) -> Dict[str, str]:
+        """生成小程序支付参数（适配wx.requestPayment）"""
         timestamp = str(int(time.time()))
         nonce_str = self._generate_nonce()
         package = f"prepay_id={prepay_id}"
@@ -187,13 +213,16 @@ class WeChatPayService:
         pay_sign = self._generate_signature(sign_str)
         
         return {
-            'appId': self.app_id,
-            'timeStamp': timestamp,
+            'timeStamp': timestamp,  # 注意：小程序用timeStamp（大写S）
             'nonceStr': nonce_str,
             'package': package,
-            'signType': 'RSA',
+            'signType': 'RSA',  # 或 'MD5'，根据实际配置
             'paySign': pay_sign
         }
+    
+    def _generate_jsapi_pay_params(self, prepay_id: str) -> Dict[str, str]:
+        """生成JSAPI支付参数（网页端）"""
+        return self._generate_miniprogram_pay_params(prepay_id)
     
     def verify_notify(self, headers: Dict[str, str], body: str) -> Dict[str, Any]:
         """验证支付通知"""
@@ -395,7 +424,8 @@ class PaymentService:
                 if not openid:
                     return {'success': False, 'message': '微信支付需要openid'}
                 
-                return self.wechat_pay.create_jsapi_order(
+                # 使用小程序支付API
+                return self.wechat_pay.create_miniprogram_order(
                     order_id=order_id,
                     amount=amount_cents,
                     description=description,

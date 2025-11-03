@@ -20,20 +20,17 @@ class Database:
         cursor.execute('''
         CREATE TABLE IF NOT EXISTS users (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
-            email TEXT UNIQUE,
-            password_hash TEXT,
-            salt TEXT,
-            openid TEXT UNIQUE,
-            nickname TEXT,
-            avatar_url TEXT,
-            phone TEXT,
+            email TEXT UNIQUE NOT NULL,
+            password_hash TEXT NOT NULL,
+            salt TEXT NOT NULL,
             user_level INTEGER DEFAULT 0,
             is_active BOOLEAN DEFAULT 1,
             email_verified BOOLEAN DEFAULT 0,
             email_verification_token TEXT,
             email_verification_expires TIMESTAMP,
             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-            last_login TIMESTAMP
+            last_login TIMESTAMP,
+            avatar_url TEXT
         )
         ''')
         
@@ -449,7 +446,7 @@ class Database:
 
     # 用户相关方法
     def create_user(self, email, password):
-        """创建新用户（邮箱注册，已弃用）"""
+        """创建新用户"""
         cursor = self.conn.cursor()
         
         # 先检查邮箱是否已存在
@@ -477,90 +474,6 @@ class Database:
         except Exception as e:
             print(f"创建用户失败: {e}")
             return None
-    
-    def create_user_by_openid(self, openid, nickname=None, avatar_url=None):
-        """通过微信openid创建用户"""
-        cursor = self.conn.cursor()
-        
-        try:
-            cursor.execute('''
-            INSERT INTO users (openid, nickname, avatar_url, user_level, is_active, email_verified)
-            VALUES (?, ?, ?, 0, 1, 1)
-            ''', (openid, nickname or '微信用户', avatar_url or ''))
-            
-            user_id = cursor.lastrowid
-            self.conn.commit()
-            
-            print(f"✅ 创建微信用户成功: user_id={user_id}, openid={openid}")
-            
-            return {
-                'id': user_id,
-                'openid': openid,
-                'nickname': nickname or '微信用户',
-                'avatar_url': avatar_url or '',
-                'user_level': 0,
-                'is_active': True
-            }
-        except Exception as e:
-            print(f"❌ 创建微信用户失败: {e}")
-            return None
-    
-    def get_user_by_openid(self, openid):
-        """通过openid获取用户信息"""
-        cursor = self.conn.cursor()
-        
-        cursor.execute('''
-        SELECT id, openid, nickname, avatar_url, user_level, is_active, email, phone
-        FROM users 
-        WHERE openid = ? AND is_active = 1
-        ''', (openid,))
-        
-        user = cursor.fetchone()
-        if user:
-            return {
-                'id': user[0],
-                'openid': user[1],
-                'nickname': user[2],
-                'avatar_url': user[3],
-                'user_level': user[4],
-                'is_active': user[5],
-                'email': user[6],
-                'phone': user[7]
-            }
-        return None
-    
-    def update_user_wechat_info(self, user_id, nickname=None, avatar_url=None):
-        """更新用户的微信信息"""
-        cursor = self.conn.cursor()
-        
-        try:
-            updates = []
-            values = []
-            
-            if nickname:
-                updates.append("nickname = ?")
-                values.append(nickname)
-            
-            if avatar_url:
-                updates.append("avatar_url = ?")
-                values.append(avatar_url)
-            
-            if not updates:
-                return True
-            
-            values.append(user_id)
-            
-            cursor.execute(f'''
-            UPDATE users 
-            SET {', '.join(updates)}
-            WHERE id = ?
-            ''', values)
-            
-            self.conn.commit()
-            return True
-        except Exception as e:
-            print(f"❌ 更新用户微信信息失败: {e}")
-            return False
     
     def verify_user(self, email, password):
         """验证用户登录"""
@@ -768,10 +681,9 @@ class Database:
             print(f"❌ 会话不存在")
             return None
         
-        # 查询用户信息（包含过期检查，支持微信和邮箱用户）
+        # 查询用户信息（包含过期检查）
         cursor.execute('''
-        SELECT u.id, u.email, u.user_level, u.is_active, u.email_verified,
-               u.openid, u.nickname, u.avatar_url, u.phone
+        SELECT u.id, u.email, u.user_level, u.is_active, u.email_verified
         FROM users u
         JOIN user_sessions s ON u.id = s.user_id
         WHERE s.session_token = ? AND s.expires_at > datetime('now')
@@ -786,11 +698,7 @@ class Database:
                 'email': user[1],
                 'user_level': user[2],
                 'is_active': user[3],
-                'email_verified': user[4],
-                'openid': user[5],
-                'nickname': user[6],
-                'avatar_url': user[7],
-                'phone': user[8]
+                'email_verified': user[4]
             }
         return None
     

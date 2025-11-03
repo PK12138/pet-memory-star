@@ -72,6 +72,11 @@ Page({
     app.showLoading('创建订单中...')
     
     try {
+      console.log('🔹 创建支付订单:', {
+        plan_id: selectedPlan,
+        payment_method: selectedPayment
+      })
+      
       const res = await app.request({
         url: '/api/payment/create',
         method: 'POST',
@@ -81,22 +86,26 @@ Page({
         }
       })
       
+      console.log('📦 后端返回:', res)
+      
       if (res.success) {
         app.hideLoading()
         
         if (selectedPayment === 'wechat') {
           // 微信支付
-          this.handleWeChatPay(res.payment_data)
+          console.log('💰 调用微信支付:', res.payment_data)
+          this.handleWeChatPay(res.payment_data, res.order_id)
         } else if (selectedPayment === 'alipay') {
           // 支付宝支付
           this.handleAlipay(res.payment_data)
         }
       } else {
         app.hideLoading()
+        console.error('❌ 创建订单失败:', res.message)
         app.showError(res.message || '创建订单失败')
       }
     } catch (error) {
-      console.error('创建支付失败:', error)
+      console.error('❌ 创建支付失败:', error)
       app.hideLoading()
       app.showError('网络错误，请稍后重试')
     } finally {
@@ -105,7 +114,14 @@ Page({
   },
 
   // 处理微信支付
-  handleWeChatPay(paymentData) {
+  handleWeChatPay(paymentData, orderId) {
+    if (!paymentData) {
+      app.showError('支付参数错误')
+      return
+    }
+    
+    console.log('🔑 微信支付参数:', paymentData)
+    
     wx.requestPayment({
       timeStamp: paymentData.timeStamp,
       nonceStr: paymentData.nonceStr,
@@ -113,17 +129,47 @@ Page({
       signType: paymentData.signType,
       paySign: paymentData.paySign,
       success: (res) => {
+        console.log('✅ 支付成功:', res)
         app.showSuccess('支付成功')
-        // 跳转到订单页面
-        wx.navigateTo({
-          url: '/pages/orders/orders'
-        })
+        
+        // 延时跳转，让用户看到成功提示
+        setTimeout(() => {
+          wx.navigateTo({
+            url: '/pages/orders/orders'
+          })
+        }, 1500)
       },
       fail: (error) => {
-        console.error('支付失败:', error)
-        app.showError('支付失败')
+        console.error('❌ 支付失败:', error)
+        
+        if (error.errMsg.indexOf('cancel') > -1) {
+          app.showToast('支付已取消')
+        } else {
+          app.showError('支付失败: ' + error.errMsg)
+        }
+        
+        // 可以查询订单状态
+        if (orderId) {
+          this.checkPaymentStatus(orderId)
+        }
       }
     })
+  },
+  
+  // 查询支付状态
+  async checkPaymentStatus(orderId) {
+    try {
+      const res = await app.request({
+        url: `/api/payment/status/${orderId}`
+      })
+      
+      if (res.success && res.order) {
+        console.log('📊 订单状态:', res.order)
+        // 可以根据订单状态做进一步处理
+      }
+    } catch (error) {
+      console.error('查询订单状态失败:', error)
+    }
   },
 
   // 处理支付宝支付

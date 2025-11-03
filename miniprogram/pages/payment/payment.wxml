@@ -2,8 +2,8 @@
 <view class="container">
   <!-- 页面标题 -->
   <view class="page-header">
-    <text class="page-title">充值中心</text>
-    <text class="page-subtitle">选择套餐，升级您的爪迹星体验</text>
+    <text class="page-title">💎 会员中心</text>
+    <text class="page-subtitle">解锁更多功能，永久保存珍贵回忆</text>
   </view>
   
   <!-- 套餐选择 -->
@@ -13,15 +13,21 @@
       <view 
         wx:for="{{plans}}" 
         wx:key="id" 
-        class="plan-card {{selectedPlan === item.id ? 'selected' : ''}}"
+        class="plan-card {{selectedPlan === item.id ? 'selected' : ''}} {{item.recommended ? 'recommended' : ''}}"
         bindtap="selectPlan"
         data-plan-id="{{item.id}}"
       >
-        <view class="plan-name">{{item.name}}</view>
-        <view class="plan-price">¥{{item.price}}</view>
-        <view class="plan-desc">{{item.description}}</view>
+        <view wx:if="{{item.badge}}" class="plan-badge">{{item.badge}}</view>
+        <view class="plan-header">
+          <view class="plan-name">{{item.name}}</view>
+          <view class="plan-period">{{item.period}}</view>
+        </view>
+        <view class="plan-price-box">
+          <text class="plan-price">¥{{item.price}}</text>
+          <text wx:if="{{item.original_price}}" class="original-price">¥{{item.original_price}}</text>
+        </view>
         <view class="plan-features">
-          <text wx:for="{{item.features}}" wx:key="*this" class="feature-item">{{item}}</text>
+          <text wx:for="{{item.features}}" wx:for-item="feature" wx:key="*this" class="feature-item">{{feature}}</text>
         </view>
       </view>
     </view>

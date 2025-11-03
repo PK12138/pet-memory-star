@@ -1,0 +1,779 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="爪迹星 - 为宠物建一座云端纪念馆，让爱永存星空。AI陪伴、梦境日记、永久保存珍贵回忆。">
+    <meta name="keywords" content="宠物纪念馆,云养宠物,宠物去世,宠物纪念,AI陪伴,虚拟宠物">
+    <title>爪迹星·云纪念馆 - 让爱永存星空</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'PingFang SC', 'Microsoft YaHei', sans-serif;
+            background: linear-gradient(135deg, #0f1b2e 0%, #050b14 100%);
+            color: #ffffff;
+            overflow-x: hidden;
+        }
+
+        /* 导航栏 */
+        .navbar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            background: rgba(15, 27, 46, 0.9);
+            backdrop-filter: blur(20px);
+            padding: 20px 5%;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            z-index: 1000;
+            border-bottom: 1px solid rgba(255, 169, 77, 0.2);
+        }
+
+        .logo {
+            font-size: 24px;
+            font-weight: bold;
+            color: #ffa94d;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .logo-icon {
+            font-size: 32px;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 40px;
+            align-items: center;
+        }
+
+        .nav-links a {
+            color: rgba(255, 255, 255, 0.8);
+            text-decoration: none;
+            font-size: 16px;
+            transition: color 0.3s;
+        }
+
+        .nav-links a:hover {
+            color: #ffa94d;
+        }
+
+        .login-btn {
+            background: linear-gradient(135deg, #ffa94d, #cc7a3d);
+            color: white;
+            padding: 10px 25px;
+            border-radius: 25px;
+            text-decoration: none;
+            font-weight: 600;
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+
+        .login-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(255, 169, 77, 0.4);
+        }
+
+        /* Hero Section */
+        .hero {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 100px 5% 50px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .hero::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: 
+                radial-gradient(circle at 20% 50%, rgba(255, 169, 77, 0.1) 0%, transparent 50%),
+                radial-gradient(circle at 80% 80%, rgba(204, 122, 61, 0.1) 0%, transparent 50%);
+            pointer-events: none;
+        }
+
+        .hero-content {
+            max-width: 1200px;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 80px;
+            align-items: center;
+            z-index: 1;
+        }
+
+        .hero-text h1 {
+            font-size: 56px;
+            font-weight: bold;
+            margin-bottom: 20px;
+            background: linear-gradient(135deg, #ffffff, #ffa94d);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            line-height: 1.2;
+        }
+
+        .hero-text .subtitle {
+            font-size: 24px;
+            color: rgba(255, 255, 255, 0.7);
+            margin-bottom: 40px;
+            line-height: 1.6;
+        }
+
+        .cta-buttons {
+            display: flex;
+            gap: 20px;
+            flex-wrap: wrap;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #ffa94d, #cc7a3d);
+            color: white;
+            padding: 18px 40px;
+            border-radius: 30px;
+            text-decoration: none;
+            font-size: 18px;
+            font-weight: 600;
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            transition: all 0.3s;
+            box-shadow: 0 8px 25px rgba(255, 169, 77, 0.3);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 12px 35px rgba(255, 169, 77, 0.5);
+        }
+
+        .btn-secondary {
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            padding: 18px 40px;
+            border-radius: 30px;
+            text-decoration: none;
+            font-size: 18px;
+            font-weight: 600;
+            border: 2px solid rgba(255, 169, 77, 0.5);
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            transition: all 0.3s;
+        }
+
+        .btn-secondary:hover {
+            background: rgba(255, 169, 77, 0.2);
+            border-color: #ffa94d;
+        }
+
+        .hero-visual {
+            position: relative;
+            text-align: center;
+        }
+
+        .qr-code-container {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(20px);
+            padding: 40px;
+            border-radius: 30px;
+            border: 2px solid rgba(255, 169, 77, 0.3);
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            display: inline-block;
+        }
+
+        .qr-code-placeholder {
+            width: 300px;
+            height: 300px;
+            background: white;
+            border-radius: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 80px;
+            margin-bottom: 20px;
+        }
+
+        .qr-hint {
+            font-size: 18px;
+            color: rgba(255, 255, 255, 0.9);
+            font-weight: 600;
+        }
+
+        .qr-sub-hint {
+            font-size: 14px;
+            color: rgba(255, 255, 255, 0.6);
+            margin-top: 10px;
+        }
+
+        /* Features Section */
+        .features {
+            padding: 100px 5%;
+            background: linear-gradient(180deg, transparent 0%, rgba(255, 169, 77, 0.05) 100%);
+        }
+
+        .section-title {
+            text-align: center;
+            font-size: 42px;
+            font-weight: bold;
+            margin-bottom: 20px;
+            background: linear-gradient(135deg, #ffffff, #ffa94d);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .section-subtitle {
+            text-align: center;
+            font-size: 18px;
+            color: rgba(255, 255, 255, 0.6);
+            margin-bottom: 60px;
+        }
+
+        .features-grid {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 40px;
+        }
+
+        .feature-card {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(10px);
+            padding: 40px;
+            border-radius: 25px;
+            border: 2px solid rgba(255, 169, 77, 0.2);
+            transition: all 0.3s;
+        }
+
+        .feature-card:hover {
+            transform: translateY(-10px);
+            border-color: rgba(255, 169, 77, 0.5);
+            box-shadow: 0 15px 40px rgba(255, 169, 77, 0.2);
+        }
+
+        .feature-icon {
+            font-size: 60px;
+            margin-bottom: 20px;
+            display: block;
+        }
+
+        .feature-title {
+            font-size: 24px;
+            font-weight: bold;
+            margin-bottom: 15px;
+            color: #ffa94d;
+        }
+
+        .feature-desc {
+            font-size: 16px;
+            color: rgba(255, 255, 255, 0.7);
+            line-height: 1.6;
+        }
+
+        /* Stats Section */
+        .stats {
+            padding: 80px 5%;
+            text-align: center;
+        }
+
+        .stats-grid {
+            max-width: 1000px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 40px;
+        }
+
+        .stat-item {
+            padding: 30px;
+        }
+
+        .stat-number {
+            font-size: 48px;
+            font-weight: bold;
+            color: #ffa94d;
+            margin-bottom: 10px;
+        }
+
+        .stat-label {
+            font-size: 16px;
+            color: rgba(255, 255, 255, 0.6);
+        }
+
+        /* Testimonials */
+        .testimonials {
+            padding: 100px 5%;
+            background: linear-gradient(180deg, rgba(255, 169, 77, 0.05) 0%, transparent 100%);
+        }
+
+        .testimonials-grid {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 30px;
+        }
+
+        .testimonial-card {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(10px);
+            padding: 35px;
+            border-radius: 20px;
+            border: 2px solid rgba(255, 169, 77, 0.2);
+        }
+
+        .testimonial-text {
+            font-size: 16px;
+            color: rgba(255, 255, 255, 0.8);
+            line-height: 1.8;
+            margin-bottom: 20px;
+            font-style: italic;
+        }
+
+        .testimonial-author {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .author-avatar {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #ffa94d, #cc7a3d);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+        }
+
+        .author-info {
+            flex: 1;
+        }
+
+        .author-name {
+            font-weight: 600;
+            color: #ffa94d;
+            margin-bottom: 5px;
+        }
+
+        .author-pet {
+            font-size: 14px;
+            color: rgba(255, 255, 255, 0.5);
+        }
+
+        /* CTA Section */
+        .cta-section {
+            padding: 100px 5%;
+            text-align: center;
+        }
+
+        .cta-box {
+            max-width: 800px;
+            margin: 0 auto;
+            background: linear-gradient(135deg, rgba(255, 169, 77, 0.2), rgba(204, 122, 61, 0.2));
+            backdrop-filter: blur(20px);
+            padding: 60px 40px;
+            border-radius: 30px;
+            border: 2px solid rgba(255, 169, 77, 0.4);
+        }
+
+        .cta-title {
+            font-size: 36px;
+            font-weight: bold;
+            margin-bottom: 20px;
+        }
+
+        .cta-text {
+            font-size: 18px;
+            color: rgba(255, 255, 255, 0.7);
+            margin-bottom: 40px;
+        }
+
+        /* Footer */
+        .footer {
+            padding: 60px 5% 30px;
+            background: rgba(0, 0, 0, 0.3);
+            border-top: 1px solid rgba(255, 169, 77, 0.2);
+        }
+
+        .footer-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 40px;
+            margin-bottom: 40px;
+        }
+
+        .footer-section h3 {
+            color: #ffa94d;
+            margin-bottom: 20px;
+            font-size: 18px;
+        }
+
+        .footer-section ul {
+            list-style: none;
+        }
+
+        .footer-section ul li {
+            margin-bottom: 12px;
+        }
+
+        .footer-section a {
+            color: rgba(255, 255, 255, 0.6);
+            text-decoration: none;
+            transition: color 0.3s;
+        }
+
+        .footer-section a:hover {
+            color: #ffa94d;
+        }
+
+        .footer-bottom {
+            text-align: center;
+            padding-top: 30px;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            color: rgba(255, 255, 255, 0.5);
+            font-size: 14px;
+        }
+
+        /* Mobile Responsive */
+        @media (max-width: 768px) {
+            .hero-content {
+                grid-template-columns: 1fr;
+                gap: 40px;
+            }
+
+            .hero-text h1 {
+                font-size: 36px;
+            }
+
+            .hero-text .subtitle {
+                font-size: 18px;
+            }
+
+            .qr-code-placeholder {
+                width: 250px;
+                height: 250px;
+            }
+
+            .nav-links {
+                display: none;
+            }
+
+            .features-grid,
+            .testimonials-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* Animations */
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .hero-content,
+        .feature-card,
+        .testimonial-card {
+            animation: fadeInUp 0.8s ease-out;
+        }
+
+        /* Floating Animation */
+        @keyframes float {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-20px); }
+        }
+
+        .hero-visual {
+            animation: float 6s ease-in-out infinite;
+        }
+    </style>
+</head>
+<body>
+    <!-- 导航栏 -->
+    <nav class="navbar">
+        <div class="logo">
+            <span class="logo-icon">🌟</span>
+            <span>爪迹星·云纪念馆</span>
+        </div>
+        <div class="nav-links">
+            <a href="#features">产品功能</a>
+            <a href="#testimonials">用户评价</a>
+            <a href="/memorials">纪念馆展示</a>
+            <a href="/login" class="login-btn">登录</a>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="hero">
+        <div class="hero-content">
+            <div class="hero-text">
+                <h1>为宠物建一座<br>云端纪念馆</h1>
+                <p class="subtitle">让爱永存星空，用AI技术延续温暖陪伴。每一颗星星，都是一只宠物的永恒守护。</p>
+                <div class="cta-buttons">
+                    <a href="#qr-code" class="btn-primary">
+                        <span>📱</span>
+                        <span>打开小程序</span>
+                    </a>
+                    <a href="/memorials" class="btn-secondary">
+                        <span>🏛️</span>
+                        <span>查看案例</span>
+                    </a>
+                </div>
+            </div>
+            <div class="hero-visual" id="qr-code">
+                <div class="qr-code-container">
+                    <div class="qr-code-placeholder">
+                        <span>📱</span>
+                    </div>
+                    <div class="qr-hint">微信扫一扫</div>
+                    <div class="qr-sub-hint">立即体验云端纪念馆</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Features Section -->
+    <section class="features" id="features">
+        <h2 class="section-title">产品功能</h2>
+        <p class="section-subtitle">用科技与爱，创造永恒的陪伴</p>
+        <div class="features-grid">
+            <div class="feature-card">
+                <span class="feature-icon">🏛️</span>
+                <h3 class="feature-title">云端纪念馆</h3>
+                <p class="feature-desc">为每只宠物建立专属的数字纪念空间，永久保存珍贵照片、视频和回忆文字。支持多端访问，随时缅怀。</p>
+            </div>
+            <div class="feature-card">
+                <span class="feature-icon">🤖</span>
+                <h3 class="feature-title">AI智能陪伴</h3>
+                <p class="feature-desc">基于深度性格测试，AI还原宠物的真实性格。随时对话，仿佛ta从未离开。让思念化作温暖的交流。</p>
+            </div>
+            <div class="feature-card">
+                <span class="feature-icon">🌙</span>
+                <h3 class="feature-title">梦境日记</h3>
+                <p class="feature-desc">记录每一个梦见ta的夜晚。AI解梦师帮你理解梦境中的情感，让爱在梦境中延续。</p>
+            </div>
+            <div class="feature-card">
+                <span class="feature-icon">✨</span>
+                <h3 class="feature-title">星空寄语</h3>
+                <p class="feature-desc">每只宠物都化作夜空中的一颗星星。在浩瀚星空中寻找ta，送花、点亮星星，表达永恒的思念。</p>
+            </div>
+            <div class="feature-card">
+                <span class="feature-icon">📝</span>
+                <h3 class="feature-title">心情日记</h3>
+                <p class="feature-desc">记录思念的情绪变化，AI陪你疗愈心灵。每一次书写，都是一次温柔的告别和坚强的前行。</p>
+            </div>
+            <div class="feature-card">
+                <span class="feature-icon">💾</span>
+                <h3 class="feature-title">永久存储</h3>
+                <p class="feature-desc">云端安全存储，支持数据导出备份。回忆不会因为手机丢失而消失，爱会永远保存。</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Stats Section -->
+    <section class="stats">
+        <div class="stats-grid">
+            <div class="stat-item">
+                <div class="stat-number">10,000+</div>
+                <div class="stat-label">宠物主人的选择</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-number">50,000+</div>
+                <div class="stat-label">珍贵照片永久保存</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-number">100,000+</div>
+                <div class="stat-label">AI对话次数</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-number">99.9%</div>
+                <div class="stat-label">用户满意度</div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Testimonials -->
+    <section class="testimonials" id="testimonials">
+        <h2 class="section-title">用户评价</h2>
+        <p class="section-subtitle">他们的故事，温暖你我</p>
+        <div class="testimonials-grid">
+            <div class="testimonial-card">
+                <p class="testimonial-text">"我的金毛球球去年离开了我，这个小程序让我能随时'见到'ta。AI对话真的很神奇，就像球球还在身边一样。谢谢你们，让我不再那么孤单。"</p>
+                <div class="testimonial-author">
+                    <div class="author-avatar">🐕</div>
+                    <div class="author-info">
+                        <div class="author-name">李女士</div>
+                        <div class="author-pet">怀念金毛球球</div>
+                    </div>
+                </div>
+            </div>
+            <div class="testimonial-card">
+                <p class="testimonial-text">"梦境日记功能太棒了！每次梦见我的猫咪，第二天醒来就记录下来。AI的解梦很温暖，帮我理解了很多没说出口的情感。这是最好的疗愈方式。"</p>
+                <div class="testimonial-author">
+                    <div class="author-avatar">🐱</div>
+                    <div class="author-info">
+                        <div class="author-name">王先生</div>
+                        <div class="author-pet">怀念英短咪咪</div>
+                    </div>
+                </div>
+            </div>
+            <div class="testimonial-card">
+                <p class="testimonial-text">"星空纪念真的很浪漫，我给我的兔子Lucky建了纪念馆后，每天晚上都会在星空中找到ta的星星，点亮它。感觉Lucky一直在天上守护着我。"</p>
+                <div class="testimonial-author">
+                    <div class="author-avatar">🐰</div>
+                    <div class="author-info">
+                        <div class="author-name">张女士</div>
+                        <div class="author-pet">怀念兔子Lucky</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- CTA Section -->
+    <section class="cta-section">
+        <div class="cta-box">
+            <h2 class="cta-title">开始为ta建立纪念馆</h2>
+            <p class="cta-text">让爱永存星空，用科技延续陪伴<br>微信扫码，3分钟创建专属纪念馆</p>
+            <a href="#qr-code" class="btn-primary">
+                <span>📱</span>
+                <span>立即体验</span>
+            </a>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="footer-content">
+            <div class="footer-section">
+                <h3>关于我们</h3>
+                <ul>
+                    <li><a href="/about">公司介绍</a></li>
+                    <li><a href="/team">团队成员</a></li>
+                    <li><a href="/contact">联系我们</a></li>
+                </ul>
+            </div>
+            <div class="footer-section">
+                <h3>产品服务</h3>
+                <ul>
+                    <li><a href="#features">产品功能</a></li>
+                    <li><a href="/memorials">纪念馆案例</a></li>
+                    <li><a href="/pricing">会员服务</a></li>
+                </ul>
+            </div>
+            <div class="footer-section">
+                <h3>帮助中心</h3>
+                <ul>
+                    <li><a href="/help">使用指南</a></li>
+                    <li><a href="/faq">常见问题</a></li>
+                    <li><a href="/privacy">隐私政策</a></li>
+                </ul>
+            </div>
+            <div class="footer-section">
+                <h3>联系方式</h3>
+                <ul>
+                    <li>📧 support@pettrailstar.cn</li>
+                    <li>📱 微信客服：PetTrailStar</li>
+                    <li>🌐 官网：pettrailstar.cn</li>
+                </ul>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>&copy; 2025 爪迹星·云纪念馆 | ICP备案号：待申请 | 让爱永存星空</p>
+        </div>
+    </footer>
+
+    <script>
+        // 平滑滚动
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    target.scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'start'
+                    });
+                }
+            });
+        });
+
+        // 导航栏透明度
+        window.addEventListener('scroll', () => {
+            const navbar = document.querySelector('.navbar');
+            if (window.scrollY > 50) {
+                navbar.style.background = 'rgba(15, 27, 46, 0.95)';
+            } else {
+                navbar.style.background = 'rgba(15, 27, 46, 0.9)';
+            }
+        });
+
+        // 统计数字动画
+        const observerOptions = {
+            threshold: 0.5
+        };
+
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    const statNumbers = entry.target.querySelectorAll('.stat-number');
+                    statNumbers.forEach(stat => {
+                        const target = stat.textContent.replace(/[^0-9.]/g, '');
+                        const isPercentage = stat.textContent.includes('%');
+                        animateNumber(stat, 0, parseFloat(target), isPercentage);
+                    });
+                    observer.unobserve(entry.target);
+                }
+            });
+        }, observerOptions);
+
+        const statsSection = document.querySelector('.stats');
+        if (statsSection) {
+            observer.observe(statsSection);
+        }
+
+        function animateNumber(element, start, end, isPercentage) {
+            const duration = 2000;
+            const increment = (end - start) / (duration / 16);
+            let current = start;
+
+            const timer = setInterval(() => {
+                current += increment;
+                if (current >= end) {
+                    current = end;
+                    clearInterval(timer);
+                }
+                
+                if (isPercentage) {
+                    element.textContent = current.toFixed(1) + '%';
+                } else {
+                    element.textContent = Math.floor(current).toLocaleString() + '+';
+                }
+            }, 16);
+        }
+    </script>
+</body>
+</html>
+

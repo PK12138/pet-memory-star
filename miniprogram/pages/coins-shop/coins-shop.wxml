@@ -1,0 +1,93 @@
+<view class="container">
+  <!-- 星币余额显示 -->
+  <view class="balance-bar">
+    <view class="balance-info">
+      <text class="balance-icon">💫</text>
+      <text class="balance-text">我的星币</text>
+      <text class="balance-amount">{{coinsBalance}}</text>
+    </view>
+    <view class="refresh-btn" bindtap="refreshBalance">
+      <text class="refresh-icon">🔄</text>
+    </view>
+  </view>
+
+  <!-- 商品分类 -->
+  <view class="category-tabs">
+    <view 
+      class="tab-item {{activeCategory === 'membership' ? 'active' : ''}}"
+      bindtap="switchCategory"
+      data-category="membership"
+    >
+      <text class="tab-icon">👑</text>
+      <text class="tab-text">会员服务</text>
+    </view>
+    <view 
+      class="tab-item {{activeCategory === 'features' ? 'active' : ''}}"
+      bindtap="switchCategory"
+      data-category="features"
+    >
+      <text class="tab-icon">✨</text>
+      <text class="tab-text">功能特权</text>
+    </view>
+  </view>
+
+  <!-- 会员服务商品 -->
+  <view class="products-section" wx:if="{{activeCategory === 'membership'}}">
+    <view class="product-card" wx:for="{{membershipProducts}}" wx:key="id">
+      <view class="product-badge" wx:if="{{item.badge}}">{{item.badge}}</view>
+      <text class="product-icon">{{item.icon}}</text>
+      <text class="product-name">{{item.name}}</text>
+      <text class="product-desc">{{item.desc}}</text>
+      
+      <view class="product-features">
+        <view class="feature-item" wx:for="{{item.features}}" wx:key="*this" wx:for-item="feature">
+          <text class="feature-dot">•</text>
+          <text class="feature-text">{{feature}}</text>
+        </view>
+      </view>
+
+      <view class="product-footer">
+        <view class="product-price">
+          <text class="price-number">{{item.price}}</text>
+          <text class="price-unit">星币</text>
+        </view>
+        <view class="buy-btn" bindtap="handleBuy" data-product="{{item}}">
+          <text class="btn-text">立即兑换</text>
+        </view>
+      </view>
+    </view>
+  </view>
+
+  <!-- 功能特权商品 -->
+  <view class="products-section" wx:if="{{activeCategory === 'features'}}">
+    <view class="feature-card" wx:for="{{featureProducts}}" wx:key="id">
+      <view class="feature-left">
+        <text class="feature-icon">{{item.icon}}</text>
+        <view class="feature-info">
+          <text class="feature-name">{{item.name}}</text>
+          <text class="feature-desc">{{item.desc}}</text>
+        </view>
+      </view>
+      <view class="feature-right">
+        <text class="feature-price">{{item.price}}</text>
+        <view class="feature-buy-btn" bindtap="handleBuy" data-product="{{item}}">
+          <text>兑换</text>
+        </view>
+      </view>
+    </view>
+  </view>
+
+  <!-- 购买须知 -->
+  <view class="notice-section">
+    <view class="notice-title">
+      <text class="notice-icon">ℹ️</text>
+      <text class="notice-text">兑换须知</text>
+    </view>
+    <view class="notice-content">
+      <text class="notice-item">• 星币兑换后不可退还，请谨慎操作</text>
+      <text class="notice-item">• 会员权益自购买日起生效</text>
+      <text class="notice-item">• 如有疑问请联系客服</text>
+    </view>
+  </view>
+</view>
+

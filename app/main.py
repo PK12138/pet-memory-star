@@ -8,6 +8,7 @@ from services import MemorialService, EmailService
 from auth_service import AuthService
 from payment_service import PaymentService
 from ai_chat_service import AIChatService
+from coins_service import CoinsService
 import os
 import uuid
 import uvicorn
@@ -60,6 +61,7 @@ email_service = EmailService()
 auth_service = AuthService(db)
 ai_chat_service = AIChatService()
 payment_service = PaymentService()
+coins_service = CoinsService(db)
 from virtual_companion_service import VirtualCompanionService
 virtual_companion_service = VirtualCompanionService(db)
 from dream_analysis_service import DreamAnalysisService
@@ -3009,6 +3011,205 @@ def calculate_days_passed(memorial_date: str) -> int:
         return delta.days
     except:
         return 0
+
+
+# ============ 星币系统API ============
+
+@app.get("/api/coins/balance")
+async def get_coins_balance(session_token: str = Header(None, alias="x-session-token")):
+    """获取星币余额"""
+    user = auth_service.get_current_user(session_token)
+    if not user:
+        return {"success": False, "message": "用户未登录"}
+    
+    coins_info = coins_service.get_user_coins(user['id'])
+    return {
+        "success": True,
+        **coins_info
+    }
+
+@app.get("/api/coins/transactions")
+async def get_coins_transactions(
+    session_token: str = Header(None, alias="x-session-token"),
+    page: int = 1,
+    limit: int = 20,
+    transaction_type: str = None
+):
+    """获取交易记录"""
+    user = auth_service.get_current_user(session_token)
+    if not user:
+        return {"success": False, "message": "用户未登录"}
+    
+    offset = (page - 1) * limit
+    transactions, total = coins_service.get_coin_transactions(
+        user['id'], limit, offset, transaction_type
+    )
+    
+    return {
+        "success": True,
+        "transactions": transactions,
+        "total": total,
+        "page": page,
+        "total_pages": (total + limit - 1) // limit
+    }
+
+@app.post("/api/coins/sign-in")
+async def coins_sign_in(session_token: str = Header(None, alias="x-session-token")):
+    """每日签到"""
+    user = auth_service.get_current_user(session_token)
+    if not user:
+        return {"success": False, "message": "用户未登录"}
+    
+    success, result, reward = coins_service.daily_sign_in(user['id'])
+    
+    if success:
+        new_balance = coins_service.get_user_coins(user['id'])['balance']
+        return {
+            "success": True,
+            **result,
+            "new_balance": new_balance
+        }
+    else:
+        return {"success": False, "message": result}
+
+@app.post("/api/coins/task/complete")
+async def complete_task(
+    request: Request,
+    session_token: str = Header(None, alias="x-session-token")
+):
+    """完成任务"""
+    user = auth_service.get_current_user(session_token)
+    if not user:
+        return {"success": False, "message": "用户未登录"}
+    
+    data = await request.json()
+    task_type = data.get('task_type')
+    
+    # 获取任务配置
+    task_config = coins_service.TASK_REWARDS.get(task_type)
+    if not task_config:
+        return {"success": False, "message": "无效的任务类型"}
+    
+    success, message, today_count = coins_service.complete_task(
+        user['id'],
+        task_type,
+        task_config['reward'],
+        task_config['max_daily']
+    )
+    
+    if success:
+        new_balance = coins_service.get_user_coins(user['id'])['balance']
+        return {
+            "success": True,
+            "reward": task_config['reward'],
+            "message": message,
+            "today_count": today_count,
+            "max_count": task_config['max_daily'],
+            "new_balance": new_balance
+        }
+    else:
+        return {
+            "success": False,
+            "message": message,
+            "today_count": today_count,
+            "max_count": task_config.get('max_daily', 0)
+        }
+
+@app.post("/api/coins/watch-ad")
+async def watch_ad(
+    request: Request,
+    session_token: str = Header(None, alias="x-session-token")
+):
+    """观看激励广告"""
+    user = auth_service.get_current_user(session_token)
+    if not user:
+        return {"success": False, "message": "用户未登录"}
+    
+    data = await request.json()
+    ad_unit_id = data.get('ad_unit_id', 'default')
+    
+    success, message, today_count = coins_service.watch_ad(user['id'], ad_unit_id)
+    
+    if success:
+        new_balance = coins_service.get_user_coins(user['id'])['balance']
+        return {
+            "success": True,
+            "reward": 50,
+            "message": message,
+            "today_count": today_count,
+            "max_count": 5,
+            "new_balance": new_balance
+        }
+    else:
+        return {
+            "success": False,
+            "message": message,
+            "today_count": today_count,
+            "max_count": 5
+        }
+
+@app.post("/api/coins/spend")
+async def spend_coins(
+    request: Request,
+    session_token: str = Header(None, alias="x-session-token")
+):
+    """消费星币"""
+    user = auth_service.get_current_user(session_token)
+    if not user:
+        return {"success": False, "message": "用户未登录"}
+    
+    data = await request.json()
+    coin_type = data.get('type')
+    amount = data.get('amount')
+    description = data.get('description')
+    
+    if not all([coin_type, amount, description]):
+        return {"success": False, "message": "参数不完整"}
+    
+    success, result = coins_service.spend_coins(
+        user['id'],
+        amount,
+        coin_type,
+        description
+    )
+    
+    if success:
+        return {
+            "success": True,
+            "spent": amount,
+            "new_balance": result,
+            "message": "消费成功"
+        }
+    else:
+        return {"success": False, "message": result}
+
+@app.get("/api/coins/tasks")
+async def get_tasks_config(session_token: str = Header(None, alias="x-session-token")):
+    """获取任务配置"""
+    user = auth_service.get_current_user(session_token)
+    if not user:
+        return {"success": False, "message": "用户未登录"}
+    
+    tasks = []
+    for task_type, config in coins_service.TASK_REWARDS.items():
+        task_names = {
+            'upload_photo': '上传照片',
+            'write_text': '撰写纪念文字',
+            'ai_chat': 'AI对话',
+            'dream_diary': '记录梦境',
+            'mood_diary': '记录心情'
+        }
+        tasks.append({
+            'type': task_type,
+            'name': task_names.get(task_type, task_type),
+            'reward': config['reward'],
+            'max_daily': config['max_daily']
+        })
+    
+    return {
+        "success": True,
+        "tasks": tasks
+    }
 
 
 if __name__ == "__main__":

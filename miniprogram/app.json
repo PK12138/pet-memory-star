@@ -3,6 +3,8 @@
     "pages/index/index",
     "pages/login/login",
     "pages/user-center/user-center",
+    "pages/coins-center/coins-center",
+    "pages/coins-shop/coins-shop",
     "pages/memorials/memorials",
     "pages/memorial-edit/memorial-edit",
     "pages/memorial-detail/memorial-detail",

@@ -1,0 +1,137 @@
+<view class="container">
+  <!-- 星币余额卡片 -->
+  <view class="balance-card">
+    <view class="balance-decoration">✨</view>
+    <view class="balance-header">
+      <view class="balance-label">我的星币</view>
+      <text class="balance-icon">💫</text>
+    </view>
+    <view class="balance-amount">{{coinsInfo.balance || 0}}</view>
+    <view class="balance-stats">
+      <view class="stat-item">
+        <text class="stat-label">累计获得</text>
+        <text class="stat-value">{{coinsInfo.total_earned || 0}}</text>
+      </view>
+      <view class="stat-divider"></view>
+      <view class="stat-item">
+        <text class="stat-label">累计消费</text>
+        <text class="stat-value">{{coinsInfo.total_spent || 0}}</text>
+      </view>
+    </view>
+  </view>
+
+  <!-- 每日签到 -->
+  <view class="sign-in-section">
+    <view class="section-header">
+      <text class="section-icon">📅</text>
+      <text class="section-title">每日签到</text>
+    </view>
+    <view class="sign-in-card" bindtap="handleSignIn">
+      <view class="sign-in-left">
+        <view class="sign-in-title">签到领星币</view>
+        <view class="sign-in-subtitle">
+          {{signInInfo.signed ? '今日已签到' : '签到即可获得星币奖励'}}
+        </view>
+        <view class="sign-in-days" wx:if="{{signInInfo.continuous_days}}">
+          已连续签到 <text class="days-num">{{signInInfo.continuous_days}}</text> 天
+        </view>
+      </view>
+      <view class="sign-in-btn {{signInInfo.signed ? 'signed' : ''}}">
+        <text class="btn-icon">{{signInInfo.signed ? '✓' : '+'}}</text>
+        <text class="btn-text">{{signInInfo.signed ? '已签到' : '签到'}}</text>
+      </view>
+    </view>
+  </view>
+
+  <!-- 获取星币 -->
+  <view class="earn-section">
+    <view class="section-header">
+      <text class="section-icon">💰</text>
+      <text class="section-title">获取星币</text>
+    </view>
+
+    <!-- 任务列表 -->
+    <view class="task-list">
+      <view class="task-item" wx:for="{{tasks}}" wx:key="type">
+        <view class="task-left">
+          <text class="task-icon">{{item.icon}}</text>
+          <view class="task-info">
+            <text class="task-name">{{item.name}}</text>
+            <text class="task-desc">+{{item.reward}}星币 ({{item.today_count || 0}}/{{item.max_daily}})</text>
+          </view>
+        </view>
+        <view class="task-arrow">›</view>
+      </view>
+
+      <!-- 观看广告 -->
+      <view class="task-item ad-task" bindtap="handleWatchAd">
+        <view class="task-left">
+          <text class="task-icon">📺</text>
+          <view class="task-info">
+            <text class="task-name">观看激励广告</text>
+            <text class="task-desc">+50星币 ({{adViewCount}}/5)</text>
+          </view>
+        </view>
+        <view class="task-btn">
+          <text class="btn-icon">▶</text>
+          <text class="btn-text">观看</text>
+        </view>
+      </view>
+    </view>
+  </view>
+
+  <!-- 消费星币 -->
+  <view class="spend-section">
+    <view class="section-header">
+      <text class="section-icon">🛒</text>
+      <text class="section-title">消费星币</text>
+      <text class="section-more" bindtap="goToShop">查看全部 ›</text>
+    </view>
+
+    <view class="shop-preview">
+      <view class="shop-item" bindtap="goToShop">
+        <text class="shop-icon">👑</text>
+        <view class="shop-info">
+          <text class="shop-name">月度会员</text>
+          <text class="shop-price">300星币</text>
+        </view>
+      </view>
+      <view class="shop-item" bindtap="goToShop">
+        <text class="shop-icon">💎</text>
+        <view class="shop-info">
+          <text class="shop-name">年度会员</text>
+          <text class="shop-price">3000星币</text>
+        </view>
+      </view>
+    </view>
+  </view>
+
+  <!-- 交易记录 -->
+  <view class="transactions-section">
+    <view class="section-header">
+      <text class="section-icon">📊</text>
+      <text class="section-title">交易记录</text>
+    </view>
+
+    <view class="transaction-list" wx:if="{{transactions.length > 0}}">
+      <view class="transaction-item" wx:for="{{transactions}}" wx:key="id">
+        <view class="transaction-left">
+          <text class="transaction-icon">{{item.amount > 0 ? '💰' : '💸'}}</text>
+          <view class="transaction-info">
+            <text class="transaction-desc">{{item.description}}</text>
+            <text class="transaction-time">{{item.created_at}}</text>
+          </view>
+        </view>
+        <view class="transaction-amount {{item.amount > 0 ? 'income' : 'expense'}}">
+          {{item.amount > 0 ? '+' : ''}}{{item.amount}}
+        </view>
+      </view>
+    </view>
+
+    <view class="empty-state" wx:else>
+      <text class="empty-icon">📝</text>
+      <text class="empty-text">暂无交易记录</text>
+    </view>
+  </view>
+</view>
+

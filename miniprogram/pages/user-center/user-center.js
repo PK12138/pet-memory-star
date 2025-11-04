@@ -1,5 +1,6 @@
 // pages/user-center/user-center.js
 const app = getApp()
+const api = require('../../utils/api')
 
 Page({
   data: {
@@ -17,17 +18,20 @@ Page({
       canUploadPhoto: false,
       canUseAI: false,
       canExportData: false
-    }
+    },
+    coinsBalance: 0
   },
 
   onLoad() {
     console.log('个人中心页加载')
     this.loadUserData()
+    this.loadCoinsBalance()
   },
 
   onShow() {
     console.log('个人中心页显示')
     this.loadUserData()
+    this.loadCoinsBalance()
   },
 
   onPullDownRefresh() {
@@ -170,6 +174,34 @@ Page({
   goToThemeSettings() {
     wx.navigateTo({
       url: '/pages/theme-settings/theme-settings'
+    })
+  },
+
+  async loadCoinsBalance() {
+    try {
+      const res = await api.request({
+        url: '/api/coins/balance',
+        method: 'GET'
+      })
+      if (res.success) {
+        this.setData({
+          coinsBalance: res.balance
+        })
+      }
+    } catch (error) {
+      console.error('获取星币余额失败:', error)
+    }
+  },
+
+  goToCoinsCenter() {
+    wx.navigateTo({
+      url: '/pages/coins-center/coins-center'
+    })
+  },
+
+  goToCoinsShop() {
+    wx.navigateTo({
+      url: '/pages/coins-shop/coins-shop'
     })
   },
 

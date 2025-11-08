@@ -63,7 +63,8 @@
         <view class="task-arrow">›</view>
       </view>
 
-      <!-- 观看广告 -->
+      <!-- 观看广告 - 暂时隐藏，等广告位审核通过后再开启 -->
+      <!--
       <view class="task-item ad-task" bindtap="handleWatchAd">
         <view class="task-left">
           <text class="task-icon">📺</text>
@@ -77,6 +78,7 @@
           <text class="btn-text">观看</text>
         </view>
       </view>
+      -->
     </view>
   </view>
 

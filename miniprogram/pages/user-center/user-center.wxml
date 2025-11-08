@@ -49,26 +49,50 @@
     </view>
   </view>
   
-  <!-- 星币卡片 -->
-  <view class="coins-card" bindtap="goToCoinsCenter">
-    <view class="coins-header">
-      <view class="coins-left">
-        <text class="coins-icon">💫</text>
-        <view class="coins-info">
-          <text class="coins-label">我的星币</text>
-          <text class="coins-balance">{{coinsBalance || 0}}</text>
-        </view>
+  <!-- 星币卡片 - 优化版 -->
+  <view class="coins-card">
+    <!-- 背景装饰 -->
+    <view class="coins-bg-decoration"></view>
+    <view class="coins-glow"></view>
+    
+    <!-- 星币余额展示 -->
+    <view class="coins-balance-section" bindtap="goToCoinsCenter">
+      <view class="coins-icon-wrapper">
+        <text class="coins-icon-main">⭐</text>
+        <view class="icon-pulse"></view>
       </view>
-      <view class="coins-arrow">›</view>
+      <view class="coins-balance-info">
+        <text class="coins-label">星币余额</text>
+        <view class="coins-number-display">
+          <text class="coins-balance-number">{{coinsBalance || 0}}</text>
+          <text class="coins-unit">枚</text>
+        </view>
+        <text class="coins-tip">点击查看详情 ›</text>
+      </view>
     </view>
+    
+    <!-- 分割线 -->
+    <view class="coins-divider"></view>
+    
+    <!-- 操作按钮 -->
     <view class="coins-actions">
       <view class="coins-btn earn" catchtap="goToCoinsCenter">
-        <text class="btn-icon">+</text>
-        <text class="btn-text">赚取星币</text>
+        <view class="btn-icon-wrapper">
+          <text class="btn-icon">💰</text>
+        </view>
+        <view class="btn-content">
+          <text class="btn-title">赚取星币</text>
+          <text class="btn-subtitle">签到·任务</text>
+        </view>
       </view>
       <view class="coins-btn shop" catchtap="goToCoinsShop">
-        <text class="btn-icon">🛒</text>
-        <text class="btn-text">星币商城</text>
+        <view class="btn-icon-wrapper">
+          <text class="btn-icon">🎁</text>
+        </view>
+        <view class="btn-content">
+          <text class="btn-title">星币商城</text>
+          <text class="btn-subtitle">兑换会员</text>
+        </view>
       </view>
     </view>
   </view>

@@ -222,6 +222,282 @@
   font-weight: 500;
 }
 
+/* 星币卡片 - 优化版 */
+.coins-card {
+  position: relative;
+  background: linear-gradient(135deg, 
+    rgba(255, 215, 0, 0.15) 0%, 
+    rgba(255, 169, 77, 0.12) 50%, 
+    rgba(204, 122, 61, 0.1) 100%);
+  backdrop-filter: blur(30rpx);
+  -webkit-backdrop-filter: blur(30rpx);
+  border: 2rpx solid rgba(255, 215, 0, 0.4);
+  border-radius: 30rpx;
+  padding: 0;
+  margin: 0 25rpx 30rpx;
+  box-shadow: 
+    0 10rpx 40rpx rgba(255, 215, 0, 0.25),
+    0 0 60rpx rgba(255, 169, 77, 0.15) inset;
+  overflow: hidden;
+}
+
+/* 背景装饰 */
+.coins-bg-decoration {
+  position: absolute;
+  top: -100rpx;
+  right: -100rpx;
+  width: 250rpx;
+  height: 250rpx;
+  background: radial-gradient(circle, rgba(255, 215, 0, 0.2), transparent);
+  border-radius: 50%;
+  pointer-events: none;
+}
+
+.coins-glow {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 200rpx;
+  height: 200rpx;
+  background: radial-gradient(circle, rgba(255, 215, 0, 0.1), transparent);
+  border-radius: 50%;
+  animation: coins-glow-pulse 3s ease-in-out infinite;
+  pointer-events: none;
+}
+
+@keyframes coins-glow-pulse {
+  0%, 100% {
+    transform: translate(-50%, -50%) scale(1);
+    opacity: 0.3;
+  }
+  50% {
+    transform: translate(-50%, -50%) scale(1.5);
+    opacity: 0.6;
+  }
+}
+
+/* 星币余额展示区 */
+.coins-balance-section {
+  display: flex;
+  align-items: center;
+  gap: 25rpx;
+  padding: 35rpx 30rpx;
+  position: relative;
+  z-index: 1;
+}
+
+.coins-icon-wrapper {
+  width: 100rpx;
+  height: 100rpx;
+  border-radius: 50%;
+  background: linear-gradient(135deg, 
+    rgba(255, 215, 0, 0.3),
+    rgba(255, 169, 77, 0.25));
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  box-shadow: 
+    0 8rpx 25rpx rgba(255, 215, 0, 0.4),
+    0 0 30rpx rgba(255, 215, 0, 0.2) inset;
+  flex-shrink: 0;
+}
+
+.coins-icon-main {
+  font-size: 56rpx;
+  filter: drop-shadow(0 4rpx 12rpx rgba(255, 215, 0, 0.6));
+  animation: coin-rotate 4s linear infinite;
+  position: relative;
+  z-index: 2;
+}
+
+@keyframes coin-rotate {
+  0% { transform: rotateY(0deg); }
+  100% { transform: rotateY(360deg); }
+}
+
+.icon-pulse {
+  position: absolute;
+  width: 120rpx;
+  height: 120rpx;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(255, 215, 0, 0.4), transparent);
+  animation: icon-pulse-anim 2s ease-in-out infinite;
+}
+
+@keyframes icon-pulse-anim {
+  0%, 100% {
+    transform: scale(1);
+    opacity: 0.4;
+  }
+  50% {
+    transform: scale(1.2);
+    opacity: 0.8;
+  }
+}
+
+.coins-balance-info {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 8rpx;
+}
+
+.coins-label {
+  font-size: 24rpx;
+  color: rgba(255, 255, 255, 0.7);
+  font-weight: 500;
+  letter-spacing: 1rpx;
+}
+
+.coins-number-display {
+  display: flex;
+  align-items: baseline;
+  gap: 8rpx;
+}
+
+.coins-balance-number {
+  font-size: 64rpx;
+  font-weight: 800;
+  background: linear-gradient(135deg, #FFD700, #FFA94D);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  text-shadow: 0 4rpx 20rpx rgba(255, 215, 0, 0.4);
+  line-height: 1;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', sans-serif;
+}
+
+.coins-unit {
+  font-size: 24rpx;
+  color: rgba(255, 215, 0, 0.8);
+  font-weight: 600;
+  margin-bottom: 8rpx;
+}
+
+.coins-tip {
+  font-size: 22rpx;
+  color: rgba(255, 215, 0, 0.7);
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  gap: 4rpx;
+}
+
+/* 分割线 */
+.coins-divider {
+  height: 1rpx;
+  background: linear-gradient(90deg, 
+    transparent,
+    rgba(255, 215, 0, 0.3) 10%,
+    rgba(255, 215, 0, 0.3) 90%,
+    transparent);
+  margin: 0 30rpx;
+}
+
+/* 操作按钮 */
+.coins-actions {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20rpx;
+  padding: 30rpx;
+  position: relative;
+  z-index: 1;
+}
+
+.coins-btn {
+  display: flex;
+  align-items: center;
+  gap: 15rpx;
+  padding: 25rpx 20rpx;
+  border-radius: 20rpx;
+  transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.coins-btn::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0.05));
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.coins-btn:active::before {
+  opacity: 1;
+}
+
+.coins-btn.earn {
+  background: linear-gradient(135deg, 
+    rgba(255, 215, 0, 0.2),
+    rgba(255, 169, 77, 0.15));
+  border: 2rpx solid rgba(255, 215, 0, 0.35);
+  box-shadow: 0 4rpx 20rpx rgba(255, 215, 0, 0.2);
+}
+
+.coins-btn.shop {
+  background: linear-gradient(135deg, 
+    rgba(138, 43, 226, 0.2),
+    rgba(94, 114, 228, 0.15));
+  border: 2rpx solid rgba(138, 43, 226, 0.35);
+  box-shadow: 0 4rpx 20rpx rgba(138, 43, 226, 0.2);
+}
+
+.coins-btn:active {
+  transform: scale(0.96);
+}
+
+.btn-icon-wrapper {
+  width: 60rpx;
+  height: 60rpx;
+  border-radius: 15rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.coins-btn.earn .btn-icon-wrapper {
+  background: linear-gradient(135deg, rgba(255, 215, 0, 0.3), rgba(255, 169, 77, 0.25));
+  box-shadow: 0 4rpx 15rpx rgba(255, 215, 0, 0.3);
+}
+
+.coins-btn.shop .btn-icon-wrapper {
+  background: linear-gradient(135deg, rgba(138, 43, 226, 0.3), rgba(94, 114, 228, 0.25));
+  box-shadow: 0 4rpx 15rpx rgba(138, 43, 226, 0.3);
+}
+
+.coins-btn .btn-icon {
+  font-size: 36rpx;
+  filter: drop-shadow(0 2rpx 8rpx rgba(0, 0, 0, 0.2));
+}
+
+.btn-content {
+  display: flex;
+  flex-direction: column;
+  gap: 4rpx;
+  flex: 1;
+}
+
+.btn-title {
+  font-size: 26rpx;
+  font-weight: 600;
+  color: #fff;
+  line-height: 1.2;
+}
+
+.btn-subtitle {
+  font-size: 20rpx;
+  color: rgba(255, 255, 255, 0.6);
+  font-weight: 500;
+}
+
 /* 快捷功能 */
 .quick-actions {
   background: linear-gradient(135deg, rgba(255, 169, 77, 0.08), rgba(204, 122, 61, 0.05));

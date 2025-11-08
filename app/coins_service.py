@@ -4,6 +4,15 @@
 """
 import json
 from datetime import date, datetime, timedelta
+from typing import Dict, List, Tuple, Optional
+
+# 导入自定义异常
+import sys
+import os
+sys.path.append(os.path.dirname(os.path.dirname(__file__)))
+from utils.exceptions import InsufficientCoinsException, DatabaseException, ValidationException
+from utils.logger import log_info, log_error, log_warning
+
 
 class CoinsService:
     """星币系统服务"""
@@ -14,6 +23,7 @@ class CoinsService:
         :param db: Database实例
         """
         self.db = db
+        log_info("CoinsService initialized")
     
     def init_user_coins(self, user_id, initial_balance=100):
         """初始化用户星币账户"""

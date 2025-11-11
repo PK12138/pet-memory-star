@@ -4,7 +4,7 @@
 
 // 远程服务器配置
 const config = {
-  baseUrl: 'http://42.193.230.145'  // ✅ 远程生产服务器
+  baseUrl: 'https://www.pettrailstar.cn'  // ✅ 远程生产服务器
   // baseUrl: 'https://42.193.230.145'  // HTTPS 443端口（需要配置SSL证书）
   // baseUrl: 'https://pettrailstar.cn'  // 域名HTTPS（备案后使用）
 }

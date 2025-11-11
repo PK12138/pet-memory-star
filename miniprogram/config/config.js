@@ -1,7 +1,7 @@
 // config/config.js
 // 小程序配置文件
 
-module.exports = {
+const config = {
   // 小程序信息
   appId: 'wx9572f66945407446',
   appSecret: 'c4b410be644231ff5635ec960dde38c1',
@@ -9,7 +9,7 @@ module.exports = {
   // 后端API地址
   // 测试结果：http://pettrailstar.cn 可以正常访问
   // 注意：直接访问IP会超时，请使用域名
-  baseUrl: 'http://pettrailstar.cn', // 服务器域名（已测试可用）
+  baseUrl: 'https://www.pettrailstar.cn', // 生产环境地址只用 www 域名
   
   // 微信API地址
   wechatApiUrl: 'https://api.weixin.qq.com',
@@ -52,3 +52,5 @@ module.exports = {
     photosExpire: 10 * 60 * 1000 // 10分钟
   }
 }
+
+export default config;

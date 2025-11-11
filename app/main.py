@@ -1477,7 +1477,7 @@ async def create_payment_order(request: Request, session_token: str = Header(Non
             return {"success": False, "message": "创建订单失败"}
         
         # 使用真实支付服务创建订单
-        server_url = os.getenv('SERVER_BASE_URL', 'http://pettrailstar.cn')
+        server_url = os.getenv('SERVER_BASE_URL', 'https://www.pettrailstar.cn')
         notify_url = f"{server_url}/api/payment/{payment_method}/notify"
         
         payment_result = payment_service.create_payment_order(

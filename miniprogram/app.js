@@ -7,7 +7,7 @@ const config = {
   appSecret: 'c4b410be644231ff5635ec960dde38c1',
   
   // 后端API地址 - 远程服务器
-  baseUrl: 'http://42.193.230.145',
+  baseUrl: 'https://www.pettrailstar.cn',
   
   // 微信API地址
   wechatApiUrl: 'https://api.weixin.qq.com',

@@ -294,7 +294,7 @@ class EmailService:
         except ImportError:
             # 如果相对导入失败，尝试绝对导入
             import os
-            base_url = os.getenv('SERVER_BASE_URL', 'http://42.193.230.145')
+            base_url = os.getenv('SERVER_BASE_URL', 'https://www.pettrailstar.cn')
         full_memorial_url = f"{base_url}{memorial_url}"
         
         html = f"""

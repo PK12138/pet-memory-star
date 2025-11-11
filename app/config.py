@@ -8,7 +8,7 @@ class Config:
     SENDER_PASSWORD = "tscvmzpbazgbbaeh"
 
     # 服务器配置
-    SERVER_BASE_URL = "http://42.193.230.145"  # 生产环境服务器地址
+    SERVER_BASE_URL = "https://www.pettrailstar.cn"  # 生产环境服务器地址
     LOCAL_BASE_URL = "http://localhost:8000"    # 本地开发地址
 
     # 根据环境变量选择服务器地址

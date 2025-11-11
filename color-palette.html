@@ -1,0 +1,593 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>爪迹星 - 配色方案选择器</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            background: #0a0a0a;
+            color: #fff;
+            padding: 40px 20px;
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        h1 {
+            text-align: center;
+            margin-bottom: 10px;
+            font-size: 36px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .subtitle {
+            text-align: center;
+            color: #888;
+            margin-bottom: 40px;
+            font-size: 14px;
+        }
+
+        .schemes-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+            gap: 30px;
+            margin-bottom: 50px;
+        }
+
+        .scheme-card {
+            background: #1a1a1a;
+            border-radius: 20px;
+            padding: 30px;
+            border: 2px solid #333;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .scheme-card:hover {
+            border-color: #667eea;
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(102, 126, 234, 0.3);
+        }
+
+        .scheme-name {
+            font-size: 24px;
+            font-weight: 700;
+            margin-bottom: 10px;
+        }
+
+        .scheme-desc {
+            color: #aaa;
+            font-size: 14px;
+            margin-bottom: 20px;
+            min-height: 60px;
+        }
+
+        .color-preview {
+            height: 150px;
+            border-radius: 15px;
+            margin-bottom: 20px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .color-values {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .color-item {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            background: rgba(255, 255, 255, 0.05);
+            padding: 10px 15px;
+            border-radius: 8px;
+        }
+
+        .color-label {
+            flex: 0 0 100px;
+            font-size: 13px;
+            color: #999;
+        }
+
+        .color-swatch {
+            width: 40px;
+            height: 40px;
+            border-radius: 8px;
+            border: 2px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .color-code {
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+            color: #fff;
+            user-select: all;
+        }
+
+        .copy-btn {
+            margin-left: auto;
+            padding: 5px 15px;
+            background: #667eea;
+            border: none;
+            border-radius: 5px;
+            color: white;
+            cursor: pointer;
+            font-size: 12px;
+            transition: all 0.2s;
+        }
+
+        .copy-btn:hover {
+            background: #5568d3;
+        }
+
+        .custom-section {
+            background: #1a1a1a;
+            border-radius: 20px;
+            padding: 40px;
+            border: 2px solid #333;
+        }
+
+        .custom-title {
+            font-size: 24px;
+            font-weight: 700;
+            margin-bottom: 20px;
+        }
+
+        .color-picker-group {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .picker-item {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .picker-label {
+            font-size: 14px;
+            color: #aaa;
+        }
+
+        .picker-input {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+
+        input[type="color"] {
+            width: 60px;
+            height: 40px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+        }
+
+        input[type="text"] {
+            flex: 1;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid #333;
+            border-radius: 8px;
+            padding: 10px 15px;
+            color: #fff;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+        }
+
+        .preview-box {
+            height: 200px;
+            border-radius: 15px;
+            margin-top: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            font-weight: 600;
+        }
+
+        .apply-btn {
+            display: block;
+            width: 100%;
+            padding: 15px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border: none;
+            border-radius: 10px;
+            color: white;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            margin-top: 20px;
+            transition: all 0.3s;
+        }
+
+        .apply-btn:hover {
+            transform: scale(1.02);
+            box-shadow: 0 10px 30px rgba(102, 126, 234, 0.5);
+        }
+
+        .tag {
+            display: inline-block;
+            padding: 4px 12px;
+            background: rgba(102, 126, 234, 0.2);
+            border-radius: 12px;
+            font-size: 12px;
+            margin-right: 8px;
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🎨 爪迹星 配色方案选择器</h1>
+        <p class="subtitle">为宠物纪念应用选择最合适的配色 · 温暖 · 治愈 · 应景</p>
+
+        <!-- 专业推荐 -->
+        <div style="background: linear-gradient(135deg, #1e3a8a 0%, #7c3aed 100%); border-radius: 20px; padding: 30px; margin-bottom: 30px; border: 3px solid #fbbf24;">
+            <h2 style="font-size: 28px; margin-bottom: 15px;">⭐ 专业推荐：基于视觉传达理论的最优方案</h2>
+            <p style="color: #e0e0e0; font-size: 16px; line-height: 1.8; margin-bottom: 20px;">
+                经过深入分析<strong>色彩心理学、情感设计原则、成功案例</strong>，以下方案最适合宠物纪念主题：
+                <br>✅ 深邃而不压抑的背景
+                <br>✅ 温暖而不刺眼的强调色
+                <br>✅ 完美平衡悲伤与希望
+                <br>✅ 符合"星空纪念"的主题意象
+            </p>
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(350px, 1fr)); gap: 20px;">
+                <!-- 推荐方案1 -->
+                <div class="scheme-card" style="background: #0f1b2e; border-color: #ffa94d; cursor: pointer;" data-scheme="recommend-1">
+                    <div class="scheme-name" style="color: #ffa94d;">🌟 星光怀念（强烈推荐）</div>
+                    <div class="scheme-desc" style="color: #d0d0d0;">深邃星空 + 温暖星光金。金色象征珍贵与永恒，温暖而不压抑，最佳平衡</div>
+                    <div class="color-preview" style="background: radial-gradient(ellipse at bottom, #0f1b2e 0%, #050b14 100%); border: 2px solid #ffa94d;"></div>
+                    <div class="color-values">
+                        <div class="color-item">
+                            <div class="color-label">背景起始</div>
+                            <div class="color-swatch" style="background: #0f1b2e;"></div>
+                            <div class="color-code">#0f1b2e</div>
+                            <button class="copy-btn" onclick="copyColor('#0f1b2e')">复制</button>
+                        </div>
+                        <div class="color-item">
+                            <div class="color-label">背景结束</div>
+                            <div class="color-swatch" style="background: #050b14;"></div>
+                            <div class="color-code">#050b14</div>
+                            <button class="copy-btn" onclick="copyColor('#050b14')">复制</button>
+                        </div>
+                        <div class="color-item">
+                            <div class="color-label">强调色</div>
+                            <div class="color-swatch" style="background: #ffa94d;"></div>
+                            <div class="color-code">#ffa94d</div>
+                            <button class="copy-btn" onclick="copyColor('#ffa94d')">复制</button>
+                        </div>
+                    </div>
+                    <span class="tag" style="background: rgba(255, 169, 77, 0.3);">温暖</span>
+                    <span class="tag" style="background: rgba(255, 169, 77, 0.3);">星光</span>
+                    <span class="tag" style="background: rgba(255, 169, 77, 0.3);">高端</span>
+                </div>
+                
+                <!-- 推荐方案2 -->
+                <div class="scheme-card" style="background: #0f1b2e; border-color: #7dd3c0; cursor: pointer;" data-scheme="recommend-2">
+                    <div class="scheme-name" style="color: #7dd3c0;">💚 薄荷治愈</div>
+                    <div class="scheme-desc" style="color: #d0d0d0;">深邃星空 + 薄荷青。清新治愈，现代感强，适合希望轻松氛围的用户</div>
+                    <div class="color-preview" style="background: radial-gradient(ellipse at bottom, #0f1b2e 0%, #050b14 100%); border: 2px solid #7dd3c0;"></div>
+                    <div class="color-values">
+                        <div class="color-item">
+                            <div class="color-label">背景起始</div>
+                            <div class="color-swatch" style="background: #0f1b2e;"></div>
+                            <div class="color-code">#0f1b2e</div>
+                            <button class="copy-btn" onclick="copyColor('#0f1b2e')">复制</button>
+                        </div>
+                        <div class="color-item">
+                            <div class="color-label">背景结束</div>
+                            <div class="color-swatch" style="background: #050b14;"></div>
+                            <div class="color-code">#050b14</div>
+                            <button class="copy-btn" onclick="copyColor('#050b14')">复制</button>
+                        </div>
+                        <div class="color-item">
+                            <div class="color-label">强调色</div>
+                            <div class="color-swatch" style="background: #7dd3c0;"></div>
+                            <div class="color-code">#7dd3c0</div>
+                            <button class="copy-btn" onclick="copyColor('#7dd3c0')">复制</button>
+                        </div>
+                    </div>
+                    <span class="tag" style="background: rgba(125, 211, 192, 0.3);">治愈</span>
+                    <span class="tag" style="background: rgba(125, 211, 192, 0.3);">清新</span>
+                    <span class="tag" style="background: rgba(125, 211, 192, 0.3);">现代</span>
+                </div>
+            </div>
+        </div>
+
+        <h3 style="margin: 40px 0 20px; color: #aaa; text-align: center;">━━━ 更多配色方案 ━━━</h3>
+
+        <div class="schemes-grid">
+            <!-- 方案1：深海夜空 -->
+            <div class="scheme-card" data-scheme="1">
+                <div class="scheme-name">🌊 深海夜空</div>
+                <div class="scheme-desc">深邃的海洋蓝，宁静而包容，像深海中的星光</div>
+                <div class="color-preview" style="background: radial-gradient(ellipse at bottom, #243447 0%, #0f1923 100%);"></div>
+                <div class="color-values">
+                    <div class="color-item">
+                        <div class="color-label">背景起始</div>
+                        <div class="color-swatch" style="background: #243447;"></div>
+                        <div class="color-code">#243447</div>
+                        <button class="copy-btn" onclick="copyColor('#243447')">复制</button>
+                    </div>
+                    <div class="color-item">
+                        <div class="color-label">背景结束</div>
+                        <div class="color-swatch" style="background: #0f1923;"></div>
+                        <div class="color-code">#0f1923</div>
+                        <button class="copy-btn" onclick="copyColor('#0f1923')">复制</button>
+                    </div>
+                    <div class="color-item">
+                        <div class="color-label">强调色</div>
+                        <div class="color-swatch" style="background: #5f8faf;"></div>
+                        <div class="color-code">#5f8faf</div>
+                        <button class="copy-btn" onclick="copyColor('#5f8faf')">复制</button>
+                    </div>
+                </div>
+                <span class="tag">沉稳</span><span class="tag">包容</span>
+            </div>
+
+            <!-- 方案2：暮色余晖 -->
+            <div class="scheme-card" data-scheme="2">
+                <div class="scheme-name">🌅 暮色余晖</div>
+                <div class="scheme-desc">黄昏后的天空，温暖的橙粉色渐变到深蓝</div>
+                <div class="color-preview" style="background: radial-gradient(ellipse at bottom, #2d3561 0%, #1a1f35 100%);"></div>
+                <div class="color-values">
+                    <div class="color-item">
+                        <div class="color-label">背景起始</div>
+                        <div class="color-swatch" style="background: #2d3561;"></div>
+                        <div class="color-code">#2d3561</div>
+                        <button class="copy-btn" onclick="copyColor('#2d3561')">复制</button>
+                    </div>
+                    <div class="color-item">
+                        <div class="color-label">背景结束</div>
+                        <div class="color-swatch" style="background: #1a1f35;"></div>
+                        <div class="color-code">#1a1f35</div>
+                        <button class="copy-btn" onclick="copyColor('#1a1f35')">复制</button>
+                    </div>
+                    <div class="color-item">
+                        <div class="color-label">强调色</div>
+                        <div class="color-swatch" style="background: #8e7cc3;"></div>
+                        <div class="color-code">#8e7cc3</div>
+                        <button class="copy-btn" onclick="copyColor('#8e7cc3')">复制</button>
+                    </div>
+                </div>
+                <span class="tag">温暖</span><span class="tag">浪漫</span>
+            </div>
+
+            <!-- 方案3：森林夜语 -->
+            <div class="scheme-card" data-scheme="3">
+                <div class="scheme-name">🌲 森林夜语</div>
+                <div class="scheme-desc">深夜森林的宁静，墨绿色带来自然的治愈</div>
+                <div class="color-preview" style="background: radial-gradient(ellipse at bottom, #1e3a32 0%, #0d1a15 100%);"></div>
+                <div class="color-values">
+                    <div class="color-item">
+                        <div class="color-label">背景起始</div>
+                        <div class="color-swatch" style="background: #1e3a32;"></div>
+                        <div class="color-code">#1e3a32</div>
+                        <button class="copy-btn" onclick="copyColor('#1e3a32')">复制</button>
+                    </div>
+                    <div class="color-item">
+                        <div class="color-label">背景结束</div>
+                        <div class="color-swatch" style="background: #0d1a15;"></div>
+                        <div class="color-code">#0d1a15</div>
+                        <button class="copy-btn" onclick="copyColor('#0d1a15')">复制</button>
+                    </div>
+                    <div class="color-item">
+                        <div class="color-label">强调色</div>
+                        <div class="color-swatch" style="background: #5fa87d;"></div>
+                        <div class="color-code">#5fa87d</div>
+                        <button class="copy-btn" onclick="copyColor('#5fa87d')">复制</button>
+                    </div>
+                </div>
+                <span class="tag">自然</span><span class="tag">治愈</span>
+            </div>
+
+            <!-- 方案4：琉璃星夜 -->
+            <div class="scheme-card" data-scheme="4">
+                <div class="scheme-name">💎 琉璃星夜</div>
+                <div class="scheme-desc">琉璃般透亮的深蓝，优雅而高贵</div>
+                <div class="color-preview" style="background: radial-gradient(ellipse at bottom, #2c3e5a 0%, #141b2d 100%);"></div>
+                <div class="color-values">
+                    <div class="color-item">
+                        <div class="color-label">背景起始</div>
+                        <div class="color-swatch" style="background: #2c3e5a;"></div>
+                        <div class="color-code">#2c3e5a</div>
+                        <button class="copy-btn" onclick="copyColor('#2c3e5a')">复制</button>
+                    </div>
+                    <div class="color-item">
+                        <div class="color-label">背景结束</div>
+                        <div class="color-swatch" style="background: #141b2d;"></div>
+                        <div class="color-code">#141b2d</div>
+                        <button class="copy-btn" onclick="copyColor('#141b2d')">复制</button>
+                    </div>
+                    <div class="color-item">
+                        <div class="color-label">强调色</div>
+                        <div class="color-swatch" style="background: #7b9ec6;"></div>
+                        <div class="color-code">#7b9ec6</div>
+                        <button class="copy-btn" onclick="copyColor('#7b9ec6')">复制</button>
+                    </div>
+                </div>
+                <span class="tag">优雅</span><span class="tag">高贵</span>
+            </div>
+
+            <!-- 方案5：秋叶金辉 -->
+            <div class="scheme-card" data-scheme="5">
+                <div class="scheme-name">🍂 秋叶金辉</div>
+                <div class="scheme-desc">秋日落叶的温暖，金棕色带来怀旧感</div>
+                <div class="color-preview" style="background: radial-gradient(ellipse at bottom, #3d3226 0%, #1a1510 100%);"></div>
+                <div class="color-values">
+                    <div class="color-item">
+                        <div class="color-label">背景起始</div>
+                        <div class="color-swatch" style="background: #3d3226;"></div>
+                        <div class="color-code">#3d3226</div>
+                        <button class="copy-btn" onclick="copyColor('#3d3226')">复制</button>
+                    </div>
+                    <div class="color-item">
+                        <div class="color-label">背景结束</div>
+                        <div class="color-swatch" style="background: #1a1510;"></div>
+                        <div class="color-code">#1a1510</div>
+                        <button class="copy-btn" onclick="copyColor('#1a1510')">复制</button>
+                    </div>
+                    <div class="color-item">
+                        <div class="color-label">强调色</div>
+                        <div class="color-swatch" style="background: #c9a063;"></div>
+                        <div class="color-code">#c9a063</div>
+                        <button class="copy-btn" onclick="copyColor('#c9a063')">复制</button>
+                    </div>
+                </div>
+                <span class="tag">温暖</span><span class="tag">怀旧</span>
+            </div>
+
+            <!-- 方案6：银河深空 -->
+            <div class="scheme-card" data-scheme="6">
+                <div class="scheme-name">🌌 银河深空</div>
+                <div class="scheme-desc">深邃的宇宙蓝紫，神秘而浪漫</div>
+                <div class="color-preview" style="background: radial-gradient(ellipse at bottom, #2a2d4a 0%, #14161f 100%);"></div>
+                <div class="color-values">
+                    <div class="color-item">
+                        <div class="color-label">背景起始</div>
+                        <div class="color-swatch" style="background: #2a2d4a;"></div>
+                        <div class="color-code">#2a2d4a</div>
+                        <button class="copy-btn" onclick="copyColor('#2a2d4a')">复制</button>
+                    </div>
+                    <div class="color-item">
+                        <div class="color-label">背景结束</div>
+                        <div class="color-swatch" style="background: #14161f;"></div>
+                        <div class="color-code">#14161f</div>
+                        <button class="copy-btn" onclick="copyColor('#14161f')">复制</button>
+                    </div>
+                    <div class="color-item">
+                        <div class="color-label">强调色</div>
+                        <div class="color-swatch" style="background: #9b8fcc;"></div>
+                        <div class="color-code">#9b8fcc</div>
+                        <button class="copy-btn" onclick="copyColor('#9b8fcc')">复制</button>
+                    </div>
+                </div>
+                <span class="tag">神秘</span><span class="tag">浪漫</span>
+            </div>
+        </div>
+
+        <!-- 自定义配色 -->
+        <div class="custom-section">
+            <div class="custom-title">🎨 自定义配色</div>
+            <div class="color-picker-group">
+                <div class="picker-item">
+                    <div class="picker-label">背景起始色</div>
+                    <div class="picker-input">
+                        <input type="color" id="bgStart" value="#1f2833">
+                        <input type="text" id="bgStartText" value="#1f2833" oninput="updateColorPicker('bgStart', this.value)">
+                    </div>
+                </div>
+                <div class="picker-item">
+                    <div class="picker-label">背景结束色</div>
+                    <div class="picker-input">
+                        <input type="color" id="bgEnd" value="#0b1015">
+                        <input type="text" id="bgEndText" value="#0b1015" oninput="updateColorPicker('bgEnd', this.value)">
+                    </div>
+                </div>
+                <div class="picker-item">
+                    <div class="picker-label">强调色（按钮等）</div>
+                    <div class="picker-input">
+                        <input type="color" id="accent" value="#4ecca3">
+                        <input type="text" id="accentText" value="#4ecca3" oninput="updateColorPicker('accent', this.value)">
+                    </div>
+                </div>
+            </div>
+            <div class="preview-box" id="customPreview">预览效果</div>
+            <button class="apply-btn" onclick="showCustomColors()">📋 查看自定义配色代码</button>
+        </div>
+    </div>
+
+    <script>
+        // 复制颜色代码
+        function copyColor(color) {
+            navigator.clipboard.writeText(color);
+            alert('已复制颜色代码: ' + color);
+        }
+
+        // 更新颜色选择器
+        function updateColorPicker(pickerId, value) {
+            if (value.match(/^#[0-9A-Fa-f]{6}$/)) {
+                document.getElementById(pickerId).value = value;
+                updatePreview();
+            }
+        }
+
+        // 更新预览
+        function updatePreview() {
+            const bgStart = document.getElementById('bgStart').value;
+            const bgEnd = document.getElementById('bgEnd').value;
+            const accent = document.getElementById('accent').value;
+            
+            document.getElementById('bgStartText').value = bgStart;
+            document.getElementById('bgEndText').value = bgEnd;
+            document.getElementById('accentText').value = accent;
+            
+            const preview = document.getElementById('customPreview');
+            preview.style.background = `radial-gradient(ellipse at bottom, ${bgStart} 0%, ${bgEnd} 100%)`;
+            preview.style.border = `2px solid ${accent}`;
+            preview.style.color = accent;
+        }
+
+        // 显示自定义配色代码
+        function showCustomColors() {
+            const bgStart = document.getElementById('bgStart').value;
+            const bgEnd = document.getElementById('bgEnd').value;
+            const accent = document.getElementById('accent').value;
+            
+            const code = `
+配色代码：
+背景起始: ${bgStart}
+背景结束: ${bgEnd}
+强调色: ${accent}
+
+告诉我：请使用这个配色方案，背景 ${bgStart} 到 ${bgEnd}，强调色 ${accent}
+            `;
+            
+            alert(code);
+            copyColor(code);
+        }
+
+        // 监听颜色选择器变化
+        document.getElementById('bgStart').addEventListener('input', updatePreview);
+        document.getElementById('bgEnd').addEventListener('input', updatePreview);
+        document.getElementById('accent').addEventListener('input', updatePreview);
+
+        // 初始化预览
+        updatePreview();
+
+        // 点击配色方案卡片
+        document.querySelectorAll('.scheme-card').forEach(card => {
+            card.addEventListener('click', function() {
+                const colors = this.querySelectorAll('.color-code');
+                const bgStart = colors[0].textContent;
+                const bgEnd = colors[1].textContent;
+                const accent = colors[2].textContent;
+                
+                if (confirm(`是否应用 ${this.querySelector('.scheme-name').textContent} 配色方案？`)) {
+                    const message = `请使用这个配色方案，背景 ${bgStart} 到 ${bgEnd}，强调色 ${accent}`;
+                    copyColor(message);
+                    alert('配色信息已复制到剪贴板！\n请在聊天中告诉AI：\n\n' + message);
+                }
+            });
+        });
+    </script>
+</body>
+</html>
+

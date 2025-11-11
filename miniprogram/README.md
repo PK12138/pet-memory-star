@@ -1,358 +1,198 @@
-# 爪迹星·小程序端 📱
+# 爪迹星·云纪念馆 - 微信小程序
 
-> 微信小程序版 - 随时随地怀念你的毛孩子
+## 📱 项目简介
 
----
+爪迹星·云纪念馆是一款专为宠物主人设计的纪念小程序，让每一颗星星都留下爱的爪迹。用户可以为心爱的宠物创建专属纪念馆，珍藏珍贵的照片和回忆。
 
-## 🚀 快速开始
+## 🚀 功能特色
 
-### 1. 打开项目
+### 核心功能
+- **纪念馆管理**: 创建、编辑、删除宠物纪念馆
+- **照片管理**: 上传、管理、分享宠物照片
+- **用户系统**: 注册、登录、权限管理
+- **支付升级**: 支持微信支付，解锁更多功能
+- **分享功能**: 支持微信分享和链接分享
 
-使用微信开发者工具打开本目录（`miniprogram`）
+### 技术特色
+- **响应式设计**: 适配各种屏幕尺寸
+- **毛玻璃效果**: 现代化的UI设计
+- **流畅动画**: 丰富的交互动画效果
+- **离线缓存**: 支持离线浏览已加载内容
 
-### 2. 配置AppID
-
-在 `project.config.json` 中配置你的小程序AppID：
-
-```json
-{
-  "appid": "wx9572f66945407446"
-}
-```
-
-### 3. 配置后端地址
-
-修改 `config/config.js`：
-
-```javascript
-const config = {
-  baseUrl: 'http://pettrailstar.cn',  // 生产环境
-  appId: 'wx9572f66945407446'
-};
-```
-
-本地开发时使用 `config/config-local.js`：
-
-```javascript
-const config = {
-  baseUrl: 'http://localhost:80',  // 本地环境
-  appId: 'wx9572f66945407446'
-};
-```
-
-### 4. 编译运行
-
-点击微信开发者工具的"编译"按钮即可预览
-
----
-
-## 📁 目录结构
+## 📁 项目结构
 
 ```
 miniprogram/
-├── pages/                    # 页面目录
-│   ├── index/               # 首页
-│   ├── login/               # 微信一键登录
-│   ├── user-center/         # 用户中心
-│   ├── memorials/           # 纪念馆列表
-│   ├── memorial-detail/     # 纪念馆详情
-│   ├── memorial-edit/       # 创建/编辑纪念馆
-│   ├── star-sky/            # 星空纪念
-│   ├── coins-center/        # 星币中心
-│   ├── coins-shop/          # 星币商城
-│   ├── ai-chat/             # AI对话
-│   ├── personality-test/    # 性格测试
-│   ├── mood-diary/          # 心情日记
-│   ├── dream-diary/         # 梦境日记
-│   ├── virtual-companion/   # 虚拟陪伴
-│   ├── photo-manager/       # 照片管理
-│   ├── reminder-setup/      # 提醒设置
-│   ├── theme-settings/      # 主题设置
-│   ├── payment/             # 支付页面
-│   └── orders/              # 订单页面
-├── config/                   # 配置文件
-│   ├── config.js            # 生产环境配置
-│   └── config-local.js      # 本地开发配置
-├── utils/                    # 工具函数
-│   ├── api.js               # API请求封装
-│   ├── wechat.js            # 微信API封装
-│   ├── util.js              # 通用工具函数
-│   └── network.js           # 网络请求工具
-├── app.js                    # 小程序入口
-├── app.json                  # 全局配置
-├── app.wxss                  # 全局样式
-├── project.config.json       # 项目配置
-└── sitemap.json             # 索引配置
+├── app.js                 # 小程序入口文件
+├── app.json              # 小程序全局配置
+├── app.wxss              # 小程序全局样式
+├── sitemap.json          # 站点地图配置
+├── project.config.json   # 项目配置文件
+├── pages/                # 页面目录
+│   ├── index/            # 首页
+│   ├── login/            # 登录页
+│   ├── register/         # 注册页
+│   ├── memorials/        # 纪念馆列表
+│   ├── memorial-edit/    # 纪念馆编辑
+│   ├── memorial-detail/  # 纪念馆详情
+│   ├── photo-manager/    # 照片管理
+│   ├── payment/          # 支付页面
+│   ├── orders/           # 订单管理
+│   ├── user-center/      # 个人中心
+│   └── personality-test/ # 性格测试
+├── utils/                # 工具类
+│   ├── api.js           # API请求封装
+│   └── util.js          # 通用工具函数
+└── images/              # 图片资源
+    ├── home.png         # 首页图标
+    ├── memorial.png     # 纪念馆图标
+    ├── photo.png        # 照片图标
+    └── user.png         # 用户图标
 ```
 
----
+## 🛠️ 开发环境
 
-## 🎨 主要页面
+### 前置要求
+- 微信开发者工具
+- Node.js 14+
+- 微信小程序账号
 
-### 登录流程
-1. **login** - 微信一键登录（获取openid）
-2. 自动跳转到用户中心
+### 安装步骤
 
-### 核心功能页面
-- **index** - 首页（纪念馆展示）
-- **memorials** - 我的纪念馆列表
-- **memorial-detail** - 纪念馆详情页
-- **memorial-edit** - 创建/编辑纪念馆
-- **star-sky** - 3D星空展示
+1. **克隆项目**
+   ```bash
+   git clone <repository-url>
+   cd miniprogram
+   ```
 
-### 互动功能
-- **ai-chat** - AI对话陪伴
-- **personality-test** - 宠物性格测试
-- **mood-diary** - 心情日记本
-- **dream-diary** - 梦境记录
-- **virtual-companion** - 虚拟陪伴互动
+2. **配置项目**
+   - 打开微信开发者工具
+   - 导入项目目录
+   - 修改 `config/config.js` 中的 `baseUrl` 为你的后端API地址
+   - AppID已配置为：`wx9572f66945407446`
 
-### 星币系统
-- **coins-center** - 星币中心（签到、任务）
-- **coins-shop** - 星币商城（兑换会员）
-- **user-center** - 用户中心（余额显示）
+3. **配置后端API**
+   - 确保后端服务正常运行
+   - 配置CORS允许小程序域名访问
+   - 确保API接口与小程序请求格式匹配
 
----
+## 📱 页面说明
 
-## 🔌 API调用
+### 首页 (pages/index)
+- 应用介绍和功能入口
+- 用户登录状态显示
+- 快速访问主要功能
 
-### 使用示例
+### 登录页 (pages/login)
+- 邮箱密码登录
+- 表单验证
+- 跳转注册和忘记密码
 
-```javascript
-// 在页面中导入app实例
-const app = getApp();
+### 纪念馆列表 (pages/memorials)
+- 显示用户所有纪念馆
+- 支持编辑、删除、分享操作
+- 照片预览和统计信息
 
-// 调用API
-async function getData() {
-  try {
-    const res = await app.request('/api/memorials', 'GET');
-    console.log('获取成功:', res);
-  } catch (error) {
-    console.error('请求失败:', error);
-  }
+### 纪念馆编辑 (pages/memorial-edit)
+- 编辑宠物基本信息
+- 上传和管理照片
+- 保存和预览功能
+
+### 照片管理 (pages/photo-manager)
+- 查看所有照片
+- 按纪念馆分类
+- 批量上传和删除
+
+### 支付页面 (pages/payment)
+- 选择升级套餐
+- 微信支付集成
+- 订单状态管理
+
+## 🔧 配置说明
+
+### 全局配置 (app.json)
+```json
+{
+  "pages": [...],           // 页面路径
+  "window": {...},          // 窗口配置
+  "tabBar": {...},          // 底部导航
+  "networkTimeout": {...}   // 网络超时配置
 }
 ```
 
-### API方法
-
-`app.request(url, method, data, options)`
-
-- `url`: API路径（自动拼接baseUrl）
-- `method`: 请求方法（GET/POST/PUT/DELETE）
-- `data`: 请求数据
-- `options`: 额外配置（如 `noAuth: true` 跳过认证）
-
----
-
-## 🎯 功能特性
-
-### ✅ 微信登录
-- 使用 `wx.login()` 获取code
-- 后端换取openid和session_key
-- 自动管理session_token
-
-### ✅ 星币系统
-- 每日签到奖励（连续签到加倍）
-- 任务完成奖励
-- 星币兑换会员
-
-### ✅ AI对话
-- 接入DeepSeek AI
-- 支持多轮对话
-- 情感化回复
-
-### ✅ 3D星空
-- Three.js渲染
-- 交互式点击
-- 粒子动画效果
-
-### ✅ 照片管理
-- 多图上传
-- 照片轮播
-- 删除编辑
-
----
-
-## 🔧 常见问题
-
-### 1. 登录失败？
-
-**检查项**：
-- AppID和AppSecret是否正确配置
-- 后端服务是否正常运行
-- 网络请求域名是否配置白名单
-
-**解决方案**：
-在微信公众平台 → 开发 → 开发管理 → 服务器域名，添加：
-```
-request合法域名: http://pettrailstar.cn
-```
-
-### 2. API请求失败？
-
-**检查项**：
-- 检查 `config/config.js` 中的 `baseUrl` 是否正确
-- 查看控制台网络请求日志
-- 确认后端服务是否正常
-
-**调试方法**：
+### API配置 (app.js)
 ```javascript
-// 在页面的onLoad中添加
-console.log('当前配置:', getApp().globalData.config);
-console.log('baseUrl:', getApp().globalData.config.baseUrl);
+globalData: {
+  baseUrl: 'https://yourdomain.com',  // 后端API地址
+  sessionToken: null,                 // 用户会话令牌
+  userInfo: null,                     // 用户信息
+  userLevel: 0,                       // 用户等级
+  permissions: {}                     // 用户权限
+}
 ```
 
-### 3. 图片上传失败？
+## 🎨 样式规范
 
-**检查项**：
-- 检查 `uploadFile` 域名白名单
-- 确认图片大小（建议<2MB）
-- 检查后端存储路径权限
+### 设计原则
+- **毛玻璃效果**: 使用 `backdrop-filter: blur()`
+- **渐变背景**: 主要使用蓝紫色渐变
+- **圆角设计**: 统一使用 20rpx 圆角
+- **阴影效果**: 使用柔和的阴影增加层次感
 
-### 4. 本地开发配置
-
-使用本地后端开发时：
-
-1. 修改 `app.js` 中的配置引入：
-```javascript
-const config = require('./config/config-local.js');
-```
-
-2. 微信开发者工具：设置 → 项目设置 → 勾选"不校验合法域名"
-
----
-
-## 📱 小程序配置
-
-### 必需配置项
-
-在微信公众平台配置：
-
-**1. 服务器域名**
-```
-request: http://pettrailstar.cn
-uploadFile: http://pettrailstar.cn
-downloadFile: http://pettrailstar.cn
-```
-
-**2. 业务域名**
-```
-http://pettrailstar.cn
-```
-
-**3. 用户隐私保护**
-- 添加隐私政策链接
-- 说明数据使用方式
-
----
-
-## 🚢 发布流程
-
-### 1. 准备发布
-
-```bash
-# 确保使用生产环境配置
-# 修改 app.js 引入
-const config = require('./config/config.js');
-
-# 检查版本号
-# 修改 app.js 中的 version
-```
-
-### 2. 上传代码
-
-1. 微信开发者工具 → 上传
-2. 填写版本号和备注
-3. 提交审核
-
-### 3. 审核发布
-
-1. 登录微信公众平台
-2. 版本管理 → 开发版本 → 提交审核
-3. 审核通过后 → 发布
-
----
-
-## 📊 性能优化
-
-### 已实现的优化
-
-- ✅ 图片懒加载
-- ✅ 分页加载数据
-- ✅ 请求去重和缓存
-- ✅ 防抖节流处理
-- ✅ 骨架屏占位
-
-### 建议优化
-
-- [ ] 使用CDN加速静态资源
-- [ ] 启用分包加载
-- [ ] 图片压缩和webp格式
-- [ ] 使用小程序云开发
-
----
-
-## 🎨 UI规范
-
-### 颜色主题
-
+### 颜色规范
 ```css
 /* 主色调 */
---primary-color: #8B7355;      /* 温暖棕色 */
---secondary-color: #D4A574;    /* 浅金色 */
---accent-color: #FFD700;       /* 星币金色 */
+--primary-color: #667eea;
+--secondary-color: #764ba2;
 
-/* 功能色 */
---success-color: #52c41a;      /* 成功绿 */
---warning-color: #faad14;      /* 警告黄 */
---error-color: #f5222d;        /* 错误红 */
---info-color: #1890ff;         /* 信息蓝 */
+/* 文字颜色 */
+--text-primary: #2c3e50;
+--text-secondary: #7f8c8d;
 
-/* 中性色 */
---text-primary: #333333;       /* 主文字 */
---text-secondary: #666666;     /* 次要文字 */
---text-disabled: #999999;      /* 禁用文字 */
---border-color: #e8e8e8;       /* 边框色 */
---bg-color: #f5f5f5;           /* 背景色 */
+/* 背景颜色 */
+--bg-primary: #f8f9fa;
+--bg-white: #ffffff;
 ```
 
-### 字体规范
+## 📦 部署说明
 
-```css
-/* 标题 */
-font-size: 32rpx; font-weight: bold;
+### 开发环境
+1. 在微信开发者工具中打开项目
+2. 点击"编译"按钮
+3. 在模拟器中预览效果
 
-/* 正文 */
-font-size: 28rpx; line-height: 1.6;
+### 生产环境
+1. 点击"上传"按钮
+2. 填写版本号和项目备注
+3. 在微信公众平台提交审核
+4. 审核通过后发布上线
 
-/* 辅助文字 */
-font-size: 24rpx; color: #999;
+## 🔍 调试指南
 
-/* 小字 */
-font-size: 20rpx;
-```
+### 常见问题
+1. **网络请求失败**: 检查 `baseUrl` 配置和网络连接
+2. **登录状态丢失**: 检查 `sessionToken` 存储和传递
+3. **图片上传失败**: 检查文件大小和格式限制
+4. **支付功能异常**: 检查微信支付配置和证书
+
+### 调试工具
+- 微信开发者工具控制台
+- 网络面板查看API请求
+- 存储面板查看本地数据
+- 性能面板分析性能问题
+
+## 📄 许可证
+
+本项目采用 MIT 许可证，详情请查看 LICENSE 文件。
+
+## 🤝 贡献指南
+
+欢迎提交 Issue 和 Pull Request 来改进项目。
+
+## 📞 联系方式
+
+如有问题，请联系开发团队。
 
 ---
 
-## 📝 更新日志
-
-### v1.0.0 (2025-11-08)
-- ✅ 微信一键登录
-- ✅ 星币系统（签到、任务）
-- ✅ AI对话功能
-- ✅ 3D星空纪念
-- ✅ 纪念馆CRUD
-- ✅ 用户中心优化
-
----
-
-## 💬 联系方式
-
-如有问题或建议，请联系：
-
-- 📧 Email: support@pettrailstar.cn
-- 💬 微信: 扫描小程序码
-
----
-
-**让爱永恒，让回忆温暖** ❤️
+⭐ 每一颗星星，都留下了爱的爪迹 ⭐

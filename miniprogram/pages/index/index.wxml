@@ -28,6 +28,9 @@
     </view>
     <view class="top-right" wx:if="{{userInfo}}">
       <text class="user-name">{{userInfo.email}}</text>
+      <view class="feedback-float-btn" bindtap="goToFeedback">
+        <text class="feedback-emoji">✉️</text>
+      </view>
     </view>
   </view>
 

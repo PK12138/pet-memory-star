@@ -52,25 +52,25 @@
   <!-- 星币卡片 -->
   <view class="coins-card" bindtap="goToCoinsCenter">
     <view class="coins-header">
-      <view class="coins-left">
-        <text class="coins-icon">💫</text>
-        <view class="coins-info">
-          <text class="coins-label">我的星币</text>
-          <text class="coins-balance">{{coinsBalance || 0}}</text>
-        </view>
+      <view class="coins-main-icon-bg pulse"></view>
+      <text class="coins-icon glow">💫</text>
+      <view class="coins-info">
+        <text class="coins-label">我的星币</text>
+        <text class="coins-balance fancy">{{coinsBalance || 0}}</text>
       </view>
-      <view class="coins-arrow">›</view>
     </view>
     <view class="coins-actions">
-      <view class="coins-btn earn" catchtap="goToCoinsCenter">
+      <view class="coins-btn earn neon" catchtap="goToCoinsCenter">
         <text class="btn-icon">+</text>
-        <text class="btn-text">赚取星币</text>
+        <text class="btn-text">赚星币（看广告可得）</text>
       </view>
-      <view class="coins-btn shop" catchtap="goToCoinsShop">
+      <view class="coins-btn shop neon disabled-btn" hover-class="none">
         <text class="btn-icon">🛒</text>
-        <text class="btn-text">星币商城</text>
+        <text class="btn-text">星币商城（敬请期待）</text>
       </view>
     </view>
+    <!-- 预埋广告位置 -->
+    <view class="ad-placeholder">广告位（上线后自动展示激励广告）</view>
   </view>
   
   <!-- 快捷功能 -->
@@ -158,18 +158,18 @@
   </view>
   
   <!-- 升级区域 -->
-  <view wx:if="{{userLevel === 0}}" class="upgrade-section">
+  <view wx:if="{{userLevel === 0}}" class="upgrade-section disabled-section">
     <view class="upgrade-icon">💎</view>
-    <text class="upgrade-title">升级到高级会员</text>
-    <text class="upgrade-desc">解锁更多功能，享受更好的体验</text>
+    <text class="upgrade-title">升级到高级会员（敬请期待）</text>
+    <text class="upgrade-desc">支付功能即将上线，会员功能敬请期待～</text>
     <view class="upgrade-features">
       <text class="feature-item">✓ 无限纪念馆</text>
       <text class="feature-item">✓ 无限AI对话</text>
       <text class="feature-item">✓ 高清照片</text>
     </view>
-    <button class="upgrade-btn" bindtap="goToPayment">
+    <button class="upgrade-btn disabled-btn" hover-class="none" disabled>
       <text class="btn-icon">👑</text>
-      <text>立即升级</text>
+      <text>立即升级（敬请期待）</text>
     </button>
   </view>
   

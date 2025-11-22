@@ -141,9 +141,8 @@ Page({
             }
           })
           
-          // 计算我的星星数量
-          const myStarCount = this.data.userInfo ? 
-            stars.filter(s => s.is_mine).length : 0
+          // 计算星星数量（全部星星，不再过滤 is_mine）
+          const myStarCount = stars.length
           
         this.setData({
             stars,
@@ -581,6 +580,12 @@ Page({
     // 已登录，跳转到个人中心
     wx.navigateTo({
       url: '/pages/user-center/user-center'
+    })
+  },
+
+  goToFeedback() {
+    wx.navigateTo({
+      url: '/pages/feedback/feedback'
     })
   },
 

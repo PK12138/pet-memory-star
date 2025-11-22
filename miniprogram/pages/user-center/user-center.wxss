@@ -523,6 +523,154 @@
   transform: scale(0.98);
 }
 
+/* 星币卡 */
+.coins-card {
+  background: linear-gradient(135deg, rgba(255, 227, 149, 0.13), rgba(255, 182, 53, 0.09));
+  border-radius: 32rpx;
+  margin: 35rpx 25rpx 24rpx 25rpx;
+  box-shadow: 0 10rpx 40rpx #ffd66028, 0 2rpx 18rpx #ffeb9e2e;
+  padding: 40rpx 34rpx 32rpx 34rpx;
+  position: relative;
+  overflow: visible;
+  border: 2rpx solid rgba(255, 169, 77, 0.23);
+  transition: box-shadow 0.2s;
+  backdrop-filter: blur(18rpx);
+  -webkit-backdrop-filter: blur(18rpx);
+}
+.coins-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 15rpx;
+  position: relative;
+}
+.coins-left {
+  display: flex;
+  align-items: center;
+  position: relative;
+  gap: 16rpx;
+}
+.coins-main-icon-bg {
+  position: absolute;
+  width: 82rpx;
+  height: 82rpx;
+  left: -17rpx;
+  top: -17rpx;
+  border-radius: 50%;
+  background: radial-gradient(circle, #fffbe5 55%, transparent 100%);
+  z-index: 0;
+  filter: blur(2rpx);
+  animation: halo-pulse 2.6s infinite alternate;
+  opacity: 0.7;
+}
+.coins-icon {
+  font-size: 50rpx;
+  position: relative;
+  z-index: 2;
+  text-shadow: 0 0 14rpx #ffecc1, 0 4rpx 16rpx #ffe099b2;
+  margin-right: 10rpx;
+  animation: bounce 2.5s ease-in-out infinite;
+}
+.coins-icon.glow { filter: drop-shadow(0 0 12rpx #ffe099bb); }
+@keyframes halo-pulse {
+  0%,100% { transform: scale(1); opacity: 0.6; }
+  60% { transform: scale(1.21); opacity: 1; }
+}
+@keyframes bounce {
+  0%,100% { transform: translateY(0); }
+  45% { transform: translateY(-7rpx) scale(1.13); }
+  60% { transform: translateY(2rpx) scale(1.02); }
+}
+.coins-info {
+  margin-left: 16rpx;
+  display: flex;
+  flex-direction: column;
+}
+.coins-label {
+  font-size: 26rpx;
+  color: #ffc74d;
+  font-weight: 600;
+  text-shadow: 0 2rpx 8rpx #ffbe80b0;
+  margin-bottom: 4rpx;
+}
+.coins-balance {
+  font-size: 40rpx;
+  font-weight: 800;
+  color: #ffd031;
+  letter-spacing: 2rpx;
+  text-shadow: 0 0 9rpx #ffeead, 0 2rpx 8rpx #ffd36699, 0 -2rpx 7rpx #fff9c233;
+  border-radius: 14rpx;
+  padding: 3rpx 16rpx 3rpx 16rpx;
+  background: linear-gradient(90deg,#ffeabf70 60%,#fff9e7a8 100%);
+  box-shadow: 0 0 22rpx #fff7c4a9, 0 2rpx 14rpx #ffd05344 inset;
+  display:inline-block;
+  border: 1rpx dashed #ffd17a74;
+  margin-bottom: 1rpx;
+  transition: color 0.24s, box-shadow 0.21s;
+}
+.coins-balance.fancy {
+  animation: goldGlow 2.3s linear infinite alternate;
+}
+@keyframes goldGlow {
+  from { color:#ffd031; box-shadow: 0 0 22rpx #ffda8a99, 0 2rpx 14rpx #fff3a6 inset; }
+  to { color:#ffe179; box-shadow: 0 0 32rpx #ffe69bfa, 0 2rpx 14rpx #fff7c377 inset; }
+}
+.coins-arrow {
+  font-size: 38rpx;
+  margin-left: 12rpx;
+  color: #ffdc89c7;
+  text-shadow: 0 2rpx 8rpx #ffd97c77;
+  padding-top: 8rpx;
+  font-weight: 600;
+}
+.coins-actions {
+  display: flex;
+  justify-content: space-around;
+  margin-top: 15rpx;
+  gap: 30rpx;
+}
+.coins-btn {
+  display: flex;
+  align-items: center;
+  gap: 11rpx;
+  padding: 18rpx 32rpx;
+  border-radius: 22rpx;
+  font-size: 26rpx;
+  font-weight: 700;
+  color: #fff6e4;
+  background: linear-gradient(114deg,#ffd286 40%,#ffb62c 120%);
+  box-shadow: 0 2rpx 16rpx #ffce72a1;
+  border: 1.2rpx solid #ffe7c2;
+  transition: background 0.23s, transform 0.11s;
+  cursor: pointer;
+  position: relative;
+  z-index: 1;
+}
+.coins-btn.neon {
+  animation: coinsGlow 1.8s infinite alternate;
+}
+@keyframes coinsGlow {
+  from {
+    box-shadow: 0 0 15rpx #ffeabf88, 0 2rpx 7rpx #ffd14866 inset;
+  }
+  to {
+    box-shadow: 0 0 32rpx #ffe066d0, 0 2rpx 12rpx #fffbe945 inset;
+  }
+}
+.coins-btn:active {
+  background: linear-gradient(90deg,#ffe8af 40%,#ffc33f 120%);
+  color:#be8106;
+  transform: scale(0.96);
+}
+.btn-icon {
+  font-size: 30rpx;
+}
+.btn-text {
+  font-size: 26rpx;
+  font-weight: 700;
+  letter-spacing: 1rpx;
+}
+
 /* 响应式设计 */
 @media (max-width: 750rpx) {
   .stats-section {
@@ -532,4 +680,33 @@
   .action-grid {
     grid-template-columns: repeat(2, 1fr);
   }
+}
+
+.coins-btn.disabled-btn,
+.upgrade-btn.disabled-btn {
+  background: linear-gradient(90deg, #f9e7d8 10%, #dadada 100%);
+  color: #baa;
+  border-color: #e2d6cf;
+  box-shadow: none;
+  opacity: 0.7;
+  pointer-events: none;
+}
+.disabled-section {
+  opacity:0.7;
+  filter: grayscale(0.25);
+}
+.ad-placeholder {
+  width: 100%;
+  text-align: center;
+  margin: 22rpx 0 0 0;
+  padding: 22rpx 0 22rpx 0;
+  border-radius: 22rpx;
+  border: 2rpx dashed #ffe6aa77;
+  color: #ceb165;
+  background: rgba(255,243,211,0.11);
+  font-size: 28rpx;
+  letter-spacing:1.2rpx;
+  font-weight:600;
+  box-shadow: 0 2rpx 12rpx #eee8c72a;
+  opacity: 0.93;
 }

@@ -583,3 +583,32 @@
   color: #ffffff;
 }
 
+.btn-shine {
+  background: linear-gradient(135deg, #ffe277 0%, #ffd966 60%, #ffb200 100%);
+  color: #825c00;
+  box-shadow: 0 4rpx 18rpx #ffe58f6e, 0 2rpx 10rpx #fffcc477;
+  animation: glowShine 2.3s infinite alternate;
+}
+.btn-flower {
+  background: linear-gradient(135deg, #ffc1dc 10%, #fa7bb8 85%, #ff60bb 100%);
+  color: #be1976;
+  box-shadow: 0 4rpx 18rpx #ffaadd92;
+  animation: glowFlower 2.8s infinite alternate;
+}
+.btn-shine:active, .btn-flower:active {
+  transform: scale(0.95);
+  filter: brightness(0.93);
+}
+@keyframes glowShine {
+  from { box-shadow: 0 0 8rpx #ffe793aa, 0 2rpx 7rpx #fff7b033; }
+  to { box-shadow: 0 0 27rpx #fdc600d0, 0 2rpx 9rpx #fff9e187; }
+}
+@keyframes glowFlower {
+  from { box-shadow: 0 0 8rpx #ffd0e9a3, 0 2rpx 7rpx #ffbee1cc; }
+  to { box-shadow: 0 0 18rpx #ff98cfaa, 0 2rpx 13rpx #ffc7dfbb; }
+}
+.btn-text {
+  font-size: 20rpx;
+  margin-left: 3rpx;
+}
+

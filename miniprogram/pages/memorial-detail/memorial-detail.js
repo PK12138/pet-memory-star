@@ -6,6 +6,7 @@ Page({
     memorialId: null,
     memorialInfo: {},
     messages: [],
+    isSelf: false,  // 新增：是否自己的纪念馆
     newMessage: {
       name: '',
       content: ''
@@ -65,8 +66,15 @@ Page({
           })
         }
         
+        // 判断是否属于本人
+        let isSelf = false;
+        const user = app.globalData.userInfo;
+        if (user && memorial.user_id && (user.id === memorial.user_id || user.user_id === memorial.user_id)) {
+          isSelf = true;
+        }
         this.setData({
-          memorialInfo: memorial
+          memorialInfo: memorial,
+          isSelf: isSelf
         })
       } else {
         wx.showToast({
@@ -359,5 +367,14 @@ Page({
     } finally {
       this.setData({ submitting: false })
     }
+  },
+
+  // 擦亮星星
+  shineStar() {
+    wx.showToast({ title: '⭐ 星星被你擦亮啦，让更多人看到Ta吧～', icon: 'success' });
+  },
+  // 送花
+  giveFlower() {
+    wx.showToast({ title: '🌸 鲜花已送达～', icon: 'success' });
   }
 })

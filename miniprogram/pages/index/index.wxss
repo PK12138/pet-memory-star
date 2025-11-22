@@ -529,3 +529,29 @@ page {
     transform: rotate(360deg);
   }
 }
+
+.feedback-float-btn {
+  width: 60rpx;
+  height: 60rpx;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #ffe099 0%, #ffd466 60%, #ffab27 100%);
+  box-shadow: 0 0 16rpx 4rpx #ffd466, 0 6rpx 24rpx 0 rgba(255,170,50,0.23);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-left: 14rpx;
+  animation: glowPulse 2s infinite alternate;
+}
+.feedback-emoji {
+  font-size: 36rpx;
+  filter: drop-shadow(0 0 16rpx #fff9cc) drop-shadow(0 2rpx 10rpx #fffbc4);
+  animation: envelopePulse .8s infinite alternate, envelopeFloat 2.8s ease-in-out infinite;
+}
+@keyframes envelopePulse {
+  from { transform: scale(0.97); }
+  to { transform: scale(1.13); }
+}
+@keyframes envelopeFloat {
+  0%, 100% { transform: translateY(0); }
+  60% { transform: translateY(-8rpx); }
+}

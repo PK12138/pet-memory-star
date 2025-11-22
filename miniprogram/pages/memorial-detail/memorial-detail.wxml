@@ -9,12 +9,21 @@
     </view>
     
     <view class="header-actions">
-      <button class="action-btn btn-chat" bindtap="goToAIChat">
-        <text class="btn-icon">💬</text>
-      </button>
-      <button class="action-btn btn-edit" bindtap="editMemorial">
-        <text class="btn-icon">✏️</text>
-      </button>
+      <block wx:if="{{isSelf}}">
+        <button class="action-btn btn-chat" bindtap="goToAIChat">
+          <text class="btn-icon">💬</text>
+        </button>
+      </block>
+      <block wx:else>
+        <button class="action-btn btn-shine" bindtap="shineStar">
+          <text class="btn-icon">✨</text>
+          <text class="btn-text">擦亮星星</text>
+        </button>
+        <button class="action-btn btn-flower" bindtap="giveFlower">
+          <text class="btn-icon">🌸</text>
+          <text class="btn-text">送鲜花</text>
+        </button>
+      </block>
       <button class="action-btn btn-share" bindtap="shareMemorial">
         <text class="btn-icon">📤</text>
       </button>

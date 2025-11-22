@@ -20,7 +20,8 @@
     "pages/payment/payment",
     "pages/orders/orders",
     "pages/personality-test/personality-test",
-    "pages/network-test/network-test"
+    "pages/network-test/network-test",
+    "pages/feedback/feedback"
   ],
   "window": {
     "backgroundTextStyle": "light",

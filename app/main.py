@@ -15,6 +15,9 @@ import uvicorn
 import json
 from typing import Optional
 from datetime import datetime
+from app.database import Database
+
+database = Database()
 
 app = FastAPI(title="爪迹星·云纪念馆")
 

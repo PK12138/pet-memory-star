@@ -1,162 +1,75 @@
-#!/usr/bin/env python3
-"""
-支付功能测试工具
-用于测试微信支付和支付宝支付集成
-"""
+import pandas as pd
+import re
 import os
-import sys
-import json
-import requests
-from datetime import datetime
 
-# 添加app目录到Python路径
-sys.path.append(os.path.join(os.path.dirname(__file__), 'app'))
 
-from payment_service import PaymentService
-
-def test_wechat_pay():
-    """测试微信支付"""
-    print("🧪 测试微信支付...")
-    
-    payment_service = PaymentService()
-    
-    # 测试创建订单
-    order_id = f"test_wechat_{int(datetime.now().timestamp())}"
-    amount = 0.01  # 测试金额1分
-    description = "测试订单"
-    openid = "test_openid_123"
-    notify_url = "https://yourdomain.com/api/payment/wechat/notify"
-    
-    result = payment_service.create_payment_order(
-        payment_method='wechat',
-        order_id=order_id,
-        amount=amount,
-        description=description,
-        openid=openid,
-        notify_url=notify_url
-    )
-    
-    print(f"创建订单结果: {json.dumps(result, indent=2, ensure_ascii=False)}")
-    
-    if result['success']:
-        print("✅ 微信支付订单创建成功")
-    else:
-        print(f"❌ 微信支付订单创建失败: {result['message']}")
-
-def test_alipay():
-    """测试支付宝支付"""
-    print("🧪 测试支付宝支付...")
-    
-    payment_service = PaymentService()
-    
-    # 测试创建订单
-    order_id = f"test_alipay_{int(datetime.now().timestamp())}"
-    amount = 0.01  # 测试金额1分
-    description = "测试订单"
-    
-    result = payment_service.create_payment_order(
-        payment_method='alipay',
-        order_id=order_id,
-        amount=amount,
-        description=description,
-        subject=description
-    )
-    
-    print(f"创建订单结果: {json.dumps(result, indent=2, ensure_ascii=False)}")
-    
-    if result['success']:
-        print("✅ 支付宝订单创建成功")
-    else:
-        print(f"❌ 支付宝订单创建失败: {result['message']}")
-
-def test_payment_config():
-    """测试支付配置"""
-    print("🔧 检查支付配置...")
-    
-    # 检查环境变量
-    wechat_vars = [
-        'WECHAT_APP_ID',
-        'WECHAT_MCH_ID', 
-        'WECHAT_API_KEY',
-        'WECHAT_CERT_SERIAL_NO',
-        'WECHAT_PRIVATE_KEY_PATH',
-        'WECHAT_CERT_PATH'
-    ]
-    
-    alipay_vars = [
-        'ALIPAY_APP_ID',
-        'ALIPAY_PRIVATE_KEY_PATH',
-        'ALIPAY_PUBLIC_KEY_PATH'
-    ]
-    
-    print("微信支付配置:")
-    for var in wechat_vars:
-        value = os.getenv(var, '')
-        status = "✅" if value else "❌"
-        print(f"  {status} {var}: {'已设置' if value else '未设置'}")
-    
-    print("\n支付宝配置:")
-    for var in alipay_vars:
-        value = os.getenv(var, '')
-        status = "✅" if value else "❌"
-        print(f"  {status} {var}: {'已设置' if value else '未设置'}")
-    
-    # 检查证书文件
-    print("\n证书文件检查:")
-    cert_files = [
-        'certs/wechat_private_key.pem',
-        'certs/wechat_cert.pem',
-        'certs/alipay_private_key.pem',
-        'certs/alipay_public_key.pem'
-    ]
-    
-    for cert_file in cert_files:
-        exists = os.path.exists(cert_file)
-        status = "✅" if exists else "❌"
-        print(f"  {status} {cert_file}: {'存在' if exists else '不存在'}")
-
-def test_api_endpoints():
-    """测试API端点"""
-    print("🌐 测试API端点...")
-    
-    base_url = "http://localhost:8000"
-    endpoints = [
-        "/api/payment/plans",
-        "/payment",
-        "/orders"
-    ]
-    
-    for endpoint in endpoints:
-        try:
-            response = requests.get(f"{base_url}{endpoint}", timeout=5)
-            status = "✅" if response.status_code == 200 else "❌"
-            print(f"  {status} {endpoint}: {response.status_code}")
-        except requests.exceptions.RequestException as e:
-            print(f"  ❌ {endpoint}: 连接失败 - {e}")
-
-def main():
-    """主函数"""
-    print("🚀 支付功能测试工具")
-    print("=" * 50)
-    
-    # 检查配置
-    test_payment_config()
-    print()
-    
-    # 测试API端点
-    test_api_endpoints()
-    print()
-    
-    # 测试支付服务
+def extract_8digit_numbers(file_path):
+    """提取Excel文件中的八位数字"""
     try:
-        test_wechat_pay()
-        print()
-        test_alipay()
-    except Exception as e:
-        print(f"❌ 支付服务测试失败: {e}")
-    
-    print("\n" + "=" * 50)
-    print("测试完成！")
+        # 获取桌面路径
+        desktop = os.path.join(os.path.expanduser("~"), "Desktop")
+        excel_file = os.path.join(desktop, "林创.xlsx")
 
+        if not os.path.exists(excel_file):
+            print(f"错误: 文件 {excel_file} 不存在")
+            return
+
+        print(f"正在处理: {excel_file}")
+
+        # 读取Excel文件
+        xl_file = pd.ExcelFile(excel_file)
+        all_results = {}
+
+        for sheet_name in xl_file.sheet_names:
+            print(f"\n处理工作表: {sheet_name}")
+
+            # 读取sheet数据
+            df = pd.read_excel(excel_file, sheet_name=sheet_name, header=None, dtype=str)
+            sheet_results = []
+
+            # 遍历所有单元格
+            for row_idx, row in df.iterrows():
+                for col_idx, cell_value in enumerate(row):
+                    if pd.notna(cell_value):
+                        # 查找八位数字
+                        numbers = re.findall(r'\b\d{8}\b', str(cell_value))
+                        for number in numbers:
+                            # 转换为Excel坐标
+                            col_letter = chr(65 + col_idx)  # A=65, B=66, ...
+                            cell_address = f"{col_letter}{row_idx + 1}"
+                            sheet_results.append({
+                                'cell': cell_address,
+                                'number': number
+                            })
+
+            all_results[sheet_name] = sheet_results
+            print(f"找到 {len(sheet_results)} 个八位数字")
+
+        # 输出结果
+        print("\n" + "=" * 40)
+        print("提取结果:")
+        print("=" * 40)
+
+        for sheet_name, numbers in all_results.items():
+            print(f"\n{sheet_name}:")
+            for item in numbers:
+                print(f"  {item['cell']}: {item['number']}")
+
+        # 保存结果到桌面
+        output_file = os.path.join(desktop, "八位数字提取结果.txt")
+        with open(output_file, 'w', encoding='utf-8') as f:
+            for sheet_name, numbers in all_results.items():
+                f.write(f"{sheet_name}:\n")
+                for item in numbers:
+                    f.write(f"  {item['cell']}: {item['number']}\n")
+                f.write("\n")
+
+        print(f"\n结果已保存到: {output_file}")
+
+    except Exception as e:
+        print(f"处理过程中出错: {e}")
+
+
+# 运行程序
 if __name__ == "__main__":
-    main()
+    extract_8digit_numbers("1.xlsx")

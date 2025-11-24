@@ -41,12 +41,12 @@ cd pet-memory-star
 ### 2. 安装依赖
 ```bash
 # 安装Python依赖
-pip3 install -r requirements.txt
+pip3 install -r 111.txt
 
 # 或者使用虚拟环境
 python3 -m venv venv
 source venv/bin/activate
-pip install -r requirements.txt
+pip install -r 111.txt
 ```
 
 ### 3. 配置环境变量
@@ -205,7 +205,7 @@ sudo chmod -R 755 /var/www/pet-memory-star
 pip install --upgrade pip
 
 # 使用国内镜像
-pip install -r requirements.txt -i https://pypi.tuna.tsinghua.edu.cn/simple/
+pip install -r 111.txt -i https://pypi.tuna.tsinghua.edu.cn/simple/
 ```
 
 #### 4. 数据库连接失败

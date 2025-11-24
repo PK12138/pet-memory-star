@@ -3,6 +3,7 @@ import os
 import hashlib
 import secrets
 from datetime import datetime, timedelta
+import json
 
 class Database:
     def __init__(self, db_path=None):
@@ -2144,3 +2145,27 @@ class Database:
     
     def close(self):
         self.conn.close()
+
+    def get_user_by_openid(self, openid):
+        """
+        通过 openid 获取用户信息。
+        ⚠️ 如果 users 表没有 openid 字段，请先为 users 增加 openid TEXT 字段！
+        """
+        cursor = self.conn.cursor()
+        try:
+            cursor.execute('SELECT id, email, user_level, is_active, email_verified, openid FROM users WHERE openid = ?', (openid,))
+            user = cursor.fetchone()
+            if user:
+                return {
+                    'id': user[0],
+                    'email': user[1],
+                    'user_level': user[2],
+                    'is_active': user[3],
+                    'email_verified': user[4],
+                    'openid': user[5]
+                }
+            else:
+                return None
+        except Exception as e:
+            print(f"get_user_by_openid error: {e}")
+            return None

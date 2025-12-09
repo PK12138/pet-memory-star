@@ -72,9 +72,28 @@ Page({
         if (user && memorial.user_id && (user.id === memorial.user_id || user.user_id === memorial.user_id)) {
           isSelf = true;
         }
+        
+        // 确保pet_status字段存在（兼容旧数据）
+        if (!memorial.pet_status && memorial.pet_info) {
+          const petStatus = memorial.pet_info.status || 'alive'
+          memorial.pet_status = petStatus === '已逝世' ? 'passed' : (petStatus === '健在' ? 'alive' : petStatus)
+        }
+        
+        // 如果没有AI信件但有预览，确保显示
+        if (!memorial.ai_letter && memorial.ai_letter_preview && memorial.pet_status === 'passed') {
+          memorial.ai_letter_locked = true
+        }
+        
         this.setData({
           memorialInfo: memorial,
           isSelf: isSelf
+        })
+        
+        console.log('纪念馆详情加载完成:', {
+          has_ai_letter: !!memorial.ai_letter,
+          has_preview: !!memorial.ai_letter_preview,
+          pet_status: memorial.pet_status,
+          ai_letter_locked: memorial.ai_letter_locked
         })
       } else {
         wx.showToast({
@@ -190,9 +209,106 @@ Page({
 
   // 分享到朋友圈
   shareToMoments() {
-    wx.showToast({
-      title: '请使用右上角分享',
-      icon: 'none'
+    wx.showModal({
+      title: '分享到朋友圈',
+      content: '请使用右上角分享',
+      showCancel: false,
+      success: () => {
+        // 分享后调用奖励API
+        this.claimShareReward()
+      }
+    })
+  },
+  
+  // 领取朋友圈分享奖励
+  async claimShareReward() {
+    try {
+      const res = await app.request({
+        url: '/api/coins/share-moments',
+        method: 'POST'
+      })
+      
+      if (res.success) {
+        wx.showToast({
+          title: `获得${res.reward}星币！`,
+          icon: 'success'
+        })
+        // 更新星币余额
+        if (app.globalData.coinsInfo) {
+          app.globalData.coinsInfo.balance = res.new_balance
+        }
+      } else if (!res.already_completed) {
+        wx.showToast({
+          title: res.message || '领取失败',
+          icon: 'none'
+        })
+      }
+    } catch (error) {
+      console.error('领取分享奖励失败:', error)
+    }
+  },
+  
+  // 解锁AI信件
+  async unlockAiLetter() {
+    const { memorialId } = this.data
+    
+    wx.showModal({
+      title: '解锁AI信件',
+      content: '确定要花费160星币解锁完整信件吗？',
+      success: async (res) => {
+        if (res.confirm) {
+          wx.showLoading({ title: '解锁中...' })
+          
+          try {
+            const unlockRes = await app.request({
+              url: `/api/memorials/${memorialId}/unlock-letter`,
+              method: 'POST'
+            })
+            
+            wx.hideLoading()
+            
+            if (unlockRes.success) {
+              wx.showToast({
+                title: '解锁成功！',
+                icon: 'success'
+              })
+              
+              // 更新纪念馆信息
+              this.setData({
+                'memorialInfo.ai_letter': unlockRes.ai_letter,
+                'memorialInfo.ai_letter_locked': false,
+                'memorialInfo.ai_letter_preview': null
+              })
+              
+              // 更新星币余额
+              if (app.globalData.coinsInfo) {
+                app.globalData.coinsInfo.balance = unlockRes.new_balance
+              }
+            } else {
+              wx.showModal({
+                title: '解锁失败',
+                content: unlockRes.message || '星币不足，请完成任务或观看广告获取星币',
+                showCancel: false,
+                success: (modalRes) => {
+                  if (modalRes.confirm && unlockRes.balance !== undefined) {
+                    // 星币不足，引导去任务/广告页
+                    wx.navigateTo({
+                      url: '/pages/coins-shop/coins-shop'
+                    })
+                  }
+                }
+              })
+            }
+          } catch (error) {
+            wx.hideLoading()
+            console.error('解锁AI信件失败:', error)
+            wx.showToast({
+              title: '解锁失败，请重试',
+              icon: 'none'
+            })
+          }
+        }
+      }
     })
   },
 
@@ -223,6 +339,11 @@ Page({
 
   onShareTimeline() {
     const { memorialInfo } = this.data
+    // 分享后调用奖励API
+    setTimeout(() => {
+      this.claimShareReward()
+    }, 500)
+    
     return {
       title: `${memorialInfo.pet_name}的纪念馆 - 爪迹星`,
       query: `id=${this.data.memorialId}`,

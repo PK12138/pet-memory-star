@@ -13,12 +13,6 @@ Page({
       totalViews: 0,
       aiUsage: 0
     },
-    permissions: {
-      canCreateMemorial: false,
-      canUploadPhoto: false,
-      canUseAI: false,
-      canExportData: false
-    },
     coinsBalance: 0
   },
 
@@ -68,8 +62,7 @@ Page({
       // 并行加载所有数据
       await Promise.all([
         this.loadLevelInfo(),
-        this.loadStats(),
-        this.loadPermissions()
+        this.loadStats()
       ])
       
     } catch (error) {
@@ -120,27 +113,6 @@ Page({
     }
   },
 
-  // 加载权限信息
-  async loadPermissions() {
-    try {
-      const res = await app.request({
-        url: '/api/user/permissions'
-      })
-      
-      if (res.success) {
-        this.setData({
-          permissions: {
-            canCreateMemorial: res.permissions.can_create_memorial || false,
-            canUploadPhoto: res.permissions.can_upload_photo || false,
-            canUseAI: res.permissions.can_use_ai || false,
-            canExportData: res.permissions.can_export_data || false
-          }
-        })
-      }
-    } catch (error) {
-      console.error('加载权限信息失败:', error)
-    }
-  },
 
   // 跳转到纪念馆列表
   goToMemorials() {

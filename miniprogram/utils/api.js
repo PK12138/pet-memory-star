@@ -58,13 +58,14 @@ class ApiService {
             // 未授权，返回401错误
             reject({
               statusCode: 401,
-              message: '登录已过期'
+              message: res.data?.message || '登录已过期'
             })
           } else {
-            // 其他错误，返回错误信息但不影响登录状态
+            // 其他错误，返回后端的提示信息
             reject({
               statusCode: res.statusCode,
-              message: `请求失败: ${res.statusCode}`
+              message: res.data?.message || res.data?.detail || `请求失败: ${res.statusCode}`,
+              data: res.data
             })
           }
         },

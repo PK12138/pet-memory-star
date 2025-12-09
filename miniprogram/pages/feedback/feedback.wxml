@@ -1,0 +1,78 @@
+<!--pages/feedback/feedback.wxml-->
+<view class="feedback-container">
+  <!-- 星空背景装饰 -->
+  <view class="stars-bg">
+    <text class="star star-1">✨</text>
+    <text class="star star-2">⭐</text>
+    <text class="star star-3">✨</text>
+    <text class="star star-4">⭐</text>
+    <text class="star star-5">✨</text>
+  </view>
+
+  <!-- 标题区域 -->
+  <view class="feedback-header">
+    <view class="header-icon">💡</view>
+    <view class="feedback-title">意见与建议</view>
+    <view class="feedback-subtitle">每一颗星星，都因您的建议而更亮</view>
+  </view>
+
+  <!-- 表单卡片 -->
+  <view class="feedback-card">
+    <view class="form-item">
+      <view class="form-label">
+        <text class="label-icon">📮</text>
+        <text>联系方式</text>
+        <text class="label-optional">(选填)</text>
+      </view>
+      <input
+        class="form-input"
+        placeholder="电话、微信或邮箱，方便我们联系您"
+        maxlength="50"
+        value="{{contact}}"
+        bindinput="onContactInput"
+        placeholder-class="input-placeholder"
+      />
+    </view>
+
+    <view class="form-item">
+      <view class="form-label">
+        <text class="label-icon">💭</text>
+        <text>您的建议</text>
+        <text class="label-required">*</text>
+      </view>
+      <textarea
+        class="form-textarea"
+        placeholder="请告诉我们您的想法、建议或遇到的问题，我们会认真对待每一条反馈..."
+        maxlength="500"
+        auto-height
+        value="{{content}}"
+        bindinput="onContentInput"
+        placeholder-class="textarea-placeholder"
+      />
+      <view class="char-count">{{content.length}}/500</view>
+    </view>
+
+    <!-- 提交按钮 -->
+    <button class="submit-btn" bindtap="submitFeedback" disabled="{{submitting}}">
+      <text wx:if="{{!submitting}}">✨ 提交反馈</text>
+      <text wx:else>提交中...</text>
+    </button>
+  </view>
+
+  <!-- 成功提示 -->
+  <view class="success-modal {{success ? 'show' : ''}}" catchtap="hideSuccess">
+    <view class="success-content" catchtap="stopPropagation">
+      <view class="success-icon">🌟</view>
+      <view class="success-title">感谢您的反馈！</view>
+      <view class="success-text">您的建议是我们前进的动力，我们会认真对待每一条反馈</view>
+      <button class="success-btn" bindtap="hideSuccess">知道了</button>
+    </view>
+  </view>
+
+  <!-- 底部装饰 -->
+  <view class="footer-decoration">
+    <text class="paw-print">🐾</text>
+    <text class="footer-text">让爱永恒，让回忆温暖</text>
+    <text class="paw-print">🐾</text>
+  </view>
+</view>

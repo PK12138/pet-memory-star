@@ -124,7 +124,7 @@ Page({
 
   // 编辑纪念馆
   editMemorial(e) {
-    e.stopPropagation()
+    // wxml 中已使用 catchtap 阻止冒泡，无需在此调用 stopPropagation
     const id = e.currentTarget.dataset.id
     wx.navigateTo({
       url: `/pages/memorial-edit/memorial-edit?id=${id}`
@@ -133,7 +133,7 @@ Page({
 
   // 删除纪念馆
   deleteMemorial(e) {
-    e.stopPropagation()
+    // wxml 中已使用 catchtap 阻止冒泡，无需在此调用 stopPropagation
     const id = e.currentTarget.dataset.id
     const memorial = this.data.memorials.find(m => m.id === id)
     
@@ -170,11 +170,8 @@ Page({
           icon: 'success'
         })
         
-        // 从列表中移除
-        const memorials = this.data.memorials.filter(m => m.id !== id)
-        this.setData({
-          memorials
-        })
+        // 重新加载纪念馆列表，确保数据同步
+        await this.loadMemorials()
       } else {
         wx.showToast({
           title: res.message || '删除失败',

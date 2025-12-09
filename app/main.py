@@ -496,6 +496,17 @@ async def create_memorial_json(
         
         print(f"✅ 纪念馆创建成功: {memorial_url}")
         
+        # 判断是否需要解锁AI信件（宠物已故且未解锁）
+        pet_status = pet_info.get("status", "alive")
+        show_preview = (pet_status == "passed")  # 只有已故宠物才显示预览
+        
+        # 如果宠物已故，只返回预览内容
+        ai_letter_preview = ""
+        if show_preview and ai_letter:
+            from personality_service import PersonalityService
+            personality_service = PersonalityService()
+            ai_letter_preview = personality_service.get_letter_preview(ai_letter, preview_ratio=0.3)
+        
         # 返回成功结果
         return JSONResponse(
             content={
@@ -504,7 +515,10 @@ async def create_memorial_json(
                 "memorial_url": memorial_url,
                 "memorial_id": memorial_url.split("/")[-1] if memorial_url else "",
                 "personality_type": personality_type,
-                "ai_letter": ai_letter
+                "ai_letter": ai_letter if not show_preview else None,  # 已故宠物不直接返回完整信件
+                "ai_letter_preview": ai_letter_preview,  # 返回预览
+                "ai_letter_locked": show_preview,  # 标记是否需要解锁
+                "pet_status": pet_status
             }
         )
     
@@ -2026,12 +2040,38 @@ async def get_memorial_detail(memorial_id: str, session_token: str = Header(None
         # 添加照片信息
         memorial["photos"] = db.get_memorial_photos(memorial_id) or []
         
+        # 获取宠物信息
+        pet_info = db.get_pet_by_memorial_id(memorial_id)
+        
+        # 处理AI信件显示逻辑
+        ai_letter = memorial.get("ai_letter", "")
+        ai_letter_unlocked = memorial.get("ai_letter_unlocked", False)
+        pet_status = pet_info.get("status", "alive") if pet_info else "alive"
+        
+        # 如果宠物已故且未解锁，只返回预览
+        if pet_status == "passed" and not ai_letter_unlocked and ai_letter:
+            from personality_service import PersonalityService
+            personality_service = PersonalityService()
+            ai_letter_preview = personality_service.get_letter_preview(ai_letter, preview_ratio=0.3)
+            memorial["ai_letter"] = None  # 不返回完整信件
+            memorial["ai_letter_preview"] = ai_letter_preview  # 返回预览
+            memorial["ai_letter_locked"] = True  # 标记需要解锁
+            memorial["coins_required"] = 160  # 解锁所需星币
+            memorial["pet_status"] = pet_status
+        else:
+            # 已解锁或宠物健在，返回完整信件
+            memorial["ai_letter_preview"] = None
+            memorial["ai_letter_locked"] = False
+            memorial["pet_status"] = pet_status
+        
         return {
             "success": True,
             "memorial": memorial
         }
         
     except Exception as e:
+        import traceback
+        traceback.print_exc()
         return {"success": False, "message": f"获取纪念馆详情失败: {str(e)}"}
 
 @app.put("/api/memorial/update/{memorial_id}")
@@ -2085,8 +2125,8 @@ async def delete_memorial(memorial_id: str, session_token: str = Header(None, al
         if not memorial or memorial["user_id"] != user["id"]:
             return {"success": False, "message": "纪念馆不存在或无权限"}
         
-        # 删除纪念馆
-        success = db.delete_memorial(memorial_id)
+        # 删除纪念馆（传入 user_id 以确保同时删除 user_memorials 表的关联记录）
+        success = db.delete_memorial(memorial_id, user["id"])
         
         if success:
             return {"success": True, "message": "纪念馆删除成功"}
@@ -2307,7 +2347,7 @@ async def chat_with_pet(
     request: Request,
     session_token: str = Header(None, alias="x-session-token")
 ):
-    """与宠物AI对话"""
+    """与宠物AI对话（前3次免费，之后需要星币）"""
     try:
         # 验证用户登录
         user = auth_service.get_current_user(session_token)
@@ -2330,6 +2370,27 @@ async def chat_with_pet(
         if memorial.get("user_id") != user["id"]:
             return {"success": False, "message": "无权访问此纪念馆"}
         
+        # 检查今日对话次数
+        daily_count = db.get_ai_chat_daily_count(user["id"], memorial_id)
+        free_count = daily_count.get("free_count", 0)
+        paid_count = daily_count.get("paid_count", 0)
+        
+        # 判断是否需要付费
+        is_free = free_count < 3  # 前3次免费
+        
+        if not is_free:
+            # 检查是否有今日深聊卡（已付费）
+            if paid_count == 0:
+                # 需要购买今日深聊卡
+                return {
+                    "success": False,
+                    "message": "今日免费对话次数已用完",
+                    "need_pay": True,
+                    "free_count": free_count,
+                    "paid_count": paid_count,
+                    "coins_required": 20
+                }
+        
         # 获取对话历史
         chat_history = db.get_chat_history(memorial_id, user["id"], limit=20)
         
@@ -2342,15 +2403,78 @@ async def chat_with_pet(
         # 保存AI回复
         db.save_chat_message(memorial_id, user["id"], "assistant", ai_reply)
         
+        # 更新对话计数
+        db.increment_ai_chat_count(user["id"], memorial_id, is_free=is_free)
+        
+        # 更新计数
+        if is_free:
+            free_count += 1
+        else:
+            paid_count += 1
+        
         return {
             "success": True,
             "message": ai_reply,
-            "timestamp": datetime.now().isoformat()
+            "timestamp": datetime.now().isoformat(),
+            "free_count": free_count,
+            "paid_count": paid_count,
+            "remaining_free": max(0, 3 - free_count)
         }
         
     except Exception as e:
         print(f"AI对话失败: {e}")
+        import traceback
+        traceback.print_exc()
         return {"success": False, "message": f"对话失败: {str(e)}"}
+
+@app.post("/api/chat/{memorial_id}/buy-daily-pass")
+async def buy_chat_daily_pass(
+    memorial_id: str,
+    request: Request,
+    session_token: str = Header(None, alias="x-session-token")
+):
+    """购买今日AI对话深聊卡（20星币）"""
+    try:
+        user = auth_service.get_current_user(session_token)
+        if not user:
+            return {"success": False, "message": "用户未登录"}
+        
+        # 检查纪念馆
+        memorial = db.get_memorial_by_id(memorial_id)
+        if not memorial:
+            return {"success": False, "message": "纪念馆不存在"}
+        
+        if memorial.get("user_id") != user["id"]:
+            return {"success": False, "message": "无权访问此纪念馆"}
+        
+        # 检查今日是否已购买
+        daily_count = db.get_ai_chat_daily_count(user["id"], memorial_id)
+        if daily_count.get("paid_count", 0) > 0:
+            return {"success": False, "message": "今日深聊卡已购买"}
+        
+        # 扣除星币
+        success, result = coins_service.spend_coins(
+            user["id"],
+            20,
+            "ai_chat_daily_pass",
+            f"购买{memorial.get('pet_name', '宠物')}的今日深聊卡"
+        )
+        
+        if not success:
+            return {"success": False, "message": result}
+        
+        # 标记已购买（通过增加paid_count来标记）
+        db.increment_ai_chat_count(user["id"], memorial_id, is_free=False)
+        
+        return {
+            "success": True,
+            "message": "购买成功，今日可无限次对话",
+            "new_balance": result
+        }
+        
+    except Exception as e:
+        print(f"购买深聊卡失败: {e}")
+        return {"success": False, "message": f"购买失败: {str(e)}"}
 
 
 @app.get("/api/chat/{memorial_id}/history")
@@ -3213,6 +3337,263 @@ async def get_tasks_config(session_token: str = Header(None, alias="x-session-to
         "success": True,
         "tasks": tasks
     }
+
+# ==================== 反馈功能API ====================
+
+@app.post("/api/feedback")
+async def submit_feedback(
+    request: Request,
+    session_token: str = Header(None, alias="x-session-token")
+):
+    """提交用户反馈"""
+    try:
+        # 获取请求数据
+        data = await request.json()
+        contact = data.get("contact", "").strip()
+        content = data.get("content", "").strip()
+        
+        # 验证必填字段
+        if not content:
+            return JSONResponse(
+                content={"success": False, "message": "反馈内容不能为空"},
+                status_code=400
+            )
+        
+        # 获取用户ID（可选，未登录用户也可以反馈）
+        user_id = None
+        if session_token:
+            user = db.get_user_by_session(session_token)
+            if user:
+                user_id = user['id']
+        
+        # 保存反馈
+        feedback_id = db.save_feedback(
+            user_id=user_id,
+            contact=contact if contact else None,
+            content=content
+        )
+        
+        if not feedback_id:
+            return JSONResponse(
+                content={"success": False, "message": "提交失败，请稍后重试"},
+                status_code=500
+            )
+        
+        print(f"✅ 收到反馈: id={feedback_id}, user_id={user_id}, contact={contact[:20] if contact else 'None'}...")
+        
+        return JSONResponse(content={
+            "success": True,
+            "message": "反馈提交成功，感谢您的建议！",
+            "feedback_id": feedback_id
+        })
+        
+    except Exception as e:
+        print(f"❌ 提交反馈失败: {e}")
+        import traceback
+        traceback.print_exc()
+        return JSONResponse(
+            content={"success": False, "message": f"提交失败：{str(e)}"},
+            status_code=500
+        )
+
+@app.get("/api/feedback/my")
+async def get_my_feedbacks(
+    session_token: str = Header(None, alias="x-session-token")
+):
+    """获取我的反馈列表（需要登录）"""
+    try:
+        # 验证用户登录
+        if not session_token:
+            return JSONResponse(
+                content={"success": False, "message": "请先登录"},
+                status_code=401
+            )
+        
+        user = db.get_user_by_session(session_token)
+        if not user:
+            return JSONResponse(
+                content={"success": False, "message": "登录已过期，请重新登录"},
+                status_code=401
+            )
+        
+        # 获取用户的反馈列表
+        feedbacks = db.get_feedbacks(user_id=user['id'])
+        
+        return JSONResponse(content={
+            "success": True,
+            "feedbacks": feedbacks,
+            "total": len(feedbacks)
+        })
+        
+    except Exception as e:
+        print(f"❌ 获取反馈列表失败: {e}")
+        return JSONResponse(
+            content={"success": False, "message": f"获取失败：{str(e)}"},
+            status_code=500
+        )
+
+# ==================== AI信件解锁API ====================
+
+@app.post("/api/memorials/{memorial_id}/unlock-letter")
+async def unlock_ai_letter(
+    memorial_id: str,
+    session_token: str = Header(None, alias="x-session-token")
+):
+    """解锁AI信件（160星币）"""
+    try:
+        # 验证用户登录
+        user = auth_service.get_current_user(session_token)
+        if not user:
+            return JSONResponse(
+                content={"success": False, "message": "用户未登录"},
+                status_code=401
+            )
+        
+        # 获取纪念馆信息
+        memorial = db.get_memorial_by_id(memorial_id)
+        if not memorial:
+            return JSONResponse(
+                content={"success": False, "message": "纪念馆不存在"},
+                status_code=404
+            )
+        
+        # 检查权限
+        if memorial.get("user_id") != user["id"]:
+            return JSONResponse(
+                content={"success": False, "message": "无权访问此纪念馆"},
+                status_code=403
+            )
+        
+        # 检查是否已解锁
+        if memorial.get("ai_letter_unlocked", False):
+            return JSONResponse(content={
+                "success": True,
+                "message": "信件已解锁",
+                "already_unlocked": True
+            })
+        
+        # 获取宠物信息，检查是否已故
+        pet_info = db.get_pet_by_memorial_id(memorial_id)
+        if not pet_info or pet_info.get("status") != "passed":
+            return JSONResponse(
+                content={"success": False, "message": "只有已故宠物的信件需要解锁"},
+                status_code=400
+            )
+        
+        # 检查星币余额
+        coins_info = coins_service.get_user_coins(user["id"])
+        if coins_info["balance"] < 160:
+            return JSONResponse(content={
+                "success": False,
+                "message": f"星币不足，需要160星币，当前余额：{coins_info['balance']}",
+                "balance": coins_info["balance"],
+                "required": 160
+            })
+        
+        # 扣除星币
+        success, result = coins_service.spend_coins(
+            user["id"],
+            160,
+            "unlock_ai_letter",
+            f"解锁{memorial.get('pet_name', '宠物')}的AI信件",
+            {"memorial_id": memorial_id}
+        )
+        
+        if not success:
+            return JSONResponse(
+                content={"success": False, "message": result},
+                status_code=400
+            )
+        
+        # 解锁信件
+        db.unlock_ai_letter(memorial_id)
+        
+        # 获取完整信件
+        ai_letter = memorial.get("ai_letter", "")
+        
+        print(f"✅ 用户{user['id']}解锁了纪念馆{memorial_id}的AI信件，消耗160星币")
+        
+        return JSONResponse(content={
+            "success": True,
+            "message": "解锁成功",
+            "ai_letter": ai_letter,
+            "new_balance": result
+        })
+        
+    except Exception as e:
+        print(f"❌ 解锁AI信件失败: {e}")
+        import traceback
+        traceback.print_exc()
+        return JSONResponse(
+            content={"success": False, "message": f"解锁失败：{str(e)}"},
+            status_code=500
+        )
+
+# ==================== 朋友圈分享奖励API ====================
+
+@app.post("/api/coins/share-moments")
+async def share_to_moments(
+    request: Request,
+    session_token: str = Header(None, alias="x-session-token")
+):
+    """朋友圈分享奖励（10星币，每日限1次）"""
+    try:
+        user = auth_service.get_current_user(session_token)
+        if not user:
+            return JSONResponse(
+                content={"success": False, "message": "用户未登录"},
+                status_code=401
+            )
+        
+        # 检查今日是否已分享
+        from datetime import date
+        today = date.today().isoformat()
+        
+        # 检查今日是否已完成分享任务
+        cursor = db.conn.cursor()
+        cursor.execute('''
+        SELECT completion_count FROM task_completions
+        WHERE user_id = ? AND task_type = ? AND completion_date = ?
+        ''', (user["id"], "share_moments", today))
+        
+        result = cursor.fetchone()
+        if result and result[0] > 0:
+            return JSONResponse(content={
+                "success": False,
+                "message": "今日已分享过朋友圈，明天再来吧",
+                "already_completed": True
+            })
+        
+        # 完成任务并奖励星币
+        success, message, count = coins_service.complete_task(
+            user["id"],
+            "share_moments",
+            reward_coins=10,
+            max_daily_count=1
+        )
+        
+        if success:
+            coins_info = coins_service.get_user_coins(user["id"])
+            return JSONResponse(content={
+                "success": True,
+                "message": "分享成功，获得10星币！",
+                "reward": 10,
+                "new_balance": coins_info["balance"]
+            })
+        else:
+            return JSONResponse(
+                content={"success": False, "message": message},
+                status_code=400
+            )
+        
+    except Exception as e:
+        print(f"❌ 分享奖励失败: {e}")
+        import traceback
+        traceback.print_exc()
+        return JSONResponse(
+            content={"success": False, "message": f"处理失败：{str(e)}"},
+            status_code=500
+        )
 
 
 if __name__ == "__main__":

@@ -101,9 +101,12 @@ class Database:
         cursor.execute('''
         CREATE TABLE IF NOT EXISTS users (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
-            email TEXT UNIQUE NOT NULL,
-            password_hash TEXT NOT NULL,
-            salt TEXT NOT NULL,
+            email TEXT UNIQUE,
+            password_hash TEXT,
+            salt TEXT,
+            openid TEXT UNIQUE,
+            nickname TEXT,
+            phone TEXT,
             user_level INTEGER DEFAULT 0,
             is_active BOOLEAN DEFAULT 1,
             email_verified BOOLEAN DEFAULT 0,
@@ -286,6 +289,7 @@ class Database:
             pet_id TEXT NOT NULL,
             memorial_url TEXT NOT NULL,
             ai_letter TEXT,
+            ai_letter_unlocked BOOLEAN DEFAULT 0,
             theme_template TEXT DEFAULT 'default',
             is_public BOOLEAN DEFAULT 1,
             user_id INTEGER,
@@ -305,6 +309,31 @@ class Database:
             FOREIGN KEY (user_id) REFERENCES users(id)
         )
         ''')
+        
+        # 检查并添加 ai_letter_unlocked 字段（兼容旧数据库）
+        try:
+            cursor.execute('ALTER TABLE memorials ADD COLUMN ai_letter_unlocked BOOLEAN DEFAULT 0')
+            print("✅ 已添加 ai_letter_unlocked 字段到 memorials 表")
+        except sqlite3.OperationalError:
+            pass
+        
+        # AI对话每日计数表（用于免费次数统计）
+        cursor.execute('''
+        CREATE TABLE IF NOT EXISTS ai_chat_daily_counts (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            user_id INTEGER NOT NULL,
+            memorial_id TEXT NOT NULL,
+            chat_date DATE NOT NULL,
+            free_count INTEGER DEFAULT 0,
+            paid_count INTEGER DEFAULT 0,
+            last_chat_time TIMESTAMP,
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            UNIQUE(user_id, memorial_id, chat_date),
+            FOREIGN KEY (user_id) REFERENCES users(id),
+            FOREIGN KEY (memorial_id) REFERENCES memorials(id)
+        )
+        ''')
+        cursor.execute('CREATE INDEX IF NOT EXISTS idx_ai_chat_daily_user ON ai_chat_daily_counts(user_id, memorial_id, chat_date)')
         
         # 性格测试答案表
         cursor.execute('''
@@ -501,6 +530,23 @@ class Database:
         )
         ''')
         
+        # 用户反馈表
+        cursor.execute('''
+        CREATE TABLE IF NOT EXISTS feedbacks (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            user_id INTEGER,
+            contact TEXT,
+            content TEXT NOT NULL,
+            status TEXT DEFAULT 'pending',
+            reply TEXT,
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            FOREIGN KEY (user_id) REFERENCES users(id)
+        )
+        ''')
+        cursor.execute('CREATE INDEX IF NOT EXISTS idx_feedbacks_user ON feedbacks(user_id)')
+        cursor.execute('CREATE INDEX IF NOT EXISTS idx_feedbacks_status ON feedbacks(status)')
+        
         # 初始化用户等级数据
         self._init_user_levels()
         
@@ -527,7 +573,7 @@ class Database:
 
     # 用户相关方法
     def create_user(self, email, password):
-        """创建新用户"""
+        """创建新用户（邮箱注册）"""
         cursor = self.conn.cursor()
         
         # 先检查邮箱是否已存在
@@ -554,6 +600,45 @@ class Database:
             return {"user_id": user_id, "verification_token": verification_token}
         except Exception as e:
             print(f"创建用户失败: {e}")
+            return None
+    
+    def create_user_by_openid(self, openid, nickname=None, avatar_url=None):
+        """通过 openid 创建新用户（微信登录）"""
+        cursor = self.conn.cursor()
+        
+        # 先检查 openid 是否已存在
+        cursor.execute('SELECT id FROM users WHERE openid = ?', (openid,))
+        if cursor.fetchone():
+            return None  # openid 已存在
+        
+        try:
+            # 生成一个临时邮箱（格式：wx_{openid}@wechat.temp）
+            temp_email = f"wx_{openid[:8]}@wechat.temp"
+            
+            # 创建用户（不需要密码）
+            cursor.execute('''
+            INSERT INTO users (openid, email, nickname, avatar_url, user_level, is_active, email_verified)
+            VALUES (?, ?, ?, ?, ?, ?, ?)
+            ''', (openid, temp_email, nickname or '微信用户', avatar_url, 0, 1, 0))
+            
+            user_id = cursor.lastrowid
+            self.conn.commit()
+            
+            # 返回用户信息
+            return {
+                'id': user_id,
+                'openid': openid,
+                'email': temp_email,
+                'nickname': nickname or '微信用户',
+                'avatar_url': avatar_url or '',
+                'user_level': 0,
+                'is_active': 1,
+                'email_verified': 0
+            }
+        except Exception as e:
+            print(f"通过 openid 创建用户失败: {e}")
+            import traceback
+            traceback.print_exc()
             return None
     
     def verify_user(self, email, password):
@@ -912,39 +997,6 @@ class Database:
         ''', (memorial_id,))
         return cursor.fetchone()[0]
     
-    def delete_memorial(self, memorial_id, user_id):
-        """删除纪念馆"""
-        cursor = self.conn.cursor()
-        
-        # 首先检查纪念馆是否属于该用户
-        cursor.execute('''
-        SELECT COUNT(*) FROM user_memorials WHERE memorial_id = ? AND user_id = ?
-        ''', (memorial_id, user_id))
-        
-        if cursor.fetchone()[0] == 0:
-            return False  # 纪念馆不属于该用户
-        
-        # 获取宠物ID
-        cursor.execute('''
-        SELECT pet_id FROM memorials WHERE id = ?
-        ''', (memorial_id,))
-        result = cursor.fetchone()
-        if not result:
-            return False
-        
-        pet_id = result[0]
-        
-        # 删除相关数据（按依赖关系顺序）
-        cursor.execute('DELETE FROM personality_tests WHERE pet_id = ?', (pet_id,))
-        cursor.execute('DELETE FROM photos WHERE pet_id = ?', (pet_id,))
-        cursor.execute('DELETE FROM messages WHERE pet_id = ?', (pet_id,))
-        cursor.execute('DELETE FROM user_memorials WHERE memorial_id = ?', (memorial_id,))
-        cursor.execute('DELETE FROM memorials WHERE id = ?', (memorial_id,))
-        cursor.execute('DELETE FROM pets WHERE id = ?', (pet_id,))
-        
-        self.conn.commit()
-        return True
-    
     def update_user_level(self, user_id, new_level):
         """更新用户等级"""
         cursor = self.conn.cursor()
@@ -1055,6 +1107,83 @@ class Database:
         UPDATE memorials SET ai_letter = ? WHERE id = ?
         ''', (ai_letter, memorial_id))
         self.conn.commit()
+    
+    def unlock_ai_letter(self, memorial_id):
+        """解锁AI信件"""
+        cursor = self.conn.cursor()
+        cursor.execute('''
+        UPDATE memorials SET ai_letter_unlocked = 1 WHERE id = ?
+        ''', (memorial_id,))
+        self.conn.commit()
+        return cursor.rowcount > 0
+    
+    def get_ai_chat_daily_count(self, user_id, memorial_id, chat_date=None):
+        """获取AI对话每日计数"""
+        if chat_date is None:
+            from datetime import date
+            chat_date = date.today().isoformat()
+        
+        cursor = self.conn.cursor()
+        cursor.execute('''
+        SELECT free_count, paid_count FROM ai_chat_daily_counts
+        WHERE user_id = ? AND memorial_id = ? AND chat_date = ?
+        ''', (user_id, memorial_id, chat_date))
+        
+        result = cursor.fetchone()
+        if result:
+            return {
+                'free_count': result[0],
+                'paid_count': result[1]
+            }
+        return {'free_count': 0, 'paid_count': 0}
+    
+    def increment_ai_chat_count(self, user_id, memorial_id, is_free=True, chat_date=None):
+        """增加AI对话计数"""
+        if chat_date is None:
+            from datetime import date, datetime
+            chat_date = date.today().isoformat()
+        
+        cursor = self.conn.cursor()
+        
+        # 检查是否存在记录
+        cursor.execute('''
+        SELECT id FROM ai_chat_daily_counts
+        WHERE user_id = ? AND memorial_id = ? AND chat_date = ?
+        ''', (user_id, memorial_id, chat_date))
+        
+        exists = cursor.fetchone()
+        
+        if exists:
+            # 更新计数
+            if is_free:
+                cursor.execute('''
+                UPDATE ai_chat_daily_counts 
+                SET free_count = free_count + 1, last_chat_time = CURRENT_TIMESTAMP
+                WHERE user_id = ? AND memorial_id = ? AND chat_date = ?
+                ''', (user_id, memorial_id, chat_date))
+            else:
+                cursor.execute('''
+                UPDATE ai_chat_daily_counts 
+                SET paid_count = paid_count + 1, last_chat_time = CURRENT_TIMESTAMP
+                WHERE user_id = ? AND memorial_id = ? AND chat_date = ?
+                ''', (user_id, memorial_id, chat_date))
+        else:
+            # 创建新记录
+            if is_free:
+                cursor.execute('''
+                INSERT INTO ai_chat_daily_counts (user_id, memorial_id, chat_date, free_count, paid_count, last_chat_time)
+                VALUES (?, ?, ?, 1, 0, CURRENT_TIMESTAMP)
+                ''', (user_id, memorial_id, chat_date))
+            else:
+                cursor.execute('''
+                INSERT INTO ai_chat_daily_counts (user_id, memorial_id, chat_date, free_count, paid_count, last_chat_time)
+                VALUES (?, ?, ?, 0, 1, CURRENT_TIMESTAMP)
+                ''', (user_id, memorial_id, chat_date))
+        
+        self.conn.commit()
+        
+        # 返回更新后的计数
+        return self.get_ai_chat_daily_count(user_id, memorial_id, chat_date)
     
     def update_memorial_url(self, memorial_id, memorial_url):
         """更新纪念馆的URL"""
@@ -1560,29 +1689,49 @@ class Database:
             print(f"更新纪念馆失败: {e}")
             return False
     
-    def delete_memorial(self, memorial_id: str):
+    def delete_memorial(self, memorial_id: str, user_id: int = None):
         """删除纪念馆"""
         cursor = self.conn.cursor()
         
         try:
+            # 如果提供了 user_id，先检查纪念馆是否属于该用户
+            if user_id is not None:
+                cursor.execute('''
+                SELECT COUNT(*) FROM user_memorials WHERE memorial_id = ? AND user_id = ?
+                ''', (memorial_id, user_id))
+                if cursor.fetchone()[0] == 0:
+                    return False  # 纪念馆不属于该用户
+            
+            # 获取宠物ID（在删除前）
+            cursor.execute('SELECT pet_id FROM memorials WHERE id = ?', (memorial_id,))
+            result = cursor.fetchone()
+            pet_id = result[0] if result else None
+            
+            # 删除相关数据（按依赖关系顺序）
+            if pet_id:
+                cursor.execute('DELETE FROM personality_tests WHERE pet_id = ?', (pet_id,))
+                cursor.execute('DELETE FROM photos WHERE pet_id = ?', (pet_id,))
+                cursor.execute('DELETE FROM messages WHERE pet_id = ?', (pet_id,))
+            
+            # 删除 user_memorials 关联记录（重要：确保纪念馆数量统计正确）
+            cursor.execute('DELETE FROM user_memorials WHERE memorial_id = ?', (memorial_id,))
+            
+            # 删除纪念馆照片
+            cursor.execute('DELETE FROM memorial_photos WHERE memorial_id = ?', (memorial_id,))
+            
             # 删除纪念馆记录
             cursor.execute('DELETE FROM memorials WHERE id = ?', (memorial_id,))
             
             # 删除关联的宠物记录
-            cursor.execute('''
-            DELETE FROM pets 
-            WHERE id IN (
-                SELECT pet_id FROM memorials WHERE id = ?
-            )
-            ''', (memorial_id,))
-            
-            # 删除纪念馆照片
-            cursor.execute('DELETE FROM memorial_photos WHERE memorial_id = ?', (memorial_id,))
+            if pet_id:
+                cursor.execute('DELETE FROM pets WHERE id = ?', (pet_id,))
             
             self.conn.commit()
             return True
         except Exception as e:
             print(f"删除纪念馆失败: {e}")
+            import traceback
+            traceback.print_exc()
             return False
     
     def get_memorial_photos(self, memorial_id: str):
@@ -2143,17 +2292,75 @@ class Database:
         
         return memorials
     
+    # ==================== 反馈相关方法 ====================
+    
+    def save_feedback(self, user_id=None, contact=None, content=None):
+        """保存用户反馈"""
+        cursor = self.conn.cursor()
+        try:
+            cursor.execute('''
+            INSERT INTO feedbacks (user_id, contact, content, status, created_at, updated_at)
+            VALUES (?, ?, ?, 'pending', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)
+            ''', (user_id, contact, content))
+            
+            feedback_id = cursor.lastrowid
+            self.conn.commit()
+            return feedback_id
+        except Exception as e:
+            print(f"保存反馈失败: {e}")
+            import traceback
+            traceback.print_exc()
+            return None
+    
+    def get_feedbacks(self, user_id=None, status=None, limit=50):
+        """获取反馈列表"""
+        cursor = self.conn.cursor()
+        try:
+            query = 'SELECT id, user_id, contact, content, status, reply, created_at FROM feedbacks WHERE 1=1'
+            params = []
+            
+            if user_id:
+                query += ' AND user_id = ?'
+                params.append(user_id)
+            
+            if status:
+                query += ' AND status = ?'
+                params.append(status)
+            
+            query += ' ORDER BY created_at DESC LIMIT ?'
+            params.append(limit)
+            
+            cursor.execute(query, params)
+            results = cursor.fetchall()
+            
+            feedbacks = []
+            for row in results:
+                feedbacks.append({
+                    'id': row[0],
+                    'user_id': row[1],
+                    'contact': row[2],
+                    'content': row[3],
+                    'status': row[4],
+                    'reply': row[5],
+                    'created_at': row[6]
+                })
+            
+            return feedbacks
+        except Exception as e:
+            print(f"获取反馈列表失败: {e}")
+            return []
+    
     def close(self):
         self.conn.close()
 
     def get_user_by_openid(self, openid):
-        """
-        通过 openid 获取用户信息。
-        ⚠️ 如果 users 表没有 openid 字段，请先为 users 增加 openid TEXT 字段！
-        """
+        """通过 openid 获取用户信息"""
         cursor = self.conn.cursor()
         try:
-            cursor.execute('SELECT id, email, user_level, is_active, email_verified, openid FROM users WHERE openid = ?', (openid,))
+            cursor.execute('''
+            SELECT id, email, user_level, is_active, email_verified, openid, nickname, avatar_url, phone
+            FROM users WHERE openid = ?
+            ''', (openid,))
             user = cursor.fetchone()
             if user:
                 return {
@@ -2162,10 +2369,15 @@ class Database:
                     'user_level': user[2],
                     'is_active': user[3],
                     'email_verified': user[4],
-                    'openid': user[5]
+                    'openid': user[5],
+                    'nickname': user[6],
+                    'avatar_url': user[7],
+                    'phone': user[8]
                 }
             else:
                 return None
         except Exception as e:
             print(f"get_user_by_openid error: {e}")
+            import traceback
+            traceback.print_exc()
             return None

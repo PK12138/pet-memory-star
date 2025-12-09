@@ -3,7 +3,7 @@
   <!-- 页面标题 -->
   <view class="page-header">
     <text class="page-title">🌟 宠物性格深度画像</text>
-    <text class="page-subtitle">20个生活细节，还原ta最真实的样子</text>
+    <text class="page-subtitle">10个核心问题，快速了解ta的性格</text>
     <text class="page-hint">让AI更懂ta，创造更真实的对话</text>
   </view>
   
@@ -63,7 +63,6 @@
         <text class="form-label">
           <text class="label-icon">📅</text>
           <text>纪念日期</text>
-          <text class="required">*</text>
         </text>
         <picker 
           class="form-picker" 
@@ -71,8 +70,27 @@
           value="{{petInfo.memorialDate}}"
           bindchange="onMemorialDateChange"
         >
-          <view class="picker-text">{{petInfo.memorialDate || '选择日期'}}</view>
+          <view class="picker-text">{{petInfo.memorialDate || '选择日期（选填）'}}</view>
         </picker>
+      </view>
+      
+      <!-- 宠物状态 -->
+      <view class="form-group-full">
+        <text class="form-label">
+          <text class="label-icon">💫</text>
+          <text>宠物状态</text>
+          <text class="required">*</text>
+        </text>
+        <picker 
+          class="form-picker" 
+          mode="selector" 
+          range="{{statusOptions}}"
+          value="{{petInfo.statusIndex}}"
+          bindchange="onStatusChange"
+        >
+          <view class="picker-text">{{petInfo.status || '请选择'}}</view>
+        </picker>
+        <text class="form-hint">选择"健在"时，AI信件将被隐藏</text>
       </view>
       
       <!-- 上传照片 -->
@@ -169,21 +187,6 @@
             >
               <view class="picker-text">{{petInfo.birthDate || '年/月/日'}}</view>
             </picker>
-          </view>
-          
-          <!-- 宠物状态 -->
-          <view class="form-group-full">
-            <text class="form-label">宠物状态</text>
-            <picker 
-              class="form-picker" 
-              mode="selector" 
-              range="{{statusOptions}}"
-              value="{{petInfo.statusIndex}}"
-              bindchange="onStatusChange"
-            >
-              <view class="picker-text">{{petInfo.status || '请选择'}}</view>
-            </picker>
-            <text class="form-hint">选择"健在"时，AI信件将被隐藏</text>
           </view>
         </view>
       </view>

@@ -1,14 +1,22 @@
+import sys
+
+try:
+    # Windows 控制台可能为 GBK，顶层打印 emoji 会触发 UnicodeEncodeError
+    sys.stdout.reconfigure(encoding="utf-8")
+except Exception:
+    pass
+
 from fastapi import FastAPI, UploadFile, File, Form, Request, HTTPException, Depends, Header
 from fastapi.responses import HTMLResponse, JSONResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 
-from database import Database
-from services import MemorialService, EmailService
-from auth_service import AuthService
-from payment_service import PaymentService
-from ai_chat_service import AIChatService
-from coins_service import CoinsService
+from .database import Database
+from .services import MemorialService, EmailService
+from .auth_service import AuthService
+from .payment_service import PaymentService
+from .ai_chat_service import AIChatService
+from .coins_service import CoinsService
 import os
 import uuid
 import uvicorn
@@ -39,7 +47,7 @@ async def add_session_token_to_header(request: Request, call_next):
     if session_token:
         # 将session_token添加到请求头中
         request.headers.__dict__["_list"].append((b"x-session-token", session_token.encode()))
-        print(f"🔑 添加session_token到Header: {session_token[:20]}...")
+        print(f"[auth] add x-session-token: {session_token[:20]}...")
     
     response = await call_next(request)
     return response
@@ -47,12 +55,12 @@ async def add_session_token_to_header(request: Request, call_next):
 # 挂载静态文件目录
 # 当从项目根目录运行时，storage目录在项目根目录下
 storage_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), "storage")
-print(f"📁 静态文件目录: {storage_path}")
+print(f"[static] dir: {storage_path}")
 if os.path.exists(storage_path):
     app.mount("/storage", StaticFiles(directory=storage_path), name="storage")
-    print(f"✅ 静态文件服务已挂载到 /storage")
+    print("[static] mounted: /storage")
 else:
-    print(f"❌ 静态文件目录不存在: {storage_path}")
+    print(f"[static] missing dir: {storage_path}")
 
 # 初始化模板
 templates = Jinja2Templates(directory=os.path.join(os.path.dirname(__file__), "templates"))
@@ -65,9 +73,9 @@ auth_service = AuthService(db)
 ai_chat_service = AIChatService()
 payment_service = PaymentService()
 coins_service = CoinsService(db)
-from virtual_companion_service import VirtualCompanionService
+from .virtual_companion_service import VirtualCompanionService
 virtual_companion_service = VirtualCompanionService(db)
-from dream_analysis_service import DreamAnalysisService
+from .dream_analysis_service import DreamAnalysisService
 # 从环境变量获取 DeepSeek API Key
 DEEPSEEK_API_KEY = os.getenv('DEEPSEEK_API_KEY', '')
 dream_analysis_service = DreamAnalysisService(api_key=DEEPSEEK_API_KEY)
@@ -234,10 +242,14 @@ async def wx_login(request: Request):
         
         print(f"🔑 收到微信登录请求: code={code}")
         
-        # 从 app.js 配置中获取 appId 和 appSecret
-        # 注意：实际生产环境中，appSecret应该存储在环境变量中
-        WECHAT_APPID = os.getenv('WECHAT_APPID', 'wx9572f66945407446')
-        WECHAT_SECRET = os.getenv('WECHAT_SECRET', 'c4b410be644231ff5635ec960dde38c1')
+        # 微信小程序 AppID/AppSecret 必须放在服务端环境变量中（不要出现在小程序端/仓库里）
+        WECHAT_APPID = os.getenv('WECHAT_APPID', '')
+        WECHAT_SECRET = os.getenv('WECHAT_SECRET', '')
+        if not WECHAT_APPID or not WECHAT_SECRET:
+            return JSONResponse(
+                content={"success": False, "message": "微信登录配置缺失（WECHAT_APPID/WECHAT_SECRET）"},
+                status_code=500
+            )
         
         # 调用微信API获取openid和session_key
         wx_api_url = 'https://api.weixin.qq.com/sns/jscode2session'
@@ -503,7 +515,7 @@ async def create_memorial_json(
         # 如果宠物已故，只返回预览内容
         ai_letter_preview = ""
         if show_preview and ai_letter:
-            from personality_service import PersonalityService
+            from .personality_service import PersonalityService
             personality_service = PersonalityService()
             ai_letter_preview = personality_service.get_letter_preview(ai_letter, preview_ratio=0.3)
         
@@ -2050,7 +2062,7 @@ async def get_memorial_detail(memorial_id: str, session_token: str = Header(None
         
         # 如果宠物已故且未解锁，只返回预览
         if pet_status == "passed" and not ai_letter_unlocked and ai_letter:
-            from personality_service import PersonalityService
+            from .personality_service import PersonalityService
             personality_service = PersonalityService()
             ai_letter_preview = personality_service.get_letter_preview(ai_letter, preview_ratio=0.3)
             memorial["ai_letter"] = None  # 不返回完整信件

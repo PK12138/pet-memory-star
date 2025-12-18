@@ -15,11 +15,16 @@ sys.path.insert(0, project_root)
 sys.path.insert(0, os.path.join(project_root, 'app'))
 
 if __name__ == "__main__":
-    print("🚀 启动爪迹星本地开发服务器...")
-    print(f"📁 项目根目录: {project_root}")
-    print(f"🌐 服务器地址: http://localhost:8000")
-    print(f"📖 API文档: http://localhost:8000/docs")
-    print(f"🔍 健康检查: http://localhost:8000/api/health")
+    try:
+        sys.stdout.reconfigure(encoding="utf-8")
+    except Exception:
+        pass
+
+    print("Start local dev server...")
+    print(f"Project root: {project_root}")
+    print("Server: http://localhost:8000")
+    print("Docs:   http://localhost:8000/docs")
+    print("Health: http://localhost:8000/api/health")
     print("=" * 50)
     
     try:

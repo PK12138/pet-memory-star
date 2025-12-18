@@ -3,7 +3,7 @@ import ssl
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
 from typing import Dict, Any, Optional
-from config import config
+from .config import config
 
 class EmailService:
     def __init__(self):

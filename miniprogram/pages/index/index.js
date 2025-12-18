@@ -23,6 +23,30 @@ Page({
     autoRotate: true  // 自动旋转
   },
 
+  // 献花（前端本地限制：每天一次；后续可接入后端做强校验）
+  offerFlower(e) {
+    const { id } = e.currentTarget.dataset
+    const today = new Date()
+    const dateKey = today.toISOString().slice(0, 10) // YYYY-MM-DD
+    const storageKey = `flower_${id}_${dateKey}`
+
+    if (wx.getStorageSync(storageKey)) {
+      wx.showToast({
+        title: '今天已献花，明天再来~',
+        icon: 'none'
+      })
+      return
+    }
+
+    wx.setStorageSync(storageKey, true)
+    wx.showToast({
+      title: '已献上一朵花 🌸',
+      icon: 'success',
+      duration: 1500
+    })
+    console.log('offerFlower to memorial', id)
+  },
+
   onLoad() {
     console.log('新主页加载')
     
@@ -556,20 +580,16 @@ Page({
     const sessionToken = app.globalData.sessionToken || wx.getStorageSync('sessionToken')
     
     if (!sessionToken) {
-      // 未登录，显示登录/注册选项
+      // 未登录：V1 仅引导去登录（注册入口暂不开放，避免死链）
       wx.showModal({
         title: '提示',
         content: '请先登录',
         confirmText: '去登录',
-        cancelText: '去注册',
+        showCancel: false,
         success: (res) => {
           if (res.confirm) {
             wx.navigateTo({
               url: '/pages/login/login'
-            })
-          } else if (res.cancel) {
-            wx.navigateTo({
-              url: '/pages/register/register'
             })
           }
         }
@@ -600,8 +620,12 @@ Page({
   // 与宠物对话
   chatWithPet(e) {
     const id = e.currentTarget.dataset.id
+    const star = this.data.selectedStar || {}
+    const petName = encodeURIComponent(star.pet_name || '宠物')
+    const petAvatar = star.photo_url ? encodeURIComponent(star.photo_url) : ''
     wx.navigateTo({
-      url: `/pages/ai-chat/ai-chat?memorialId=${id}`
+      // ai-chat 页面读取参数名为 id（不是 memorialId）
+      url: `/pages/ai-chat/ai-chat?id=${id}&name=${petName}&avatar=${petAvatar}`
     })
   },
 

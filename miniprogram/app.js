@@ -4,7 +4,7 @@
 const config = {
   // 小程序信息
   appId: 'wx9572f66945407446',
-  appSecret: 'c4b410be644231ff5635ec960dde38c1',
+  // 注意：AppSecret 属于敏感信息，不能放在小程序端。请仅在服务端配置 WECHAT_SECRET。
   
   // 后端API地址 - 远程服务器
   baseUrl: 'https://www.pettrailstar.cn',
@@ -45,7 +45,6 @@ App({
     sessionToken: null,
     baseUrl: config.baseUrl,
     appId: config.appId,
-    appSecret: config.appSecret,
     userLevel: 0,
     permissions: {},
     systemInfo: null

@@ -122,6 +122,16 @@ Page({
     })
   },
 
+  // 预览全部照片（从第一张开始）
+  previewAllPhotos() {
+    const photos = this.data.memorialInfo.photos || []
+    if (!photos.length) return
+    wx.previewImage({
+      current: photos[0],
+      urls: photos
+    })
+  },
+
   // 编辑纪念馆
   editMemorial() {
     wx.navigateTo({
@@ -156,13 +166,28 @@ Page({
     })
   },
 
-  // 跳转到梦境日记
-  goToDreamDiary() {
-    const { memorialId, memorialInfo } = this.data
-    const petName = memorialInfo.pet_name || '宠物'
-    
-    wx.navigateTo({
-      url: `/pages/dream-diary/dream-diary?memorialId=${memorialId}&petName=${encodeURIComponent(petName)}`
+  // 梦境日记：功能已下线
+
+  // 访客献花：每天一次（前端本地限制）
+  giveFlower() {
+    const { memorialId } = this.data
+    const today = new Date()
+    const dateKey = today.toISOString().slice(0, 10) // YYYY-MM-DD
+    const storageKey = `flower_${memorialId}_${dateKey}`
+
+    if (wx.getStorageSync(storageKey)) {
+      wx.showToast({
+        title: '今天已献花，明天再来~',
+        icon: 'none'
+      })
+      return
+    }
+
+    // TODO: 可接入后端记录献花
+    wx.setStorageSync(storageKey, true)
+    wx.showToast({
+      title: '已献上一朵花 🌸',
+      icon: 'success'
     })
   },
 
@@ -490,12 +515,5 @@ Page({
     }
   },
 
-  // 擦亮星星
-  shineStar() {
-    wx.showToast({ title: '⭐ 星星被你擦亮啦，让更多人看到Ta吧～', icon: 'success' });
-  },
-  // 送花
-  giveFlower() {
-    wx.showToast({ title: '🌸 鲜花已送达～', icon: 'success' });
-  }
+  // （底部曾存在重复的 giveFlower/shineStar，会覆盖上方逻辑，已移除）
 })

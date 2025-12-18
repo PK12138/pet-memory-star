@@ -5,10 +5,17 @@
 测试所有核心功能的流程逻辑
 """
 
-import requests
 import json
+import sys
 import time
 from datetime import datetime
+import requests
+
+# Windows PowerShell 默认控制台编码可能为 GBK，直接打印 emoji 会触发 UnicodeEncodeError。
+try:
+    sys.stdout.reconfigure(encoding="utf-8")
+except Exception:
+    pass
 
 # 配置
 BASE_URL = "http://pettrailstar.cn"  # 生产环境
@@ -32,13 +39,13 @@ class FeatureTester:
     def log(self, message, status="INFO"):
         timestamp = datetime.now().strftime("%H:%M:%S")
         if status == "SUCCESS":
-            print(f"{Colors.GREEN}✅ [{timestamp}] {message}{Colors.END}")
+            print(f"{Colors.GREEN}[PASS {timestamp}] {message}{Colors.END}")
         elif status == "ERROR":
-            print(f"{Colors.RED}❌ [{timestamp}] {message}{Colors.END}")
+            print(f"{Colors.RED}[FAIL {timestamp}] {message}{Colors.END}")
         elif status == "WARNING":
-            print(f"{Colors.YELLOW}⚠️  [{timestamp}] {message}{Colors.END}")
+            print(f"{Colors.YELLOW}[WARN {timestamp}] {message}{Colors.END}")
         else:
-            print(f"{Colors.BLUE}ℹ️  [{timestamp}] {message}{Colors.END}")
+            print(f"{Colors.BLUE}[INFO {timestamp}] {message}{Colors.END}")
     
     def test(self, name, func):
         """执行单个测试"""
@@ -115,8 +122,9 @@ class FeatureTester:
         if self.session_token:
             headers["x-session-token"] = self.session_token
         
+        # 实际 API 路径是 /api/user/memorials
         response = requests.get(
-            f"{self.base_url}/api/memorials",
+            f"{self.base_url}/api/user/memorials",
             headers=headers,
             timeout=10
         )
@@ -186,7 +194,7 @@ class FeatureTester:
     def run_all_tests(self):
         """运行所有测试"""
         print("\n" + "="*60)
-        print(f"{Colors.BLUE}🚀 开始完整功能测试{Colors.END}")
+        print(f"{Colors.BLUE}Start feature tests{Colors.END}")
         print("="*60 + "\n")
         
         # 基础功能
@@ -214,7 +222,7 @@ class FeatureTester:
     def print_summary(self):
         """打印测试总结"""
         print("\n" + "="*60)
-        print(f"{Colors.BLUE}📊 测试结果总结{Colors.END}")
+        print(f"{Colors.BLUE}Test summary{Colors.END}")
         print("="*60)
         
         total = len(self.test_results)
@@ -236,9 +244,9 @@ class FeatureTester:
         print("\n" + "="*60)
         
         if failed == 0 and errors == 0:
-            print(f"{Colors.GREEN}🎉 所有测试通过！系统可以上线！{Colors.END}\n")
+            print(f"{Colors.GREEN}All tests passed. Ready to release.{Colors.END}\n")
         else:
-            print(f"{Colors.YELLOW}⚠️  有测试失败，请检查后再上线{Colors.END}\n")
+            print(f"{Colors.YELLOW}Some tests failed. Please fix before release.{Colors.END}\n")
 
 if __name__ == "__main__":
     import sys

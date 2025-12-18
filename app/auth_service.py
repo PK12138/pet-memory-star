@@ -1,6 +1,6 @@
 import re
 from typing import Optional, Dict, Any
-from database import Database
+from .database import Database
 
 class AuthService:
     def __init__(self, db: Database):

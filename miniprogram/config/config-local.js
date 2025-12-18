@@ -4,7 +4,7 @@
 module.exports = {
   // 小程序信息
   appId: 'wx9572f66945407446',
-  appSecret: 'c4b410be644231ff5635ec960dde38c1',
+  // 注意：AppSecret 属于敏感信息，不能放在小程序端。请仅在服务端配置 WECHAT_SECRET。
   
   // 本地测试API地址
   baseUrl: 'http://localhost:8000', // 本地开发服务器

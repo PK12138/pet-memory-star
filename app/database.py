@@ -559,16 +559,30 @@ class Database:
         # 检查是否已存在等级数据
         cursor.execute("SELECT COUNT(*) FROM user_levels")
         if cursor.fetchone()[0] == 0:
+            # 首次初始化：直接插入最新配置
             levels = [
-                (0, "免费用户", 1, 6, 0, 0, 0, 0.0, 0.0, "基础功能，1个纪念馆，6张照片"),
-                (1, "高级用户", -1, -1, 1, 1, 0, 29.9, 299.0, "无限纪念馆，无限照片，AI功能，数据导出")
+                (0, "免费用户", 3, 6, 0, 0, 0, 0.0, 0.0, "基础功能，最多 3 个纪念馆，6 张照片"),
+                (1, "高级用户", -1, -1, 1, 1, 0, 29.9, 299.0, "无限纪念馆，无限照片，AI 功能，数据导出")
             ]
-            
-            cursor.executemany('''
-            INSERT INTO user_levels (level, name, max_memorials, max_photos, can_use_ai, can_export, can_custom_domain, price_monthly, price_yearly, description)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-            ''', levels)
-            
+
+            cursor.executemany(
+                '''
+                INSERT INTO user_levels (
+                    level, name, max_memorials, max_photos,
+                    can_use_ai, can_export, can_custom_domain,
+                    price_monthly, price_yearly, description
+                )
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                ''',
+                levels
+            )
+            self.conn.commit()
+        else:
+            # 已有数据时，确保免费用户的上限至少为 3
+            cursor.execute(
+                "UPDATE user_levels SET max_memorials = 3, description = ? WHERE level = 0 AND max_memorials < 3",
+                ("基础功能，最多 3 个纪念馆，6 张照片",)
+            )
             self.conn.commit()
 
     # 用户相关方法

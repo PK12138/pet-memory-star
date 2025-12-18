@@ -12,8 +12,8 @@ DATABASE_URL=sqlite:///pet_memorials.db
 # 邮件配置
 SMTP_SERVER=smtp.qq.com
 SMTP_PORT=587
-SMTP_USERNAME=your_email@qq.com
-SMTP_PASSWORD=your_email_password
+SENDER_EMAIL=your_email@qq.com
+SENDER_PASSWORD=your_email_password_or_auth_code
 
 # 文件存储配置
 STORAGE_PATH=storage
@@ -24,6 +24,10 @@ API_V1_PREFIX=/api
 
 # 安全配置
 SECRET_KEY=your-secret-key-here
+
+# 微信小程序登录（必须仅放在服务端）
+WECHAT_APPID=wx_xxxxxxxxxxxxxxxx
+WECHAT_SECRET=your_wechat_app_secret_here
 
 # DeepSeek API配置（用于生成个性化AI信件）
 DEEPSEEK_API_KEY=your_deepseek_api_key_here

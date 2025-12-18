@@ -111,34 +111,10 @@ class ApiService {
     })
   }
 
-  async register(email, password, confirmPassword) {
-    return this.request({
-      url: '/api/auth/register',
-      method: 'POST',
-      data: { email, password, confirm_password: confirmPassword }
-    })
-  }
-
   async logout() {
     return this.request({
       url: '/api/auth/logout',
       method: 'POST'
-    })
-  }
-
-  async forgotPassword(email) {
-    return this.request({
-      url: '/api/auth/forgot-password',
-      method: 'POST',
-      data: { email }
-    })
-  }
-
-  async resetPassword(token, newPassword) {
-    return this.request({
-      url: '/api/auth/reset-password',
-      method: 'POST',
-      data: { token, new_password: newPassword }
     })
   }
 

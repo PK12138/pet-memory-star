@@ -10,8 +10,6 @@
     "pages/memorial-detail/memorial-detail",
     "pages/ai-chat/ai-chat",
     "pages/virtual-companion/virtual-companion",
-    "pages/dream-diary/dream-diary",
-    "pages/add-dream/add-dream",
     "pages/star-sky/star-sky",
     "pages/reminder-setup/reminder-setup",
     "pages/mood-diary/mood-diary",
@@ -34,6 +32,6 @@
     "request": 10000,
     "downloadFile": 10000
   },
-  "debug": true,
+  "debug": false,
   "sitemapLocation": "sitemap.json"
 }

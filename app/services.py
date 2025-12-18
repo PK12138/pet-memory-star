@@ -8,7 +8,7 @@ from fastapi.responses import FileResponse, StreamingResponse, HTMLResponse
 
 from datetime import datetime
 from pathlib import Path
-from personality_service import PersonalityService
+from .personality_service import PersonalityService
 
 class MemorialService:
     def __init__(self, db):
@@ -239,22 +239,12 @@ class MemorialService:
 
 class EmailService:
     def __init__(self):
-        # 邮件服务配置 - 默认使用QQ邮箱配置
-        self.smtp_server = "smtp.qq.com"  # QQ邮箱SMTP服务器
-        self.smtp_port = 587  # SMTP端口（TLS）
-        self.sender_email = "1208155205@qq.com"  # 发件人邮箱
-        self.sender_password = "tscvmzpbazgbbaeh"  # 发件人密码（授权码）
-        
-        # 如果环境变量中有配置，则使用环境变量
+        # 邮件服务配置：必须通过环境变量提供，避免敏感信息写入代码仓库
         import os
-        if os.getenv('SMTP_SERVER'):
-            self.smtp_server = os.getenv('SMTP_SERVER')
-        if os.getenv('SMTP_PORT'):
-            self.smtp_port = int(os.getenv('SMTP_PORT'))
-        if os.getenv('SENDER_EMAIL'):
-            self.sender_email = os.getenv('SENDER_EMAIL')
-        if os.getenv('SENDER_PASSWORD'):
-            self.sender_password = os.getenv('SENDER_PASSWORD')
+        self.smtp_server = os.getenv('SMTP_SERVER', 'smtp.qq.com')
+        self.smtp_port = int(os.getenv('SMTP_PORT', '587'))
+        self.sender_email = os.getenv('SENDER_EMAIL', '')
+        self.sender_password = os.getenv('SENDER_PASSWORD', '')
         
         print(f"📧 邮件服务配置:")
         print(f"   SMTP服务器: {self.smtp_server}")

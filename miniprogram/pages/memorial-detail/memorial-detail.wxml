@@ -15,13 +15,9 @@
         </button>
       </block>
       <block wx:else>
-        <button class="action-btn btn-shine" bindtap="shineStar">
-          <text class="btn-icon">✨</text>
-          <text class="btn-text">擦亮星星</text>
-        </button>
         <button class="action-btn btn-flower" bindtap="giveFlower">
           <text class="btn-icon">🌸</text>
-          <text class="btn-text">送鲜花</text>
+          <text class="btn-text">献花</text>
         </button>
       </block>
       <button class="action-btn btn-share" bindtap="shareMemorial">
@@ -32,7 +28,12 @@
   
   <!-- 纪念馆照片 -->
   <view wx:if="{{memorialInfo.photos && memorialInfo.photos.length > 0}}" class="photo-section">
-    <text class="section-title">珍贵回忆</text>
+    <view class="section-header">
+      <text class="section-title section-title--left">珍贵回忆</text>
+      <button class="photo-more-btn" bindtap="previewAllPhotos">
+        查看全部 ({{memorialInfo.photos.length}})
+      </button>
+    </view>
     <view class="photo-grid">
       <image 
         wx:for="{{memorialInfo.photos}}" 
@@ -148,8 +149,8 @@
     </view>
   </view>
   
-  <!-- 纪念日提醒 -->
-  <view class="reminder-section">
+  <!-- 纪念日提醒（仅本人可见） -->
+  <view class="reminder-section" wx:if="{{isSelf}}">
     <text class="section-title">纪念日提醒</text>
     <view class="feature-card">
       <view class="feature-icon">⏰</view>
@@ -163,8 +164,8 @@
     </view>
   </view>
   
-  <!-- 心情日记 -->
-  <view class="diary-section">
+  <!-- 心情日记（仅本人可见） -->
+  <view class="diary-section" wx:if="{{isSelf}}">
     <text class="section-title">心情日记</text>
     <view class="feature-card">
       <view class="feature-icon">📝</view>
@@ -178,8 +179,8 @@
     </view>
   </view>
   
-  <!-- 虚拟陪伴 -->
-  <view class="companion-section">
+  <!-- 虚拟陪伴（仅本人可见） -->
+  <view class="companion-section" wx:if="{{isSelf}}">
     <text class="section-title">虚拟陪伴</text>
     <view class="feature-card companion-card">
       <view class="feature-icon">🤖</view>
@@ -193,20 +194,7 @@
     </view>
   </view>
 
-  <!-- 梦境日记 -->
-  <view class="dream-section">
-    <text class="section-title">梦境日记</text>
-    <view class="feature-card dream-card">
-      <view class="feature-icon">🌙</view>
-      <view class="feature-info">
-        <text class="feature-title">记录梦中重逢</text>
-        <text class="feature-desc">记录每一次在梦中与TA的相遇</text>
-      </view>
-      <button class="feature-btn dream-btn" bindtap="goToDreamDiary">
-        <text>查看梦境</text>
-      </button>
-    </view>
-  </view>
+  <!-- 梦境日记：功能已下线 -->
   
   <!-- 纪念馆信息 -->
   <view class="info-section">

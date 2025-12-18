@@ -16,7 +16,6 @@ Page({
       { type: 'upload_photo', name: '上传照片', icon: '📷', reward: 5, max_daily: 3, today_count: 0 },
       { type: 'write_text', name: '撰写纪念文字', icon: '✍️', reward: 20, max_daily: 2, today_count: 0 },
       { type: 'ai_chat', name: 'AI对话', icon: '💬', reward: 2, max_daily: 10, today_count: 0 },
-      { type: 'dream_diary', name: '记录梦境', icon: '🌙', reward: 15, max_daily: 2, today_count: 0 },
       { type: 'mood_diary', name: '记录心情', icon: '📔', reward: 15, max_daily: 2, today_count: 0 }
     ],
     adViewCount: 0,

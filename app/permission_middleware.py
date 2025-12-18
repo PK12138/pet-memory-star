@@ -4,8 +4,8 @@
 """
 from fastapi import Request, HTTPException, Header
 from typing import Optional, Dict, Any
-from auth_service import AuthService
-from database import Database
+from .auth_service import AuthService
+from .database import Database
 
 class PermissionMiddleware:
     """权限控制中间件"""

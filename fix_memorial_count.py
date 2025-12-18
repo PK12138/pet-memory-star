@@ -16,11 +16,11 @@ def check_and_fix_memorial_count():
     cursor = conn.cursor()
     
     print("=" * 50)
-    print("🔍 检查纪念馆数量统计问题")
+    print("[check] 检查纪念馆数量统计问题")
     print("=" * 50)
     
     # 1. 检查所有用户及其纪念馆数量
-    print("\n📊 用户纪念馆统计：")
+    print("\n[user] 用户纪念馆统计：")
     cursor.execute('''
     SELECT 
         u.id,
@@ -38,7 +38,7 @@ def check_and_fix_memorial_count():
         print(f"  用户 {user_id} ({email or nickname or '未命名'}): {count} 个纪念馆")
     
     # 2. 检查无效的 user_memorials 记录（纪念馆已不存在）
-    print("\n🔍 检查无效的 user_memorials 记录...")
+    print("\n[invalid] 检查无效的 user_memorials 记录...")
     cursor.execute('''
     SELECT um.user_id, um.memorial_id
     FROM user_memorials um
@@ -48,24 +48,24 @@ def check_and_fix_memorial_count():
     
     invalid_records = cursor.fetchall()
     if invalid_records:
-        print(f"  ⚠️  发现 {len(invalid_records)} 条无效记录：")
+        print(f"  [warn] 发现 {len(invalid_records)} 条无效记录：")
         for user_id, memorial_id in invalid_records:
             print(f"    用户 {user_id} - 纪念馆 {memorial_id} (纪念馆已不存在)")
         
         # 清理无效记录
-        print("\n🧹 清理无效记录...")
+        print("\n[clean] 清理无效记录...")
         cursor.execute('''
         DELETE FROM user_memorials
         WHERE memorial_id NOT IN (SELECT id FROM memorials)
         ''')
         deleted_count = cursor.rowcount
         conn.commit()
-        print(f"  ✅ 已删除 {deleted_count} 条无效记录")
+        print(f"  [ok] 已删除 {deleted_count} 条无效记录")
     else:
-        print("  ✅ 没有发现无效记录")
+        print("  [ok] 没有发现无效记录")
     
     # 3. 检查遗漏的 user_memorials 记录（纪念馆存在但没有关联记录）
-    print("\n🔍 检查遗漏的 user_memorials 记录...")
+    print("\n[missing] 检查遗漏的 user_memorials 记录...")
     cursor.execute('''
     SELECT m.id, m.user_id
     FROM memorials m
@@ -75,12 +75,12 @@ def check_and_fix_memorial_count():
     
     missing_records = cursor.fetchall()
     if missing_records:
-        print(f"  ⚠️  发现 {len(missing_records)} 条遗漏记录：")
+        print(f"  [warn] 发现 {len(missing_records)} 条遗漏记录：")
         for memorial_id, user_id in missing_records:
             print(f"    纪念馆 {memorial_id} - 用户 {user_id} (缺少关联记录)")
         
         # 补充遗漏记录
-        print("\n🔧 补充遗漏记录...")
+        print("\n[fix] 补充遗漏记录...")
         for memorial_id, user_id in missing_records:
             try:
                 cursor.execute('''
@@ -89,15 +89,15 @@ def check_and_fix_memorial_count():
                 ''', (user_id, memorial_id))
                 print(f"  ✅ 已为纪念馆 {memorial_id} 添加关联记录")
             except sqlite3.IntegrityError:
-                print(f"  ⚠️  纪念馆 {memorial_id} 的关联记录已存在")
+                print(f"  [warn] 纪念馆 {memorial_id} 的关联记录已存在")
         
         conn.commit()
-        print(f"  ✅ 已补充 {len(missing_records)} 条遗漏记录")
+        print(f"  [ok] 已补充 {len(missing_records)} 条遗漏记录")
     else:
-        print("  ✅ 没有发现遗漏记录")
+        print("  [ok] 没有发现遗漏记录")
     
     # 4. 重新统计
-    print("\n📊 修复后的统计：")
+    print("\n[recheck] 修复后的统计：")
     cursor.execute('''
     SELECT 
         u.id,
@@ -116,7 +116,7 @@ def check_and_fix_memorial_count():
     
     conn.close()
     print("\n" + "=" * 50)
-    print("✅ 检查完成！")
+    print("[done] 检查完成！")
     print("=" * 50)
 
 if __name__ == "__main__":

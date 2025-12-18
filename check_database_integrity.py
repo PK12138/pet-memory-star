@@ -5,9 +5,17 @@
 检查所有表结构、索引、数据完整性
 """
 
-import sqlite3
 import os
+import sqlite3
+import sys
 from datetime import datetime
+
+# Windows PowerShell 默认控制台编码可能为 GBK，直接打印 emoji 会触发 UnicodeEncodeError。
+# 这里尽量将 stdout 切到 UTF-8，并避免输出 emoji，保证脚本在 Windows/Linux 都可运行。
+try:
+    sys.stdout.reconfigure(encoding="utf-8")
+except Exception:
+    pass
 
 def check_database():
     """检查数据库完整性"""
@@ -18,7 +26,7 @@ def check_database():
         print(f"❌ 数据库文件不存在: {db_path}")
         return False
     
-    print(f"📁 数据库路径: {db_path}\n")
+    print(f"[DB] Path: {db_path}\n")
     
     conn = sqlite3.connect(db_path)
     cursor = conn.cursor()
@@ -27,55 +35,57 @@ def check_database():
     cursor.execute("SELECT name FROM sqlite_master WHERE type='table'")
     tables = [row[0] for row in cursor.fetchall()]
     
-    print("="*60)
-    print("📊 数据库完整性检查")
-    print("="*60 + "\n")
+    print("=" * 60)
+    print("[DB] Integrity Check")
+    print("=" * 60 + "\n")
     
-    # 必需的表
+    # V1 必需的表（缺失则提示，但不直接崩溃）
     required_tables = [
         'users', 'user_sessions', 'memorials', 'pets', 
         'photos', 'messages', 'feedbacks', 'user_coins',
         'coin_transactions', 'payment_orders'
     ]
     
-    print("✅ 表结构检查:")
+    print("[1] Table check:")
     for table in required_tables:
         if table in tables:
             # 检查表记录数
             cursor.execute(f"SELECT COUNT(*) FROM {table}")
             count = cursor.fetchone()[0]
-            print(f"  ✅ {table}: {count} 条记录")
+            print(f"  OK  {table}: {count} rows")
         else:
-            print(f"  ❌ {table}: 表不存在")
+            print(f"  ERR {table}: missing")
     
-    print("\n" + "="*60)
-    print("🔍 关键字段检查:")
-    print("="*60 + "\n")
+    print("\n" + "=" * 60)
+    print("[2] Key columns check:")
+    print("=" * 60 + "\n")
     
-    # 检查users表关键字段
+    # 检查 users 表关键字段
     cursor.execute("PRAGMA table_info(users)")
     user_columns = [row[1] for row in cursor.fetchall()]
     required_user_columns = ['id', 'email', 'openid', 'nickname', 'user_level']
     for col in required_user_columns:
         if col in user_columns:
-            print(f"  ✅ users.{col}: 存在")
+            print(f"  OK  users.{col}: present")
         else:
-            print(f"  ❌ users.{col}: 不存在")
+            print(f"  WARN users.{col}: missing (need migration)")
     
-    # 检查feedbacks表
+    # 检查 feedbacks 表
     if 'feedbacks' in tables:
         cursor.execute("PRAGMA table_info(feedbacks)")
         feedback_columns = [row[1] for row in cursor.fetchall()]
         required_feedback_columns = ['id', 'user_id', 'contact', 'content', 'status']
         for col in required_feedback_columns:
             if col in feedback_columns:
-                print(f"  ✅ feedbacks.{col}: 存在")
+                print(f"  OK  feedbacks.{col}: present")
             else:
-                print(f"  ❌ feedbacks.{col}: 不存在")
+                print(f"  WARN feedbacks.{col}: missing (need migration)")
+    else:
+        print("  WARN feedbacks: table missing (need migration)")
     
-    print("\n" + "="*60)
-    print("📈 数据统计:")
-    print("="*60 + "\n")
+    print("\n" + "=" * 60)
+    print("[3] Table stats:")
+    print("=" * 60 + "\n")
     
     # 统计各表数据
     stats = {}
@@ -90,21 +100,35 @@ def check_database():
     for table, count in sorted(stats.items()):
         print(f"  {table}: {count}")
     
-    print("\n" + "="*60)
-    print("🔗 外键完整性检查:")
-    print("="*60 + "\n")
+    print("\n" + "=" * 60)
+    print("[4] Foreign-key sanity check:")
+    print("=" * 60 + "\n")
     
-    # 检查memorials和users的关联
-    cursor.execute("""
-        SELECT COUNT(*) FROM memorials m 
-        LEFT JOIN users u ON m.user_id = u.id 
-        WHERE m.user_id IS NOT NULL AND u.id IS NULL
-    """)
-    orphan_memorials = cursor.fetchone()[0]
-    if orphan_memorials == 0:
-        print("  ✅ memorials 外键完整性: 正常")
+    # 检查 user_memorials 关联（比 memorials.user_id 更稳定；旧库可能没有 user_id 列）
+    if 'user_memorials' in tables:
+        cursor.execute("""
+            SELECT COUNT(*) FROM user_memorials um
+            LEFT JOIN users u ON um.user_id = u.id
+            WHERE u.id IS NULL
+        """)
+        orphan_um_users = cursor.fetchone()[0]
+        if orphan_um_users == 0:
+            print("  OK  user_memorials -> users: OK")
+        else:
+            print(f"  WARN user_memorials -> users: {orphan_um_users} orphan rows")
+
+        cursor.execute("""
+            SELECT COUNT(*) FROM user_memorials um
+            LEFT JOIN memorials m ON um.memorial_id = m.id
+            WHERE m.id IS NULL
+        """)
+        orphan_um_memorials = cursor.fetchone()[0]
+        if orphan_um_memorials == 0:
+            print("  OK  user_memorials -> memorials: OK")
+        else:
+            print(f"  WARN user_memorials -> memorials: {orphan_um_memorials} orphan rows")
     else:
-        print(f"  ⚠️  memorials 外键完整性: 发现 {orphan_memorials} 条孤立记录")
+        print("  WARN user_memorials: table missing (need migration)")
     
     # 检查feedbacks和users的关联
     if 'feedbacks' in tables:
@@ -115,13 +139,13 @@ def check_database():
         """)
         orphan_feedbacks = cursor.fetchone()[0]
         if orphan_feedbacks == 0:
-            print("  ✅ feedbacks 外键完整性: 正常")
+            print("  OK  feedbacks -> users: OK")
         else:
-            print(f"  ⚠️  feedbacks 外键完整性: 发现 {orphan_feedbacks} 条孤立记录")
+            print(f"  WARN feedbacks -> users: {orphan_feedbacks} orphan rows")
     
-    print("\n" + "="*60)
-    print("✅ 检查完成")
-    print("="*60 + "\n")
+    print("\n" + "=" * 60)
+    print("[DONE] Check finished")
+    print("=" * 60 + "\n")
     
     conn.close()
     return True

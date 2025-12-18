@@ -27,7 +27,7 @@
       <text class="star-count" wx:if="{{userInfo}}">{{myStarCount}} 颗星星</text>
     </view>
     <view class="top-right" wx:if="{{userInfo}}">
-      <text class="user-name">{{userInfo.email}}</text>
+      <text class="user-name">{{userInfo.nickname || userInfo.email || userInfo.phone || '星友'}}</text>
       <view class="feedback-float-btn" bindtap="goToFeedback">
         <text class="feedback-emoji">💡</text>
       </view>
@@ -82,14 +82,26 @@
       </view>
       
       <view class="star-actions">
-        <button class="action-btn primary" catchtap="viewMemorial" data-id="{{selectedStar.id}}">
-          <text class="btn-icon">🏠</text>
-          <text>进入纪念馆</text>
-        </button>
-        <button class="action-btn" catchtap="chatWithPet" data-id="{{selectedStar.id}}">
-          <text class="btn-icon">💬</text>
-          <text>开始对话</text>
-        </button>
+        <block wx:if="{{selectedStar && selectedStar.is_mine}}">
+          <button class="action-btn primary" catchtap="viewMemorial" data-id="{{selectedStar.id}}">
+            <text class="btn-icon">🏠</text>
+            <text>进入纪念馆</text>
+          </button>
+          <button class="action-btn" catchtap="chatWithPet" data-id="{{selectedStar.id}}">
+            <text class="btn-icon">💬</text>
+            <text>开始对话</text>
+          </button>
+        </block>
+        <block wx:else>
+          <button class="action-btn primary" catchtap="viewMemorial" data-id="{{selectedStar.id}}">
+            <text class="btn-icon">🏠</text>
+            <text>拜访纪念馆</text>
+          </button>
+          <button class="action-btn" catchtap="offerFlower" data-id="{{selectedStar.id}}">
+            <text class="btn-icon">🌸</text>
+            <text>献花</text>
+          </button>
+        </block>
       </view>
     </view>
   </view>

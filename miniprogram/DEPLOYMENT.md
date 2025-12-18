@@ -3,7 +3,7 @@
 ## 📱 小程序信息
 
 - **AppID**: `wx9572f66945407446`
-- **AppSecret**: `c4b410be644231ff5635ec960dde38c1`
+- **AppSecret**: **不要写入小程序端/仓库**（必须仅放在服务端环境变量 `WECHAT_SECRET`）
 - **项目名称**: 爪迹星·云纪念馆
 
 ## 🚀 部署步骤
@@ -112,7 +112,7 @@
 ```javascript
 module.exports = {
   appId: 'wx9572f66945407446',
-  appSecret: 'c4b410be644231ff5635ec960dde38c1',
+  // 注意：AppSecret 不能放在小程序端（已移除）
   baseUrl: 'https://yourdomain.com'
 }
 ```
@@ -121,7 +121,7 @@ module.exports = {
 ```javascript
 globalData: {
   appId: 'wx9572f66945407446',
-  appSecret: 'c4b410be644231ff5635ec960dde38c1',
+  // 注意：AppSecret 不能放在小程序端（已移除）
   baseUrl: 'https://yourdomain.com'
 }
 ```

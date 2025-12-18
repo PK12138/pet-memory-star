@@ -6,33 +6,11 @@ const config = require('../config/config')
 class WechatAPI {
   constructor() {
     this.appId = config.appId
-    this.appSecret = config.appSecret
     this.baseUrl = config.wechatApiUrl
   }
 
-  // 获取微信access_token
-  async getAccessToken() {
-    try {
-      const res = await wx.request({
-        url: `${this.baseUrl}/cgi-bin/token`,
-        method: 'GET',
-        data: {
-          grant_type: 'client_credential',
-          appid: this.appId,
-          secret: this.appSecret
-        }
-      })
-      
-      if (res.data.access_token) {
-        return res.data.access_token
-      } else {
-        throw new Error('获取access_token失败: ' + res.data.errmsg)
-      }
-    } catch (error) {
-      console.error('获取access_token失败:', error)
-      throw error
-    }
-  }
+  // 重要：小程序端不应获取 access_token（需要 AppSecret）。
+  // 如需 access_token，请在服务端实现并通过后端接口代理。
 
   // 获取用户信息（需要用户授权）
   getUserInfo() {

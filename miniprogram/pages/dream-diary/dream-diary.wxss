@@ -1,0 +1,541 @@
+/* 梦境日记页面样式 */
+
+page {
+  background: radial-gradient(ellipse at bottom, #0f1b2e 0%, #050b14 100%);
+  min-height: 100vh;
+}
+
+.container {
+  padding: 20rpx;
+  padding-bottom: 150rpx;
+}
+
+/* 顶部背景 */
+.header-bg {
+  position: relative;
+  height: 200rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 20rpx;
+}
+
+.moon-icon {
+  font-size: 100rpx;
+  animation: float 3s ease-in-out infinite;
+}
+
+@keyframes float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-20rpx); }
+}
+
+.stars {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+}
+
+.star {
+  position: absolute;
+  font-size: 40rpx;
+  animation: twinkle 2s ease-in-out infinite;
+}
+
+.star:nth-child(1) {
+  top: 20%;
+  left: 20%;
+  animation-delay: 0s;
+}
+
+.star:nth-child(2) {
+  top: 40%;
+  right: 15%;
+  animation-delay: 0.7s;
+}
+
+.star:nth-child(3) {
+  bottom: 30%;
+  left: 60%;
+  animation-delay: 1.4s;
+}
+
+@keyframes twinkle {
+  0%, 100% { opacity: 0.3; transform: scale(1); }
+  50% { opacity: 1; transform: scale(1.2); }
+}
+
+/* 标题�?*/
+.page-header {
+  text-align: center;
+  margin-bottom: 30rpx;
+}
+
+.page-title {
+  display: block;
+  font-size: 48rpx;
+  font-weight: bold;
+  color: #ffffff;
+  margin-bottom: 10rpx;
+  text-shadow: 0 2rpx 10rpx rgba(0, 0, 0, 0.3);
+}
+
+.page-subtitle {
+  display: block;
+  font-size: 26rpx;
+  color: rgba(255, 255, 255, 0.8);
+}
+
+/* 统计卡片 */
+.stats-card {
+  background: rgba(255, 255, 255, 0.15);
+  backdrop-filter: blur(20rpx);
+  border-radius: 30rpx;
+  padding: 30rpx;
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  margin-bottom: 30rpx;
+  border: 1rpx solid rgba(255, 255, 255, 0.2);
+}
+
+.stat-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.stat-value {
+  font-size: 36rpx;
+  font-weight: bold;
+  color: #ffffff;
+  margin-bottom: 8rpx;
+}
+
+.stat-label {
+  font-size: 24rpx;
+  color: rgba(255, 255, 255, 0.7);
+}
+
+.stat-divider {
+  width: 2rpx;
+  height: 60rpx;
+  background: rgba(255, 255, 255, 0.3);
+}
+
+/* Tab�?*/
+.tab-bar {
+  display: flex;
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(20rpx);
+  border-radius: 30rpx;
+  padding: 10rpx;
+  margin-bottom: 30rpx;
+}
+
+.tab-item {
+  flex: 1;
+  text-align: center;
+  padding: 20rpx 0;
+  font-size: 28rpx;
+  color: rgba(255, 255, 255, 0.6);
+  border-radius: 24rpx;
+  transition: all 0.3s;
+}
+
+.tab-item.active {
+  background: rgba(255, 255, 255, 0.2);
+  color: #ffffff;
+  font-weight: bold;
+}
+
+/* 内容区域 */
+.content-area {
+  min-height: 400rpx;
+}
+
+/* 梦境列表 */
+.dream-list {
+  height: 1000rpx;
+}
+
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 100rpx 0;
+}
+
+.empty-icon {
+  font-size: 120rpx;
+  margin-bottom: 20rpx;
+  opacity: 0.6;
+}
+
+.empty-text {
+  font-size: 32rpx;
+  color: rgba(255, 255, 255, 0.8);
+  margin-bottom: 10rpx;
+}
+
+.empty-tip {
+  font-size: 26rpx;
+  color: rgba(255, 255, 255, 0.5);
+}
+
+/* 梦境卡片 */
+.dream-card {
+  background: rgba(255, 255, 255, 0.12);
+  backdrop-filter: blur(20rpx);
+  border-radius: 30rpx;
+  padding: 30rpx;
+  margin-bottom: 20rpx;
+  border: 1rpx solid rgba(255, 255, 255, 0.2);
+}
+
+.dream-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20rpx;
+}
+
+.dream-date {
+  display: flex;
+  flex-direction: column;
+}
+
+.date-main {
+  font-size: 30rpx;
+  color: #ffffff;
+  font-weight: bold;
+}
+
+.date-time {
+  font-size: 24rpx;
+  color: rgba(255, 255, 255, 0.6);
+  margin-top: 5rpx;
+}
+
+.emotion-badge {
+  padding: 10rpx 20rpx;
+  border-radius: 20rpx;
+  font-size: 24rpx;
+  font-weight: bold;
+}
+
+/* 情感徽章颜色 - 通过class动态设�?*/
+
+.dream-content {
+  margin-bottom: 20rpx;
+}
+
+.dream-text {
+  font-size: 28rpx;
+  color: rgba(255, 255, 255, 0.9);
+  line-height: 1.6;
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.dream-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10rpx;
+  margin-bottom: 20rpx;
+}
+
+.tag {
+  padding: 8rpx 16rpx;
+  background: rgba(255, 255, 255, 0.15);
+  border-radius: 20rpx;
+  font-size: 22rpx;
+  color: rgba(255, 255, 255, 0.8);
+}
+
+.dream-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-top: 20rpx;
+  border-top: 1rpx solid rgba(255, 255, 255, 0.1);
+}
+
+.mood-score {
+  font-size: 24rpx;
+  color: rgba(255, 255, 255, 0.6);
+}
+
+.favorite-icon {
+  font-size: 40rpx;
+  color: rgba(255, 255, 255, 0.4);
+  transition: all 0.3s;
+}
+
+.favorite-icon.active {
+  color: #ffa94d;
+  transform: scale(1.2);
+}
+
+/* 月历视图 */
+.calendar-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 30rpx;
+  background: rgba(255, 255, 255, 0.12);
+  backdrop-filter: blur(20rpx);
+  border-radius: 30rpx;
+  margin-bottom: 20rpx;
+}
+
+.calendar-nav {
+  font-size: 32rpx;
+  color: #ffffff;
+  padding: 10rpx 20rpx;
+}
+
+.calendar-title {
+  font-size: 32rpx;
+  font-weight: bold;
+  color: #ffffff;
+}
+
+.calendar-grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 10rpx;
+  background: rgba(255, 255, 255, 0.12);
+  backdrop-filter: blur(20rpx);
+  border-radius: 30rpx;
+  padding: 20rpx;
+  margin-bottom: 20rpx;
+}
+
+.calendar-weekday {
+  text-align: center;
+  padding: 15rpx 0;
+  font-size: 24rpx;
+  color: rgba(255, 255, 255, 0.6);
+  font-weight: bold;
+}
+
+.calendar-day {
+  position: relative;
+  aspect-ratio: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 15rpx;
+  font-size: 26rpx;
+  color: rgba(255, 255, 255, 0.8);
+}
+
+.calendar-day.has-dream {
+  background: rgba(255, 169, 77, 0.2);
+  color: #ffa94d;
+  font-weight: bold;
+}
+
+.calendar-day.today {
+  background: rgba(255, 255, 255, 0.3);
+  color: #ffffff;
+  font-weight: bold;
+}
+
+.calendar-day.other-month {
+  opacity: 0.3;
+}
+
+.dream-dot {
+  position: absolute;
+  bottom: 5rpx;
+  width: 8rpx;
+  height: 8rpx;
+  background: #ffa94d;
+  border-radius: 50%;
+}
+
+.calendar-legend {
+  display: flex;
+  justify-content: center;
+  gap: 40rpx;
+  padding: 20rpx;
+}
+
+.legend-item {
+  display: flex;
+  align-items: center;
+  gap: 10rpx;
+  font-size: 24rpx;
+  color: rgba(255, 255, 255, 0.7);
+}
+
+.legend-dot {
+  width: 20rpx;
+  height: 20rpx;
+  border-radius: 50%;
+}
+
+.legend-dot.has-dream {
+  background: rgba(255, 169, 77, 0.5);
+}
+
+.legend-dot.today {
+  background: rgba(255, 255, 255, 0.5);
+}
+
+/* 统计视图 */
+.stats-section {
+  background: rgba(255, 255, 255, 0.12);
+  backdrop-filter: blur(20rpx);
+  border-radius: 30rpx;
+  padding: 30rpx;
+  margin-bottom: 20rpx;
+}
+
+.section-title {
+  display: block;
+  font-size: 32rpx;
+  font-weight: bold;
+  color: #ffffff;
+  margin-bottom: 20rpx;
+}
+
+.emotion-chart {
+  display: flex;
+  flex-direction: column;
+  gap: 20rpx;
+}
+
+.emotion-bar-item {
+  display: flex;
+  align-items: center;
+  gap: 15rpx;
+}
+
+.emotion-label {
+  width: 120rpx;
+  display: flex;
+  align-items: center;
+  gap: 10rpx;
+}
+
+.emotion-icon {
+  font-size: 28rpx;
+}
+
+.emotion-name {
+  font-size: 26rpx;
+  color: rgba(255, 255, 255, 0.8);
+}
+
+.emotion-bar-container {
+  flex: 1;
+  height: 30rpx;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 15rpx;
+  overflow: hidden;
+}
+
+.emotion-bar {
+  height: 100%;
+  border-radius: 15rpx;
+  transition: width 0.5s ease;
+}
+
+/* 情感条颜色通过JS动态设�?*/
+
+.emotion-count {
+  width: 80rpx;
+  text-align: right;
+  font-size: 24rpx;
+  color: rgba(255, 255, 255, 0.7);
+}
+
+.frequency-info {
+  display: flex;
+  gap: 20rpx;
+}
+
+.info-item {
+  flex: 1;
+  padding: 25rpx;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 20rpx;
+  text-align: center;
+}
+
+.info-label {
+  display: block;
+  font-size: 24rpx;
+  color: rgba(255, 255, 255, 0.6);
+  margin-bottom: 10rpx;
+}
+
+.info-value {
+  display: block;
+  font-size: 32rpx;
+  font-weight: bold;
+  color: #ffffff;
+}
+
+/* 新增按钮 */
+.add-button {
+  position: fixed;
+  right: 40rpx;
+  bottom: 40rpx;
+  width: 120rpx;
+  height: 120rpx;
+  background: radial-gradient(ellipse at top, #ffa94d 0%, #cc7a3d 100%);
+  border-radius: 60rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 10rpx 30rpx rgba(102, 126, 234, 0.4);
+  z-index: 100;
+}
+
+.add-icon {
+  font-size: 60rpx;
+  color: #ffffff;
+  font-weight: 300;
+}
+
+/* 加载�?*/
+.loading-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+.loading-spinner {
+  width: 80rpx;
+  height: 80rpx;
+  border: 6rpx solid rgba(255, 255, 255, 0.3);
+  border-top-color: #ffffff;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+.loading-text {
+  margin-top: 20rpx;
+  font-size: 28rpx;
+  color: #ffffff;
+}
+

@@ -1,0 +1,9 @@
+{
+  "navigationBarTitleText": "梦境日记",
+  "navigationBarBackgroundColor": "#667eea",
+  "navigationBarTextStyle": "white",
+  "enablePullDownRefresh": false,
+  "backgroundColor": "#764ba2",
+  "backgroundTextStyle": "light"
+}
+

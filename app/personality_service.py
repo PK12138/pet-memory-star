@@ -429,3 +429,42 @@ class PersonalityService:
 
 永远爱你的{pet_info['name']}
         """.strip()
+
+    def get_letter_preview(self, letter: str, preview_ratio: float = 0.3) -> str:
+        """
+        返回AI信件的预览文本，按比例或按句子截取，保证中文句子完整性为优先。
+        :param letter: 完整信件文本
+        :param preview_ratio: 预览长度占比（0-1）
+        :return: 预览字符串（必要时以...结尾）
+        """
+        if not letter:
+            return ""
+
+        try:
+            # 优先按句子拆分（中/英文标点），以保证预览不截断句子
+            import re
+            # 保留句子结尾的标点
+            sentences = [s for s in re.split(r'(?<=[。！？!?\.])\s*', letter) if s.strip()]
+            if sentences:
+                preview = ""
+                target_len = max(50, int(len(letter) * float(preview_ratio)))
+                for s in sentences:
+                    preview += s
+                    if len(preview) >= target_len:
+                        break
+                preview = preview.strip()
+            else:
+                # 兜底：按字符截断
+                cut = max(50, int(len(letter) * float(preview_ratio)))
+                preview = letter[:cut].strip()
+
+            if len(preview) < len(letter):
+                preview = preview + "..."
+            return preview
+        except Exception:
+            # 出错则简单截断返回，保证不会抛异常影响主流程
+            cut = max(50, int(len(letter) * float(preview_ratio)))
+            preview = letter[:cut].strip()
+            if len(preview) < len(letter):
+                preview += "..."
+            return preview

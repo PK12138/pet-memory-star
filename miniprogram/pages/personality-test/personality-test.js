@@ -539,15 +539,6 @@ Page({
   // 创建纪念馆
   async createMemorial() {
     const { petInfo, memorialInfo, personalityResult, answers } = this.data
-    
-    if (!memorialInfo.description.trim()) {
-      wx.showToast({
-        title: '请输入纪念馆描述',
-        icon: 'none'
-      })
-      return
-    }
-    
     this.setData({
       loading: true
     })
